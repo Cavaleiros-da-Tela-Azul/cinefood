@@ -5,12 +5,12 @@
 
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import type { Produto } from '../../src/catalogo.ts';
 import {
-  Produto,
   listarCardapioDisponivel,
   filtrarPorCategoria,
   obterDetalhesCombo
-} from '../../src/catalogo.js';
+} from '../../src/catalogo.ts';
 
 const mockCatalogo: Produto[] = [
   { id: '1', nome: 'Pipoca Grande', categoria: 'pipocas', precoCentavos: 3500, ativo: true, emEstoque: true },
