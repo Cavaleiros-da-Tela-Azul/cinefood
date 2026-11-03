@@ -1,0 +1,14 @@
+{
+  "name": "@cavaleiros-da-tela-azul/cinefood",
+  "version": "0.1.0",
+  "description": "Sistema de autoatendimento e delivery de bomboniere para cinemas",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/**/*.test.ts",
+    "check:spec": "python scripts/spec-guard.py"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.0.0"
+  }
+}

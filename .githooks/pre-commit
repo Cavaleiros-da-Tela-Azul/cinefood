@@ -1,0 +1,13 @@
+#!/bin/sh
+# Hook de pre-commit dos Cavaleiros da Tela Azul
+# Executa a barreira mecânica spec-guard antes de qualquer commit
+
+python scripts/spec-guard.py
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -ne 0 ]; then
+    echo "🚫 Commit barrado pelo guardião do contrato."
+    exit 1
+fi
+
+exit 0

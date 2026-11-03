@@ -1,0 +1,19 @@
+# Dependências
+node_modules/
+dist/
+coverage/
+
+# Variáveis sensíveis
+.env
+.env.*
+!.env.example
+
+# IDEs e editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sistema operacional
+.DS_Store
+Thumbs.db

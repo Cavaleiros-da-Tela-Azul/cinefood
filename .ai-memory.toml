@@ -1,0 +1,11 @@
+# Configuração de escopo para o ai-memory
+workspace = "cavaleiros-da-tela-azul"
+project = "cinefood"
+
+[privacy]
+ignore_paths = [
+  ".env*",
+  "secrets/**",
+  "node_modules/**",
+  "dist/**"
+]
