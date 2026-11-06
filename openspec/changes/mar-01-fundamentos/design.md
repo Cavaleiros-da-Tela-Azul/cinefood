@@ -32,6 +32,10 @@ Primeira entrega técnica do CineFood no modelo Monólito Modular (`ADR-001`) so
 * **Decisão:** Schemas gerenciados via migrations SQL reproduzíveis (`001_initial_schema.sql`).
 * **Justificativa:** Garantia de integridade referencial nativa no PostgreSQL (chaves estrangeiras, constraints de unicidade em e-mail e identificadores de assentos).
 
+### 4. Identidade Visual Dark-First, Tokens de UI e Acessibilidade (WCAG 2.2 AA)
+* **Decisão:** Adotar identidade visual *Dark-First* com alto contraste (`>= 4.5:1`), indicadores visuais redundantes (cor + ícone/forma + rótulo textual) para os estados das poltronas (`DISPONIVEL`, `RESERVADO`, `OCUPADO`) e navegação completa por teclado/leitor de tela (`RNF-04`).
+* **Justificativa:** Tanto espectadores quanto o *Runner* utilizam o aplicativo dentro da sala de exibição escura (`RF-09`), exigindo baixa emissão luminosa periférica sem comprometer legibilidade e acessibilidade.
+
 ## Risks / Trade-offs
 
 * **[Risco: Tentativa de Acesso Cruzado ou Falsificação de Papel]** → Middleware de autorização valida assinatura criptográfica do token e rejeita tokens expirados/adulterados (`RNF-02`).

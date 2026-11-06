@@ -1,9 +1,10 @@
 # Tasks: MAR-01 Fundamentos (Conta, Catálogo e LGPD)
 
-## 1. Estrutura Base e Persistência
+## 1. Estrutura Base, Identidade Visual (UI/UX) e Persistência
 
-- [ ] 1.1 Estruturar diretórios modulares em `src/modules/{identity, catalog, privacy}` e definir contratos de interfaces compartilhadas.
-- [ ] 1.2 Criar script de schema relacional e dados sementes para papéis, salas, filmes e poltronas.
+- [ ] 1.1 Definir Identidade Visual *Dark-First*, Design Tokens (cores, tipografia, espaçamento, estados de assento com contraste >= 4.5:1 WCAG 2.2 AA) e protótipo navegável no Figma (`EAP 1.1.1` / `RNF-04`).
+- [ ] 1.2 Estruturar diretórios modulares em `src/modules/{identity, catalog, privacy}` e definir contratos de interfaces compartilhadas.
+- [ ] 1.3 Criar script de schema relacional e dados sementes para papéis, salas, filmes e poltronas.
 
 ## 2. Identidade, Autenticação e RBAC (RF-01 / AC-1, AC-2)
 

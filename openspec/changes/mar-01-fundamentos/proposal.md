@@ -7,6 +7,7 @@ O Marco MAR-01 (Semanas 1 a 6 do ciclo ISO/IEC/IEEE 12207:2021) é a pedra funda
 * **Conta e Acesso (`RF-01` / `CMP-01`):** Endpoints e regras de cadastro de usuário, autenticação segura com JWT/cookies protegidos, hashing de senhas (Argon2/bcrypt), recuperação de credenciais e validação de papéis de sistema (`CLIENTE`, `OPERADOR_PORTARIA`, `OPERADOR_CANTINA`, `RUNNER`, `ADMIN_CINEMA`).
 * **Programação e Catálogo (`RF-02` / `CMP-02`):** Consulta estruturada de filmes em cartaz, sinopses, classificação indicativa, salas, horários de sessões, valores-base de ingressos e estado em tempo real do mapa de poltronas da sala.
 * **Transparência e Preferências LGPD (`RF-17` / `CMP-01`, `CMP-06`):** Disponibilização de aviso de privacidade com finalidades de uso e base legal antes da coleta de dados, com separação e registro explícito de consentimentos opcionais.
+* **Identidade Visual, Design System e Prototipação Figma (`EAP 1.1.1` / `RNF-04` / `role:RI`):** Definição da paleta visual *Dark-First* (pensada para uso em sala escura sem ofuscamento), tokens semânticos de estado de poltronas (`DISPONIVEL`, `RESERVADO`, `OCUPADO`), tipografia, contraste mínimo `4.5:1` (WCAG 2.2 Nível AA) e protótipo navegável no Figma para Web e Android.
 
 ## Capabilities
 
