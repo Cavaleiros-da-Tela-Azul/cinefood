@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CineFood — Plataforma Cinematográfica & Dine-In (State of the Art)</title>
+  <title>CineFood — Multiplex & Gastronomia na Poltrona (Benchmark Global)</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -18,12 +18,12 @@
               surfaceN2: '#202430',
               surfaceN3: '#2A3040',
               border: '#2B303C',
-              primary: '#00E054', // High-contrast green (Letterboxd / Cinépolis standard, 9.8:1 contrast)
+              primary: '#00E054', // High-contrast green (Letterboxd standard, 9.8:1 contrast)
               primaryText: '#0D0E12',
-              culinary: '#F59E0B', // Warm Amber (Alamo PMS 7409 & Everyman brass hospitality)
+              culinary: '#F59E0B', // Warm Amber (Alamo Drafthouse PMS 7409 & Everyman brass)
               culinaryDark: '#D97706',
               brand: '#E50914',   // Cinema red
-              accessible: '#2563EB', // Blue PCD (WCAG)
+              accessible: '#2563EB', // Blue PCD (WCAG 2.2 AA)
               focusRing: '#60A5FA',
               alert: '#EF4444',
               textPrimary: '#F0F2F5',
@@ -46,9 +46,12 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap');
     :root {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, sans-serif;
+    }
+    .font-marquee {
+      font-family: 'Space Grotesk', sans-serif;
     }
     body {
       background-color: #0D0E12;
@@ -64,13 +67,13 @@
       border-color: #1a1a1a !important;
     }
     body.in-theater-mode .theater-dim {
-      opacity: 0.55 !important;
+      opacity: 0.5 !important;
     }
     .poster-keyline {
       box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 10px 30px -10px rgba(0, 0, 0, 0.8);
     }
     .screen-arc {
-      background: radial-gradient(ellipse at top, rgba(255, 255, 255, 0.18) 0%, rgba(13, 14, 18, 0) 75%);
+      background: radial-gradient(ellipse at top, rgba(255, 255, 255, 0.22) 0%, rgba(13, 14, 18, 0) 75%);
     }
     .date-strip-scroll {
       scroll-snap-type: x mandatory;
@@ -96,36 +99,49 @@
   <!-- TOP APP BAR -->
   <header class="sticky top-0 z-40 bg-cine-canvas/90 backdrop-blur-md border-b border-cine-border px-4 lg:px-8 py-3 flex items-center justify-between transition-colors">
     <div class="flex items-center gap-6">
-      <div class="flex items-center gap-2.5 cursor-pointer" onclick="switchView('catalog')">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cine-brand to-amber-500 flex items-center justify-center shadow-lg shadow-cine-brand/20">
-          <i data-lucide="clapperboard" class="w-5 h-5 text-white"></i>
+      <!-- BESPOKE BRAND LOGOMARK (CINEFOOD DINE-IN MARQUEE) -->
+      <div class="flex items-center gap-3 cursor-pointer group" onclick="switchView('catalog'); setDualEntry('movie');">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-cine-brand flex items-center justify-center shadow-lg shadow-amber-500/20 ring-1 ring-amber-400/40 group-hover:scale-105 transition duration-200">
+          <i data-lucide="utensils" class="w-5 h-5 text-white"></i>
         </div>
         <div>
-          <span class="text-xl font-black tracking-tight text-white flex items-center gap-1.5">
-            CineFood
-            <span class="text-[9px] px-1.5 py-0.5 rounded bg-cine-brand/20 text-cine-brand font-bold border border-cine-brand/40 uppercase">Dine-In</span>
+          <div class="flex items-center gap-2">
+            <span class="text-2xl font-black tracking-tight text-white font-marquee leading-none">
+              CINE<span class="text-amber-400">FOOD</span>
+            </span>
+            <span class="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-extrabold border border-amber-500/40 uppercase tracking-widest">
+              Dine-In Club
+            </span>
+          </div>
+          <span class="block text-[10px] text-zinc-400 font-medium tracking-wide mt-0.5">
+            Multiplex & Alta Gastronomia na Poltrona
           </span>
-          <span class="block text-[9px] text-cine-textSecondary font-medium tracking-wide">Multiplex & Gastronomia na Poltrona</span>
         </div>
       </div>
 
-      <!-- DUAL ENTRY PARADIGM (POR FILME / POR CINEMA) -->
-      <div class="hidden md:flex items-center p-0.5 rounded-xl bg-cine-surfaceN1 border border-cine-border text-xs font-semibold">
+      <!-- DUAL ENTRY PARADIGM: POR FILME VS. POR COMPLEXO -->
+      <div class="hidden lg:flex items-center p-0.5 rounded-xl bg-cine-surfaceN1 border border-cine-border text-xs font-semibold">
         <button id="entry-by-movie" onclick="setDualEntry('movie')" class="px-3.5 py-1.5 rounded-lg bg-cine-surfaceN2 text-white font-bold shadow-sm flex items-center gap-1.5 transition">
           <i data-lucide="film" class="w-3.5 h-3.5 text-cine-primary"></i> Por Filme
         </button>
         <button id="entry-by-cinema" onclick="setDualEntry('cinema')" class="px-3.5 py-1.5 rounded-lg text-cine-textSecondary hover:text-white flex items-center gap-1.5 transition">
-          <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Por Complexo
+          <i data-lucide="map-pin" class="w-3.5 h-3.5 text-amber-400"></i> Por Complexo / Shopping
         </button>
       </div>
     </div>
 
-    <!-- UTILITY ACTIONS -->
-    <div class="flex items-center gap-3">
+    <!-- UTILITY ACTIONS & SHORTCUTS -->
+    <div class="flex items-center gap-2.5">
+      <!-- Direct Concession Menu Shortcut -->
+      <button onclick="openConcessionDrawer()" class="px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-xs text-amber-300 font-bold flex items-center gap-1.5 transition shadow-sm" title="Explorar cardápio gastronômico de poltrona">
+        <i data-lucide="utensils-crossed" class="w-3.5 h-3.5 text-amber-400"></i>
+        <span class="hidden sm:inline">Cardápio de Poltrona</span>
+      </button>
+
       <!-- In-Theater Dark UI Toggle (Sony/Alamo Drafthouse AFCA Protocol) -->
       <button id="btn-theater-mode" onclick="toggleTheaterMode()" class="px-3 py-1.5 rounded-lg bg-cine-surfaceN1 hover:bg-cine-surfaceN2 border border-cine-border text-xs text-cine-textSecondary flex items-center gap-1.5 transition" title="Ativar Protocolo In-Theater (OLED absoluto para sala escura)">
         <i data-lucide="moon" class="w-3.5 h-3.5 text-amber-300"></i>
-        <span class="hidden sm:inline">Modo Sala Escura</span>
+        <span class="hidden md:inline">Modo Sala Escura</span>
       </button>
 
       <!-- LGPD Transparency Button -->
@@ -134,9 +150,9 @@
         <span class="hidden sm:inline">LGPD</span>
       </button>
 
-      <!-- User Profile Badge (RF-01) -->
+      <!-- User Profile Badge -->
       <div class="flex items-center gap-2 pl-2 border-l border-cine-border">
-        <div class="w-7 h-7 rounded-full bg-cine-primary text-cine-primaryText font-bold text-xs flex items-center justify-center">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-cine-primary to-emerald-400 text-cine-primaryText font-bold text-xs flex items-center justify-center shadow-sm">
           GA
         </div>
       </div>
@@ -150,12 +166,12 @@
     </span>
     <span>OLED absoluto (0 cd/m²), tipografia atenuada e áudio suprimido para não incomodar outros espectadores.</span>
     <button onclick="quickRepeatLastOrder()" class="px-2.5 py-1 rounded-md bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 font-bold text-[11px] flex items-center gap-1 transition">
-      <i data-lucide="repeat" class="w-3 h-3 text-cine-primary"></i> 1-Tap Reorder (Repetir Pedido)
+      <i data-lucide="repeat" class="w-3 h-3 text-cine-primary"></i> 1-Tap Reorder (Repetir Bebida/Pipoca)
     </button>
   </aside>
 
   <!-- STICKY DATE-STRIP (HORIZONTAL SCROLL-SNAP) -->
-  <nav aria-label="Seleção de Datas de Exibição" class="sticky top-[57px] z-30 bg-cine-canvas/95 backdrop-blur-md border-b border-cine-border px-4 lg:px-8 py-2">
+  <nav aria-label="Seleção de Datas de Exibição" class="sticky top-[61px] z-30 bg-cine-canvas/95 backdrop-blur-md border-b border-cine-border px-4 lg:px-8 py-2">
     <div class="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto date-strip-scroll" id="date-strip-container">
       <!-- Date Pills dynamically populated -->
     </div>
@@ -165,17 +181,62 @@
   <main id="main-content" class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-8 space-y-8">
 
     <!-- ============================================== -->
-    <!-- VIEW 1: DISCOVERY & CATALOG (EDITORIAL POSTER) -->
+    <!-- VIEW 1: CATALOG BY MOVIE (DISCOVERY POSTER-FIRST) -->
     <!-- ============================================== -->
-    <section id="view-catalog" class="space-y-8">
+    <section id="view-catalog-movie" class="space-y-8">
+
+      <!-- BRAND VALUE PROPOSITION STRIP (ALAMO & EVERYMAN DINE-IN MANIFESTO) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 p-1">
+        <div class="p-4 rounded-2xl bg-cine-surfaceN1 border border-cine-border/70 hover:border-amber-500/40 transition flex items-start gap-3.5 group">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+            <i data-lucide="bell-off" class="w-5 h-5 text-amber-400"></i>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+              Entrega Silenciosa na Poltrona
+            </h3>
+            <p class="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">
+              Agende para o início dos trailers. O garçom runner entrega na sua bandeja sem você precisar acender o celular no escuro.
+            </p>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-cine-surfaceN1 border border-cine-border/70 hover:border-amber-500/40 transition flex items-start gap-3.5 group">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+            <i data-lucide="chef-hat" class="w-5 h-5 text-amber-400"></i>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+              Cozinha de Autor & Pipoca Gourmet
+            </h3>
+            <p class="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">
+              Esqueça comida industrial requentada. Mini smash burgers em brioche, pipoca trufada e frango crocante hot honey.
+            </p>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-cine-surfaceN1 border border-cine-border/70 hover:border-amber-500/40 transition flex items-start gap-3.5 group">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+            <i data-lucide="wine" class="w-5 h-5 text-amber-400"></i>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+              Bar Silencioso & Copos Soft-Touch
+            </h3>
+            <p class="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">
+              Cervejas artesanais e vinhos servidos em taças revestidas de silicone térmico. Zero barulho de gelo ou vidro na sessão.
+            </p>
+          </div>
+        </div>
+      </div>
 
       <!-- EDITORIAL HERO (16:9 BACKDROP WITH 2:3 POSTER OVERLAY) -->
       <div class="relative rounded-3xl overflow-hidden border border-cine-border bg-cine-surfaceN1 shadow-2xl">
         <!-- Scene Backdrop with Luminance Gradient Mask -->
-        <div class="relative w-full h-[320px] lg:h-[420px] overflow-hidden">
+        <div class="relative w-full h-[360px] lg:h-[460px] overflow-hidden">
           <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1600&q=80" alt="Cena Interestelar" class="w-full h-full object-cover object-center scale-105">
           <!-- Gradient linear mask -->
-          <div class="absolute inset-0 bg-gradient-to-t from-[#0D0E12] via-[#0D0E12]/75 to-transparent"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-[#0D0E12] via-[#0D0E12]/80 to-transparent"></div>
         </div>
 
         <!-- Poster + Content Overlay -->
@@ -192,18 +253,38 @@
                 <span class="px-2.5 py-0.5 rounded text-[11px] font-black bg-amber-500 text-black">12</span>
                 <span class="px-2.5 py-0.5 rounded text-[11px] font-bold bg-cine-surfaceN2 border border-cine-border text-cine-textSecondary">169 min</span>
                 <span class="px-2.5 py-0.5 rounded text-[11px] font-bold bg-cine-brand text-white">IMAX 3D</span>
+                <span class="px-2.5 py-0.5 rounded text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1">
+                  <i data-lucide="utensils" class="w-3 h-3"></i> Menu Dine-In Ativo
+                </span>
                 <span class="px-2.5 py-0.5 rounded text-[11px] font-bold bg-cine-surfaceN2 text-emerald-400 flex items-center gap-1">
                   <i data-lucide="star" class="w-3 h-3 fill-emerald-400"></i> 4.9 (Crítica)
                 </span>
               </div>
-              <h1 class="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+
+              <h1 class="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight font-marquee">
                 Interestelar: O Retorno Cósmico
               </h1>
-              <p class="text-xs sm:text-sm text-cine-textSecondary line-clamp-2 sm:line-clamp-3 leading-relaxed">
-                Quando a sobrevivência da espécie humana é ameaçada, uma equipe de exploradores assume a missão mais importante da história: viajar além da nossa galáxia para descobrir se a humanidade tem futuro entre as estrelas.
+
+              <p class="text-xs sm:text-sm text-cine-textSecondary line-clamp-2 leading-relaxed">
+                Quando a sobrevivência da espécie humana é ameaçada, uma equipe de exploradores viaja além da galáxia para descobrir se a humanidade tem futuro entre as estrelas.
               </p>
-              <div class="flex items-center gap-3 pt-2">
-                <button onclick="openSeatSelection('Interestelar', '19:30', 'Sala 01 IMAX', 42.00)" class="px-5 py-2.5 rounded-xl bg-cine-primary text-cine-primaryText font-extrabold text-xs flex items-center gap-2 hover:opacity-95 transition shadow-lg shadow-cine-primary/20">
+
+              <!-- CHEF PAIRING CALLOUT -->
+              <div class="p-3 rounded-2xl bg-black/60 backdrop-blur-md border border-amber-500/30 flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0">
+                  <i data-lucide="sparkles" class="w-5 h-5 text-amber-400"></i>
+                </div>
+                <div class="flex-1">
+                  <span class="text-[9px] font-extrabold uppercase tracking-widest text-amber-400 block">Harmonização Sugerida para Esta Sessão</span>
+                  <p class="text-xs font-bold text-white">Combo Interestelar: Duo Mini Smash Burgers + Pipoca Trufada + Chopp IPA</p>
+                </div>
+                <button onclick="openConcessionDrawer()" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-[11px] transition shrink-0">
+                  Ver Menu
+                </button>
+              </div>
+
+              <div class="flex items-center gap-3 pt-1">
+                <button onclick="openSeatSelection('Interestelar', '19:30', 'Sala 01 VIP Dine-In', 42.00)" class="px-5 py-2.5 rounded-xl bg-cine-primary text-cine-primaryText font-extrabold text-xs flex items-center gap-2 hover:opacity-95 transition shadow-lg shadow-cine-primary/20">
                   <i data-lucide="armchair" class="w-4 h-4"></i> Escolher Assentos • 19:30
                 </button>
                 <button onclick="alert('Trailer cinematográfico em 4K HDR!')" class="px-4 py-2.5 rounded-xl bg-cine-surfaceN2 hover:bg-cine-surfaceN3 border border-cine-border text-white text-xs font-semibold flex items-center gap-1.5 transition">
@@ -215,19 +296,18 @@
         </div>
       </div>
 
-      <!-- FORMAT & EXPERIENCE TOGGLE PILLS (SEM MODAIS) -->
+      <!-- FORMAT & EXPERIENCE TOGGLE PILLS -->
       <div class="flex items-center justify-between gap-4 pb-2 border-b border-cine-border">
         <div>
           <h2 class="text-lg font-bold text-white flex items-center gap-2">
             <i data-lucide="sparkles" class="w-4 h-4 text-cine-primary"></i> Sessões Disponíveis
           </h2>
-          <p class="text-xs text-cine-textSecondary">Selecione o formato e o horário desejado com status de ocupação em tempo real</p>
+          <p class="text-xs text-cine-textSecondary">Selecione o formato e o horário com status de ocupação em tempo real</p>
         </div>
-        <!-- Filter pills -->
         <div class="flex items-center gap-1.5 overflow-x-auto text-xs font-semibold">
           <button class="px-3 py-1.5 rounded-lg bg-cine-primary text-cine-primaryText font-bold">Todos</button>
-          <button class="px-3 py-1.5 rounded-lg bg-cine-surfaceN1 hover:bg-cine-surfaceN2 text-cine-textSecondary border border-cine-border">IMAX 3D</button>
           <button class="px-3 py-1.5 rounded-lg bg-cine-surfaceN1 hover:bg-cine-surfaceN2 text-cine-textSecondary border border-cine-border">VIP Dine-In</button>
+          <button class="px-3 py-1.5 rounded-lg bg-cine-surfaceN1 hover:bg-cine-surfaceN2 text-cine-textSecondary border border-cine-border">IMAX 3D</button>
           <button class="px-3 py-1.5 rounded-lg bg-cine-surfaceN1 hover:bg-cine-surfaceN2 text-cine-textSecondary border border-cine-border">Dolby Atmos</button>
         </div>
       </div>
@@ -243,6 +323,9 @@
               <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-amber-500 text-[10px] font-black text-black">14</span>
             </div>
             <div class="space-y-1.5">
+              <div class="flex items-center gap-1.5">
+                <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">Dine-In Ativo</span>
+              </div>
               <h3 class="font-bold text-white text-base">Duna: Parte 2</h3>
               <p class="text-xs text-cine-textSecondary line-clamp-2">A ascensão profética de Paul Atreides no deserto de Arrakis em busca de vingança.</p>
               <div class="text-[11px] text-cine-textMuted">166 min • Ficção Científica</div>
@@ -252,14 +335,13 @@
             </div>
           </div>
 
-          <!-- Showtimes Cards with Occupancy Bar -->
           <div class="mt-4 pt-4 border-t border-cine-border space-y-2">
             <span class="text-[10px] font-bold uppercase tracking-wider text-cine-textMuted">Horários Hoje:</span>
             <div class="grid grid-cols-2 gap-2">
-              <button onclick="openSeatSelection('Duna: Parte 2', '16:00', 'Sala 02 VIP', 44.00)" class="p-2.5 rounded-xl bg-cine-surfaceN2 hover:border-cine-primary border border-cine-border text-left transition group">
+              <button onclick="openSeatSelection('Duna: Parte 2', '16:00', 'Sala 02 VIP Dine-In', 44.00)" class="p-2.5 rounded-xl bg-cine-surfaceN2 hover:border-cine-primary border border-cine-border text-left transition group">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-black text-white group-hover:text-cine-primary">16:00</span>
-                  <span class="text-[9px] font-bold text-cine-textMuted uppercase">VIP DUB</span>
+                  <span class="text-[9px] font-bold text-amber-400 uppercase">VIP DUB</span>
                 </div>
                 <div class="mt-1.5 w-full bg-cine-surfaceN3 h-1.5 rounded-full overflow-hidden">
                   <div class="bg-emerald-400 h-full rounded-full" style="width: 45%"></div>
@@ -267,7 +349,7 @@
                 <span class="text-[9px] text-cine-textMuted block mt-1">45% ocupado</span>
               </button>
 
-              <button onclick="openSeatSelection('Duna: Parte 2', '19:45', 'Sala 01 IMAX', 48.00)" class="p-2.5 rounded-xl bg-cine-surfaceN2 hover:border-cine-primary border border-cine-border text-left transition group">
+              <button onclick="openSeatSelection('Duna: Parte 2', '19:45', 'Sala 01 IMAX 3D', 48.00)" class="p-2.5 rounded-xl bg-cine-surfaceN2 hover:border-cine-primary border border-cine-border text-left transition group">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-black text-white group-hover:text-cine-primary">19:45</span>
                   <span class="text-[9px] font-bold text-cine-textMuted uppercase">IMAX LEG</span>
@@ -289,6 +371,9 @@
               <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-cine-brand text-[10px] font-black text-white">16</span>
             </div>
             <div class="space-y-1.5">
+              <div class="flex items-center gap-1.5">
+                <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">Dine-In Ativo</span>
+              </div>
               <h3 class="font-bold text-white text-base">Neon Horizon 2099</h3>
               <p class="text-xs text-cine-textSecondary line-clamp-2">No coração de Neo-Tóquio, uma inteligência artificial decide desafiar as corporações.</p>
               <div class="text-[11px] text-cine-textMuted">132 min • Ação / Cyberpunk</div>
@@ -372,6 +457,220 @@
         </article>
 
       </div>
+
+      <!-- GASTRONOMIC DINE-IN SHOWCASE SECTION ON HOMEPAGE -->
+      <section class="mt-12 pt-8 border-t border-cine-border space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 uppercase tracking-widest">
+                Gastronomia de Poltrona
+              </span>
+              <span class="text-xs text-zinc-400">Atendimento Silencioso VIP</span>
+            </div>
+            <h2 class="text-2xl font-black text-white tracking-tight mt-1 font-marquee">
+              O Cardápio de Cinema CineFood
+            </h2>
+          </div>
+          <button onclick="openConcessionDrawer()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs transition flex items-center gap-2 self-start sm:self-auto">
+            <i data-lucide="utensils" class="w-4 h-4"></i> Explorar Cardápio Completo da Cantina
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Food Card 1 -->
+          <div class="p-4 rounded-2xl bg-cine-surfaceN1 border border-cine-border hover:border-amber-500/40 transition flex flex-col justify-between group">
+            <div class="space-y-3">
+              <div class="w-full h-36 rounded-xl bg-black overflow-hidden relative border border-white/5">
+                <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80" alt="Burgers" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-amber-500 text-black font-black text-[9px] uppercase">Mais Pedido</span>
+              </div>
+              <h3 class="font-bold text-white text-sm">Duo Mini Smash Burgers</h3>
+              <p class="text-xs text-cine-textSecondary leading-relaxed">Dois mini burgers em pão brioche macio, cheddar inglês e maionese defumada.</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-cine-border flex items-center justify-between">
+              <span class="font-mono font-black text-amber-400 text-sm">R$ 38,00</span>
+              <button onclick="addConcessionItem('Duo Mini Smash Burgers', 38.00)" class="px-3 py-1.5 rounded-lg bg-cine-surfaceN2 hover:bg-amber-500 hover:text-black text-white text-xs font-bold transition">
+                + Adicionar
+              </button>
+            </div>
+          </div>
+
+          <!-- Food Card 2 -->
+          <div class="p-4 rounded-2xl bg-cine-surfaceN1 border border-cine-border hover:border-amber-500/40 transition flex flex-col justify-between group">
+            <div class="space-y-3">
+              <div class="w-full h-36 rounded-xl bg-black overflow-hidden relative border border-white/5">
+                <img src="https://images.unsplash.com/photo-1585647347384-2593bc35786b?auto=format&fit=crop&w=400&q=80" alt="Pipoca Ninho" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-purple-500 text-white font-black text-[9px] uppercase">Hit Brasileiro</span>
+              </div>
+              <h3 class="font-bold text-white text-sm">Pipoca Doce Ninho & Nutella</h3>
+              <p class="text-xs text-cine-textSecondary leading-relaxed">Pipoca artesanal caramelizada com camada generosa de leite ninho e calda de avelã.</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-cine-border flex items-center justify-between">
+              <span class="font-mono font-black text-amber-400 text-sm">R$ 29,00</span>
+              <button onclick="addConcessionItem('Pipoca Ninho & Nutella', 29.00)" class="px-3 py-1.5 rounded-lg bg-cine-surfaceN2 hover:bg-amber-500 hover:text-black text-white text-xs font-bold transition">
+                + Adicionar
+              </button>
+            </div>
+          </div>
+
+          <!-- Food Card 3 -->
+          <div class="p-4 rounded-2xl bg-cine-surfaceN1 border border-cine-border hover:border-amber-500/40 transition flex flex-col justify-between group">
+            <div class="space-y-3">
+              <div class="w-full h-36 rounded-xl bg-black overflow-hidden relative border border-white/5">
+                <img src="https://images.unsplash.com/photo-1578849278619-e73505e9610f?auto=format&fit=crop&w=400&q=80" alt="Pipoca Trufada" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-emerald-500 text-black font-black text-[9px] uppercase">Chef Signature</span>
+              </div>
+              <h3 class="font-bold text-white text-sm">Pipoca Trufada c/ Parmesão</h3>
+              <p class="text-xs text-cine-textSecondary leading-relaxed">Azeite de trufas brancas importado, queijo parmesão reggiano e flor de sal.</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-cine-border flex items-center justify-between">
+              <span class="font-mono font-black text-amber-400 text-sm">R$ 28,00</span>
+              <button onclick="addConcessionItem('Pipoca Trufada c/ Parmesão', 28.00)" class="px-3 py-1.5 rounded-lg bg-cine-surfaceN2 hover:bg-amber-500 hover:text-black text-white text-xs font-bold transition">
+                + Adicionar
+              </button>
+            </div>
+          </div>
+
+          <!-- Food Card 4 -->
+          <div class="p-4 rounded-2xl bg-cine-surfaceN1 border border-cine-border hover:border-amber-500/40 transition flex flex-col justify-between group">
+            <div class="space-y-3">
+              <div class="w-full h-36 rounded-xl bg-black overflow-hidden relative border border-white/5">
+                <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=400&q=80" alt="Cerveja Silenciosa" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-blue-500 text-white font-black text-[9px] uppercase">Anti-Ruído</span>
+              </div>
+              <h3 class="font-bold text-white text-sm">Chopp IPA (Copo Soft-Touch)</h3>
+              <p class="text-xs text-cine-textSecondary leading-relaxed">Cerveja artesanal servida em copo térmico revestido de silicone que abafa ruídos de gelo.</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-cine-border flex items-center justify-between">
+              <span class="font-mono font-black text-amber-400 text-sm">R$ 26,00</span>
+              <button onclick="addConcessionItem('Chopp IPA Copo Soft-Touch', 26.00)" class="px-3 py-1.5 rounded-lg bg-cine-surfaceN2 hover:bg-amber-500 hover:text-black text-white text-xs font-bold transition">
+                + Adicionar
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </section>
+
+    <!-- ============================================== -->
+    <!-- VIEW 1B: CATALOG BY CINEMA COMPLEX (BRAZILIAN BENCHMARK) -->
+    <!-- ============================================== -->
+    <section id="view-catalog-cinema" class="space-y-8 hidden">
+      <div class="space-y-2">
+        <h2 class="text-2xl font-black text-white font-marquee flex items-center gap-2">
+          <i data-lucide="building" class="w-6 h-6 text-amber-400"></i> Escolha seu Complexo CineFood
+        </h2>
+        <p class="text-xs text-cine-textSecondary">Selecione o shopping center ou complexo para ver as salas VIP com serviço de entrega na poltrona</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Complex 1: Shopping Iguatemi SP -->
+        <article class="bg-cine-surfaceN1 border border-cine-border hover:border-amber-500/40 rounded-3xl p-6 flex flex-col justify-between space-y-4 shadow-xl">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-0.5 rounded text-[10px] font-black bg-amber-500 text-black uppercase">Salas VIP Prime</span>
+              <span class="text-xs font-bold text-amber-400 flex items-center gap-1">★ 4.9 (Shopping Iguatemi)</span>
+            </div>
+            <h3 class="text-xl font-bold text-white font-marquee">CineFood Prime — Iguatemi SP</h3>
+            <p class="text-xs text-zinc-400 flex items-center gap-1.5">
+              <i data-lucide="map-pin" class="w-4 h-4 text-amber-400 shrink-0"></i> Av. Brg. Faria Lima, 2232 - Jardim Paulistano
+            </p>
+            <div class="flex flex-wrap gap-1.5 pt-2">
+              <span class="px-2 py-0.5 rounded bg-cine-surfaceN2 text-[10px] font-semibold text-zinc-300">🛋️ Poltronas Reclináveis Duplas</span>
+              <span class="px-2 py-0.5 rounded bg-cine-surfaceN2 text-[10px] font-semibold text-zinc-300">🍽️ Garçom Runner</span>
+              <span class="px-2 py-0.5 rounded bg-cine-surfaceN2 text-[10px] font-semibold text-zinc-300">🚗 Valet Cortesia</span>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-cine-border space-y-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Sessões Disponíveis Hoje:</span>
+            <div class="space-y-2">
+              <button onclick="openSeatSelection('Interestelar', '19:30', 'Iguatemi SP • Sala 01 VIP', 42.00)" class="w-full p-2.5 rounded-xl bg-cine-surfaceN2 hover:border-cine-primary border border-cine-border text-left transition flex items-center justify-between">
+                <div>
+                  <span class="text-xs font-black text-white">Interestelar: O Retorno Cósmico</span>
+                  <span class="text-[10px] text-zinc-400 block">19:30 • Sala 01 VIP (Love Seats)</span>
+                </div>
+                <span class="text-xs font-bold text-cine-primary">R$ 42,00 ➔</span>
+              </button>
+              <button onclick="openSeatSelection('Duna: Parte 2', '20:30', 'Iguatemi SP • Sala 02 VIP', 44.00)" class="w-full p-2.5 rounded-xl bg-cine-surfaceN2 hover:border-cine-primary border border-cine-border text-left transition flex items-center justify-between">
+                <div>
+                  <span class="text-xs font-black text-white">Duna: Parte 2</span>
+                  <span class="text-[10px] text-zinc-400 block">20:30 • Sala 02 VIP (Dine-In)</span>
+                </div>
+                <span class="text-xs font-bold text-cine-primary">R$ 44,00 ➔</span>
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- Complex 2: Morumbi -->
+        <article class="bg-cine-surfaceN1 border border-cine-border hover:border-amber-500/40 rounded-3xl p-6 flex flex-col justify-between space-y-4 shadow-xl">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-0.5 rounded text-[10px] font-black bg-cine-brand text-white uppercase">IMAX Laser 3D</span>
+              <span class="text-xs font-bold text-amber-400 flex items-center gap-1">★ 4.8 (MorumbiShopping)</span>
+            </div>
+            <h3 class="text-xl font-bold text-white font-marquee">CineFood IMAX — Morumbi</h3>
+            <p class="text-xs text-zinc-400 flex items-center gap-1.5">
+              <i data-lucide="map-pin" class="w-4 h-4 text-amber-400 shrink-0"></i> Av. Roque Petroni Júnior, 1089 - Chácara Santo Antônio
+            </p>
+            <div class="flex flex-wrap gap-1.5 pt-2">
+              <span class="px-2 py-0.5 rounded bg-cine-surfaceN2 text-[10px] font-semibold text-zinc-300">📐 Tela Gigante de 24m</span>
+              <span class="px-2 py-0.5 rounded bg-cine-surfaceN2 text-[10px] font-semibold text-zinc-300">🔊 Som Dolby Atmos 64</span>
+              <span class="px-2 py-0.5 rounded bg-cine-surfaceN2 text-[10px] font-semibold text-zinc-300">⚡ Balcão Express</span>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-cine-border space-y-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Sessões Disponíveis Hoje:</span>
+            <div class="space-y-2">
+              <button onclick="openSeatSelection('Interestelar', '21:00', 'Morumbi • Sala 01 IMAX', 48.00)" class="w-full p-2.5 rounded-xl bg-cine-surfaceN2 hover:border-cine-primary border border-cine-border text-left transition flex items-center justify-between">
+                <div>
+                  <span class="text-xs font-black text-white">Interestelar: O Retorno Cósmico</span>
+                  <span class="text-[10px] text-zinc-400 block">21:00 • Tela IMAX Laser</span>
+                </div>
+                <span class="text-xs font-bold text-cine-primary">R$ 48,00 ➔</span>
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- Complex 3: JK Iguatemi -->
+        <article class="bg-cine-surfaceN1 border border-cine-border hover:border-amber-500/40 rounded-3xl p-6 flex flex-col justify-between space-y-4 shadow-xl">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-0.5 rounded text-[10px] font-black bg-purple-600 text-white uppercase">Lounge & Coquetelaria</span>
+              <span class="text-xs font-bold text-amber-400 flex items-center gap-1">★ 5.0 (JK Iguatemi)</span>
+            </div>
+            <h3 class="text-xl font-bold text-white font-marquee">CineFood Lounge — JK Iguatemi</h3>
+            <p class="text-xs text-zinc-400 flex items-center gap-1.5">
+              <i data-lucide="map-pin" class="w-4 h-4 text-amber-400 shrink-0"></i> Av. Pres. Juscelino Kubitschek, 2041 - Itaim Bibi
+            </p>
+            <div class="flex flex-wrap gap-1.5 pt-2">
+              <span class="px-2 py-0.5 rounded bg-cine-surfaceN2 text-[10px] font-semibold text-zinc-300">🍸 Bar de Drinks Exclusivos</span>
+              <span class="px-2 py-0.5 rounded bg-cine-surfaceN2 text-[10px] font-semibold text-zinc-300">🛋️ Sofás Aveludados</span>
+              <span class="px-2 py-0.5 rounded bg-cine-surfaceN2 text-[10px] font-semibold text-zinc-300">🍽️ Menu do Chef</span>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-cine-border space-y-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Sessões Disponíveis Hoje:</span>
+            <div class="space-y-2">
+              <button onclick="openSeatSelection('Duna: Parte 2', '19:00', 'JK Iguatemi • Lounge VIP', 52.00)" class="w-full p-2.5 rounded-xl bg-cine-surfaceN2 hover:border-cine-primary border border-cine-border text-left transition flex items-center justify-between">
+                <div>
+                  <span class="text-xs font-black text-white">Duna: Parte 2</span>
+                  <span class="text-[10px] text-zinc-400 block">19:00 • Sofás Love-Seat VIP</span>
+                </div>
+                <span class="text-xs font-bold text-cine-primary">R$ 52,00 ➔</span>
+              </button>
+            </div>
+          </div>
+        </article>
+
+      </div>
     </section>
 
     <!-- ============================================== -->
@@ -387,10 +686,10 @@
           </button>
           <div>
             <div class="flex items-center gap-2">
-              <span id="active-movie" class="text-lg lg:text-xl font-bold text-white">Interestelar: O Retorno Cósmico</span>
-              <span id="active-room" class="px-2 py-0.5 rounded text-[10px] font-black bg-cine-brand text-white">IMAX 3D</span>
+              <span id="active-movie" class="text-lg lg:text-xl font-bold text-white font-marquee">Interestelar: O Retorno Cósmico</span>
+              <span id="active-room" class="px-2 py-0.5 rounded text-[10px] font-black bg-cine-brand text-white">Sala 01 VIP Dine-In</span>
             </div>
-            <p id="active-details" class="text-xs text-cine-textSecondary">Hoje, 06/11 • 19:30 • Sala 01 • Valor Inteira: R$ 42,00</p>
+            <p id="active-details" class="text-xs text-cine-textSecondary">Hoje, 06/11 • 19:30 • Poltronas Love-Seat com Mesa Central • Inteira R$ 42,00</p>
           </div>
         </div>
 
@@ -398,8 +697,58 @@
         <div id="timer-box" class="flex items-center gap-3 px-4 py-2 rounded-xl bg-cine-surfaceN2 border border-cine-border">
           <i data-lucide="timer" class="w-4 h-4 text-cine-primary animate-pulse"></i>
           <div>
-            <span class="block text-[9px] font-bold uppercase tracking-wider text-cine-textMuted">Trava Temporária</span>
+            <span class="block text-[9px] font-bold uppercase tracking-wider text-cine-textMuted">Trava Temporária (OCC)</span>
             <div id="seat-timer" class="text-base font-mono font-black text-cine-primary">10:00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TICKET MODALITY SELECTOR (BRAZILIAN STANDARD: INTEIRA / MEIA-ENTRADA / CLUBE) -->
+      <div class="bg-cine-surfaceN1 border border-cine-border rounded-2xl p-4 lg:p-5 max-w-4xl mx-auto space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+            <i data-lucide="ticket" class="w-4 h-4 text-amber-400"></i> Modalidades de Ingresso por Assento
+          </span>
+          <span class="text-[11px] text-zinc-400">Legislação Brasileira & Clube VIP</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+          <!-- Inteira -->
+          <div class="p-3 rounded-xl bg-cine-surfaceN2 border border-cine-border flex items-center justify-between">
+            <div>
+              <span class="font-bold text-white block">Inteira</span>
+              <span id="label-price-inteira" class="text-xs text-amber-400 font-mono font-bold">R$ 42,00</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="adjustTicketType('inteira', -1)" class="w-7 h-7 rounded-lg bg-cine-surfaceN3 text-white font-bold flex items-center justify-center hover:bg-zinc-700">-</button>
+              <span id="count-inteira" class="w-5 text-center font-bold text-white">0</span>
+              <button onclick="adjustTicketType('inteira', 1)" class="w-7 h-7 rounded-lg bg-cine-surfaceN3 text-white font-bold flex items-center justify-center hover:bg-zinc-700">+</button>
+            </div>
+          </div>
+
+          <!-- Meia Entrada -->
+          <div class="p-3 rounded-xl bg-cine-surfaceN2 border border-cine-border flex items-center justify-between">
+            <div>
+              <span class="font-bold text-white block">Meia Federal (50%)</span>
+              <span id="label-price-meia" class="text-xs text-emerald-400 font-mono font-bold">R$ 21,00</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="adjustTicketType('meia', -1)" class="w-7 h-7 rounded-lg bg-cine-surfaceN3 text-white font-bold flex items-center justify-center hover:bg-zinc-700">-</button>
+              <span id="count-meia" class="w-5 text-center font-bold text-white">0</span>
+              <button onclick="adjustTicketType('meia', 1)" class="w-7 h-7 rounded-lg bg-cine-surfaceN3 text-white font-bold flex items-center justify-center hover:bg-zinc-700">+</button>
+            </div>
+          </div>
+
+          <!-- Clube VIP -->
+          <div class="p-3 rounded-xl bg-cine-surfaceN2 border border-cine-border flex items-center justify-between">
+            <div>
+              <span class="font-bold text-white block">CineFood Club (30%)</span>
+              <span id="label-price-clube" class="text-xs text-blue-400 font-mono font-bold">R$ 29,40</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="adjustTicketType('clube', -1)" class="w-7 h-7 rounded-lg bg-cine-surfaceN3 text-white font-bold flex items-center justify-center hover:bg-zinc-700">-</button>
+              <span id="count-clube" class="w-5 text-center font-bold text-white">0</span>
+              <button onclick="adjustTicketType('clube', 1)" class="w-7 h-7 rounded-lg bg-cine-surfaceN3 text-white font-bold flex items-center justify-center hover:bg-zinc-700">+</button>
+            </div>
           </div>
         </div>
       </div>
@@ -407,12 +756,12 @@
       <!-- CINEMA SCREEN (CONCAVE ARC WITH RADIAL GRADIENT) -->
       <div class="max-w-3xl mx-auto pt-4 pb-2 text-center">
         <div class="w-3/4 mx-auto h-3 rounded-t-[100%] border-t-2 border-white/40 screen-arc mb-2"></div>
-        <span class="text-[10px] uppercase font-bold tracking-[0.3em] text-cine-textMuted">TELA DE PROJEÇÃO</span>
+        <span class="text-[10px] uppercase font-bold tracking-[0.3em] text-cine-textMuted">TELA DE PROJEÇÃO CURVA</span>
       </div>
 
       <!-- SEAT GRID CONTAINER (WAI-ARIA DATA GRID, SVG SIZED BUTTONS) -->
       <div class="bg-cine-surfaceN1 border border-cine-border rounded-3xl p-6 lg:p-10 max-w-4xl mx-auto overflow-x-auto shadow-2xl">
-        <div role="grid" aria-label="Mapa de Assentos do Cinema" class="min-w-[620px] flex flex-col gap-2.5 items-center" id="grid-seats">
+        <div role="grid" aria-label="Mapa de Assentos do Cinema" class="min-w-[660px] flex flex-col gap-3.5 items-center" id="grid-seats">
           <!-- Dynamically populated via JS -->
         </div>
 
@@ -447,10 +796,10 @@
             <span class="text-blue-400">PCD Cadeirante</span>
           </div>
           <div class="flex items-center gap-2">
-            <div class="w-8 h-6 rounded-md bg-cine-accessible text-white flex items-center justify-center text-xs font-bold">
-              1.5×
+            <div class="w-5 h-5 rounded-full bg-zinc-800 border border-amber-500/40 text-amber-400 flex items-center justify-center text-[10px]">
+              🍸
             </div>
-            <span class="text-blue-400">PCD Obeso</span>
+            <span class="text-amber-300">Mesa Bistrô VIP</span>
           </div>
         </div>
       </div>
@@ -466,7 +815,7 @@
 
         <div class="flex items-center gap-5">
           <div class="text-right">
-            <span class="text-[10px] uppercase font-bold tracking-wider text-cine-textMuted block">Total Ingressos:</span>
+            <span class="text-[10px] uppercase font-bold tracking-wider text-cine-textMuted block">Total da Compra:</span>
             <span id="price-total" class="text-2xl font-mono font-black text-white">R$ 0,00</span>
           </div>
           <button id="btn-proceed" onclick="openConcessionDrawer()" disabled class="px-6 py-3 rounded-xl bg-zinc-800 text-zinc-500 font-extrabold text-xs flex items-center gap-2 cursor-not-allowed transition focus-accessible">
@@ -503,14 +852,14 @@
           <span class="text-[11px] font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
             <i data-lucide="clock" class="w-3.5 h-3.5 text-cine-culinary"></i> Quando você deseja receber na poltrona?
           </span>
-          <span class="text-[10px] text-zinc-400">Zero luz acesa na sala</span>
+          <span class="text-[10px] text-zinc-400">Zero celular aceso na sessão</span>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
           <label class="flex items-center gap-2 p-2 rounded-xl bg-cine-surfaceN2 border border-cine-primary/60 cursor-pointer">
             <input type="radio" name="delivery-timing" value="trailers" checked class="accent-cine-primary">
             <div>
               <span class="font-bold text-white block text-[11px]">Nos Trailers</span>
-              <span class="text-[9px] text-zinc-400">Recomendado (Antes do filme)</span>
+              <span class="text-[9px] text-zinc-400">Janela VIP (Antes do filme)</span>
             </div>
           </label>
           <label class="flex items-center gap-2 p-2 rounded-xl bg-cine-surfaceN2 border border-cine-border hover:border-zinc-500 cursor-pointer">
@@ -533,7 +882,7 @@
       <!-- Food Menu Items with Dark Photography -->
       <div class="space-y-3 overflow-y-auto pr-1 flex-1">
         
-        <!-- Item 1: Burger Gourmet (Everyman Spielburger inspired) -->
+        <!-- Item 1: Burger Gourmet -->
         <div class="p-3.5 rounded-2xl bg-cine-surfaceN1 border border-cine-border flex items-center justify-between gap-4">
           <div class="flex items-center gap-3.5">
             <div class="w-16 h-16 rounded-xl bg-[#121212] overflow-hidden shrink-0 border border-white/5">
@@ -553,7 +902,27 @@
           </button>
         </div>
 
-        <!-- Item 2: Pipoca Trufada -->
+        <!-- Item 2: Pipoca Ninho & Nutella (Hit Brasileiro) -->
+        <div class="p-3.5 rounded-2xl bg-cine-surfaceN1 border border-cine-border flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3.5">
+            <div class="w-16 h-16 rounded-xl bg-[#121212] overflow-hidden shrink-0 border border-white/5">
+              <img src="https://images.unsplash.com/photo-1585647347384-2593bc35786b?auto=format&fit=crop&w=200&q=80" alt="Pipoca Ninho" class="w-full h-full object-cover">
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h4 class="font-bold text-white text-sm">Pipoca Doce Ninho & Nutella</h4>
+                <span class="text-[9px] px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30">VIP Hit</span>
+              </div>
+              <p class="text-xs text-cine-textSecondary">Pipoca artesanal caramelizada com camada de leite ninho e calda de avelã</p>
+              <span class="text-xs font-mono font-black text-cine-culinary block mt-1">R$ 29,00</span>
+            </div>
+          </div>
+          <button onclick="addConcessionItem('Pipoca Ninho & Nutella', 29.00)" class="px-3.5 py-2 rounded-xl bg-cine-surfaceN3 hover:bg-cine-primary hover:text-cine-primaryText text-white text-xs font-bold transition focus-accessible shrink-0">
+            + Adicionar
+          </button>
+        </div>
+
+        <!-- Item 3: Pipoca Trufada -->
         <div class="p-3.5 rounded-2xl bg-cine-surfaceN1 border border-cine-border flex items-center justify-between gap-4">
           <div class="flex items-center gap-3.5">
             <div class="w-16 h-16 rounded-xl bg-[#121212] overflow-hidden shrink-0 border border-white/5">
@@ -573,56 +942,22 @@
           </button>
         </div>
 
-        <!-- Item 3: Crispy Hot Honey Chicken -->
+        <!-- Item 4: Chopp Silencioso -->
         <div class="p-3.5 rounded-2xl bg-cine-surfaceN1 border border-cine-border flex items-center justify-between gap-4">
           <div class="flex items-center gap-3.5">
             <div class="w-16 h-16 rounded-xl bg-[#121212] overflow-hidden shrink-0 border border-white/5">
-              <img src="https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=200&q=80" alt="Crispy Bites" class="w-full h-full object-cover">
-            </div>
-            <div>
-              <h4 class="font-bold text-white text-sm">Crispy Hot Honey Chicken Bites</h4>
-              <p class="text-xs text-cine-textSecondary">Bocados crocantes de frango marinado, mel picante e molho aioli suave</p>
-              <span class="text-xs font-mono font-black text-cine-culinary block mt-1">R$ 32,00</span>
-            </div>
-          </div>
-          <button onclick="addConcessionItem('Crispy Hot Honey Bites', 32.00)" class="px-3.5 py-2 rounded-xl bg-cine-surfaceN3 hover:bg-cine-primary hover:text-cine-primaryText text-white text-xs font-bold transition focus-accessible shrink-0">
-            + Adicionar
-          </button>
-        </div>
-
-        <!-- Item 4: Coquetelaria Silenciosa (Anti-Clinking) -->
-        <div class="p-3.5 rounded-2xl bg-cine-surfaceN1 border border-cine-border flex items-center justify-between gap-4">
-          <div class="flex items-center gap-3.5">
-            <div class="w-16 h-16 rounded-xl bg-[#121212] overflow-hidden shrink-0 border border-white/5">
-              <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=200&q=80" alt="Vinho & Coquetéis" class="w-full h-full object-cover">
+              <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=200&q=80" alt="Chopp Silencioso" class="w-full h-full object-cover">
             </div>
             <div>
               <div class="flex items-center gap-2">
-                <h4 class="font-bold text-white text-sm">Vinho Tinto Malbec (Taça Velvet Touch)</h4>
-                <span class="text-[9px] px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30">Anti-Ruído</span>
+                <h4 class="font-bold text-white text-sm">Chopp Artesanal IPA (Copo Soft-Touch)</h4>
+                <span class="text-[9px] px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30">Anti-Ruído</span>
               </div>
-              <p class="text-xs text-cine-textSecondary">Servido em taça aveludada especial para poltrona, eliminando ruídos de vidro</p>
-              <span class="text-xs font-mono font-black text-cine-culinary block mt-1">R$ 32,00</span>
-            </div>
-          </div>
-          <button onclick="addConcessionItem('Vinho Malbec Taça Velvet', 32.00)" class="px-3.5 py-2 rounded-xl bg-cine-surfaceN3 hover:bg-cine-primary hover:text-cine-primaryText text-white text-xs font-bold transition focus-accessible shrink-0">
-            + Adicionar
-          </button>
-        </div>
-
-        <!-- Item 5: Combo Completo CineFood -->
-        <div class="p-3.5 rounded-2xl bg-cine-surfaceN1 border border-cine-border flex items-center justify-between gap-4">
-          <div class="flex items-center gap-3.5">
-            <div class="w-16 h-16 rounded-xl bg-[#121212] overflow-hidden shrink-0 border border-white/5">
-              <img src="https://images.unsplash.com/photo-1585647347384-2593bc35786b?auto=format&fit=crop&w=200&q=80" alt="Combo Completo" class="w-full h-full object-cover">
-            </div>
-            <div>
-              <h4 class="font-bold text-white text-sm">Combo Pipoca Doce Caramelo & Flor de Sal</h4>
-              <p class="text-xs text-cine-textSecondary">Pipoca artesanal com caramelo toffee crocante e refrigerante artesanal 500ml</p>
+              <p class="text-xs text-cine-textSecondary">Parede dupla de isolamento térmico e revestimento siliconado que elimina barulho de gelo</p>
               <span class="text-xs font-mono font-black text-cine-culinary block mt-1">R$ 26,00</span>
             </div>
           </div>
-          <button onclick="addConcessionItem('Pipoca Caramelo Flor de Sal', 26.00)" class="px-3.5 py-2 rounded-xl bg-cine-surfaceN3 hover:bg-cine-primary hover:text-cine-primaryText text-white text-xs font-bold transition focus-accessible shrink-0">
+          <button onclick="addConcessionItem('Chopp IPA Copo Soft-Touch', 26.00)" class="px-3.5 py-2 rounded-xl bg-cine-surfaceN3 hover:bg-cine-primary hover:text-cine-primaryText text-white text-xs font-bold transition focus-accessible shrink-0">
             + Adicionar
           </button>
         </div>
@@ -643,6 +978,129 @@
         <button onclick="skipToCheckout()" class="px-6 py-2.5 rounded-xl bg-cine-primary text-cine-primaryText font-extrabold text-xs shadow-lg shadow-cine-primary/20 hover:opacity-95 transition focus-accessible">
           Finalizar Pedido & Pagamento ➔
         </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL: CHECKOUT UNIFICADO & SMART TICKET (BRAZIL) -->
+  <!-- ============================================== -->
+  <div id="modal-checkout" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="bg-cine-surfaceN2 border border-cine-border rounded-3xl max-w-xl w-full p-6 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+      
+      <!-- Checkout Header -->
+      <div class="flex items-center justify-between border-b border-cine-border pb-4">
+        <div>
+          <span class="text-[10px] uppercase font-bold tracking-wider text-cine-primary">Checkout Transparente • Sem Taxas Ocultas</span>
+          <h3 class="text-xl font-black text-white font-marquee">Revisão do Pedido</h3>
+        </div>
+        <button onclick="closeCheckoutModal()" class="w-8 h-8 rounded-lg bg-cine-surfaceN1 hover:bg-cine-surfaceN3 border border-cine-border text-zinc-400 hover:text-white flex items-center justify-center transition">✕</button>
+      </div>
+
+      <!-- Step A: Order Review -->
+      <div id="checkout-view-review" class="space-y-4">
+        <!-- Session details -->
+        <div class="p-4 rounded-2xl bg-cine-surfaceN1 border border-cine-border space-y-2">
+          <div class="flex items-center justify-between">
+            <span id="checkout-movie-title" class="font-bold text-white text-sm">Interestelar: O Retorno Cósmico</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-black bg-cine-brand text-white">VIP DINE-IN</span>
+          </div>
+          <div class="text-xs text-zinc-400 space-y-1">
+            <p>📍 Shopping Iguatemi SP • Sala 01 VIP (Love Seats)</p>
+            <p>🕒 Hoje, 06/11 às 19:30 • Poltrona(s): <span id="checkout-seats-label" class="text-white font-bold">D04, D05</span></p>
+          </div>
+        </div>
+
+        <!-- Ingressos & Bomboniere Breakdown -->
+        <div class="space-y-2 text-xs">
+          <div class="flex justify-between py-1 border-b border-cine-border/50 text-zinc-400">
+            <span>Ingressos Selecionados:</span>
+            <span id="checkout-tickets-subtotal" class="font-mono text-white font-bold">R$ 63,00</span>
+          </div>
+          <div class="flex justify-between py-1 border-b border-cine-border/50 text-zinc-400">
+            <span>Gastronomia de Poltrona (Dine-In):</span>
+            <span id="checkout-concession-subtotal" class="font-mono text-amber-400 font-bold">R$ 38,00</span>
+          </div>
+          <div class="flex justify-between py-1 border-b border-cine-border/50 text-zinc-400">
+            <span>Taxa de Conveniência CineFood:</span>
+            <span class="text-emerald-400 font-bold uppercase">Grátis (R$ 0,00)</span>
+          </div>
+          <div class="flex justify-between py-2 text-base font-bold text-white">
+            <span>Total a Pagar:</span>
+            <span id="checkout-total-price" class="font-mono font-black text-cine-primary text-xl">R$ 101,00</span>
+          </div>
+        </div>
+
+        <!-- Payment Method Tabs -->
+        <div class="space-y-3 pt-2">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-zinc-400 block">Selecione o Meio de Pagamento:</span>
+          <div class="grid grid-cols-2 gap-3">
+            <button onclick="setPaymentMethod('pix')" id="tab-pay-pix" class="p-3 rounded-xl bg-cine-surfaceN1 border-2 border-cine-primary text-white font-bold text-xs flex items-center justify-center gap-2 transition">
+              <i data-lucide="qr-code" class="w-4 h-4 text-cine-primary"></i> Pix Instantâneo
+            </button>
+            <button onclick="setPaymentMethod('card')" id="tab-pay-card" class="p-3 rounded-xl bg-cine-surfaceN1 border border-cine-border text-zinc-400 font-bold text-xs flex items-center justify-center gap-2 transition">
+              <i data-lucide="credit-card" class="w-4 h-4"></i> Cartão de Crédito
+            </button>
+          </div>
+
+          <!-- Pix Area -->
+          <div id="payment-pix-box" class="p-4 rounded-2xl bg-cine-surfaceN1 border border-cine-border text-center space-y-3">
+            <div class="w-32 h-32 bg-white p-2 rounded-xl mx-auto flex items-center justify-center shadow-md">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=CINEFOOD-PIX-PAYMENT-MOCK" alt="QR Code Pix" class="w-full h-full">
+            </div>
+            <p class="text-[11px] text-zinc-400">Escaneie o QR Code no app do seu banco ou copie o código abaixo:</p>
+            <div class="flex items-center gap-2 max-w-sm mx-auto">
+              <input type="text" readonly value="00020126580014br.gov.bcb.pix0136cinefood-pagamentos-sandbox" class="w-full bg-cine-surfaceN2 border border-cine-border px-3 py-1.5 rounded-lg text-[10px] text-zinc-300 font-mono">
+              <button onclick="alert('Código Pix copiado para a área de transferência!')" class="px-3 py-1.5 rounded-lg bg-cine-surfaceN3 hover:bg-zinc-700 text-white text-xs font-bold shrink-0">Copiar</button>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="confirmPaymentAndIssueTicket()" class="w-full py-3.5 rounded-xl bg-cine-primary hover:opacity-95 text-cine-primaryText font-extrabold text-sm shadow-xl shadow-cine-primary/25 transition flex items-center justify-center gap-2">
+          <i data-lucide="check-circle" class="w-5 h-5"></i> Pagar Agora e Emitir Smart Ticket
+        </button>
+      </div>
+
+      <!-- Step B: Smart Ticket Generated (Post-purchase success) -->
+      <div id="checkout-view-ticket" class="space-y-5 hidden text-center">
+        <div class="w-14 h-14 rounded-full bg-cine-primary/20 border-2 border-cine-primary text-cine-primary flex items-center justify-center mx-auto">
+          <i data-lucide="check" class="w-8 h-8"></i>
+        </div>
+        <div>
+          <span class="text-[10px] uppercase font-extrabold tracking-widest text-emerald-400">Pagamento Confirmado Instantaneamente</span>
+          <h4 class="text-2xl font-black text-white font-marquee mt-1">Smart Ticket CineFood</h4>
+          <p class="text-xs text-zinc-400">Apresente este QR Code na catraca de entrada e na sua poltrona</p>
+        </div>
+
+        <!-- Ticket Card -->
+        <div class="p-6 rounded-3xl bg-zinc-900 border-2 border-amber-500/40 text-left space-y-4 shadow-2xl relative overflow-hidden">
+          <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+            <span class="text-xs font-black text-amber-400 font-marquee">CINEFOOD DINE-IN</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">ACESSO LIBERADO</span>
+          </div>
+
+          <div class="flex items-center gap-5">
+            <div class="w-28 h-28 bg-white p-2 rounded-2xl shrink-0 shadow-lg">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=CINEFOOD-TICKET-AUTHORIZED" alt="QR Code Ingresso" class="w-full h-full">
+            </div>
+            <div class="space-y-1 text-xs">
+              <p class="font-bold text-white text-sm" id="ticket-movie-name">Interestelar: O Retorno Cósmico</p>
+              <p class="text-zinc-400">Sala 01 VIP Dine-In</p>
+              <p class="text-amber-400 font-bold font-mono">Poltrona(s): <span id="ticket-seats-name">D04, D05</span></p>
+              <p class="text-emerald-400 text-[11px] font-semibold">🍽️ Pedido da Cantina Agendado nos Trailers</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 pt-2">
+          <button onclick="closeCheckoutModal(); switchView('catalog');" class="px-5 py-2.5 rounded-xl bg-cine-surfaceN1 hover:bg-cine-surfaceN3 border border-cine-border text-white text-xs font-bold transition">
+            Voltar ao Início
+          </button>
+          <button onclick="alert('Ingresso adicionado à sua carteira digital!')" class="px-5 py-2.5 rounded-xl bg-cine-primary text-cine-primaryText text-xs font-extrabold shadow-md transition">
+            Salvar na Carteira Digital
+          </button>
+        </div>
       </div>
 
     </div>
@@ -671,14 +1129,21 @@
   <!-- CLIENT-SIDE SCRIPT -->
   <script>
     // State
-    const ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-    const COLS = 12;
+    const ROWS = ['A', 'B', 'C', 'D', 'E', 'F'];
+    const COLS = 8;
     let selectedSeats = new Set();
     let baseTicketPrice = 42.00;
     let concessionTotal = 0.00;
     let timerSec = 600;
     let timerInterval = null;
     let inTheaterMode = false;
+
+    // Ticket Types State
+    let ticketCounts = {
+      inteira: 0,
+      meia: 0,
+      clube: 0
+    };
 
     // Dates for Sticky Date-Strip
     const DATES = [
@@ -717,6 +1182,7 @@
       });
     }
 
+    // VIP Seat Map with Double Love-Seat Pairs & Cocktail Bistro Tables
     function initSeatGrid() {
       const container = document.getElementById('grid-seats');
       container.innerHTML = '';
@@ -724,7 +1190,7 @@
       ROWS.forEach(row => {
         const rowEl = document.createElement('div');
         rowEl.setAttribute('role', 'row');
-        rowEl.className = 'flex items-center gap-2';
+        rowEl.className = 'flex items-center gap-3';
 
         const lblL = document.createElement('span');
         lblL.className = 'w-5 text-center text-xs font-bold text-cine-textMuted';
@@ -732,78 +1198,126 @@
         rowEl.appendChild(lblL);
 
         const rowSeats = document.createElement('div');
-        rowSeats.className = 'flex items-center gap-1.5';
+        rowSeats.className = 'flex items-center gap-2';
 
-        for (let col = 1; col <= COLS; col++) {
-          if (col === 7) {
-            const gap = document.createElement('div');
-            gap.className = 'w-4';
-            rowSeats.appendChild(gap);
-          }
+        // 4 Pairs of Love Seats per row = 8 seats
+        for (let pair = 1; pair <= 4; pair++) {
+          const col1 = (pair * 2) - 1;
+          const col2 = pair * 2;
+          const seatId1 = `${row}${String(col1).padStart(2, '0')}`;
+          const seatId2 = `${row}${String(col2).padStart(2, '0')}`;
 
-          const seatId = `${row}${col}`;
-          const isOccupied = (row === 'F' && (col === 5 || col === 6)) || (row === 'D' && col === 8);
-          const isReserved = (row === 'E' && (col === 6 || col === 7));
-          const isPcdWheelchair = (row === 'A' && (col === 1 || col === 12));
-          const isPcdObese = (row === 'A' && (col === 2 || col === 11));
+          const pairWrap = document.createElement('div');
+          pairWrap.className = 'flex items-center gap-1.5 p-1 rounded-xl bg-zinc-900/60 border border-zinc-800/80';
 
-          const btn = document.createElement('button');
-          btn.id = `btn-seat-${seatId}`;
-          btn.setAttribute('role', 'gridcell');
-          btn.setAttribute('aria-label', `Fileira ${row}, Assento ${col}`);
+          pairWrap.appendChild(createSeatButton(row, col1, seatId1));
 
-          if (isOccupied) {
-            btn.className = 'w-10 h-10 rounded-lg bg-cine-seatOccupied border border-zinc-800 text-zinc-600 flex items-center justify-center cursor-not-allowed opacity-40';
-            btn.disabled = true;
-            btn.innerHTML = '<i data-lucide="x" class="w-3.5 h-3.5"></i>';
-          } else if (isReserved) {
-            btn.className = 'w-10 h-10 rounded-lg bg-cine-seatReserved border border-cine-seatReservedBorder text-amber-500 flex items-center justify-center cursor-not-allowed animate-pulse';
-            btn.disabled = true;
-            btn.innerHTML = '<i data-lucide="clock" class="w-3 h-3"></i>';
-          } else if (isPcdWheelchair) {
-            btn.className = 'w-10 h-10 rounded-lg bg-cine-accessible text-white flex items-center justify-center hover:scale-105 transition focus-accessible';
-            btn.innerHTML = '<i data-lucide="accessibility" class="w-3.5 h-3.5"></i>';
-            btn.onclick = () => toggleSeat(seatId, btn);
-          } else if (isPcdObese) {
-            btn.className = 'w-14 h-10 rounded-lg bg-cine-accessible text-white font-bold text-xs flex items-center justify-center hover:scale-105 transition focus-accessible';
-            btn.innerHTML = '1.5×';
-            btn.onclick = () => toggleSeat(seatId, btn);
-          } else {
-            btn.className = 'w-10 h-10 rounded-lg bg-cine-seatAvail border border-cine-border text-cine-textSecondary text-xs font-bold hover:border-cine-primary hover:text-white hover:scale-105 transition focus-accessible';
-            btn.textContent = col < 10 ? `0${col}` : col;
-            btn.onclick = () => toggleSeat(seatId, btn);
-          }
+          // Central Bistro Table
+          const table = document.createElement('div');
+          table.className = 'w-5 h-5 rounded-full bg-zinc-800 border border-amber-500/30 flex items-center justify-center text-[10px] text-amber-400 select-none';
+          table.title = 'Mesa Bistrô VIP para Alimentos & Bebidas';
+          table.textContent = '🍸';
+          pairWrap.appendChild(table);
 
-          rowSeats.appendChild(btn);
+          pairWrap.appendChild(createSeatButton(row, col2, seatId2));
+
+          rowSeats.appendChild(pairWrap);
         }
 
         rowEl.appendChild(rowSeats);
-
-        const lblR = document.createElement('span');
-        lblR.className = 'w-5 text-center text-xs font-bold text-cine-textMuted';
-        lblR.textContent = row;
-        rowEl.appendChild(lblR);
-
         container.appendChild(rowEl);
       });
-
       lucide.createIcons();
     }
 
+    function createSeatButton(row, col, seatId) {
+      const isOccupied = (row === 'E' && (col === 3 || col === 4)) || (row === 'C' && col === 7);
+      const isReserved = (row === 'D' && (col === 1 || col === 2));
+      const isPcdWheelchair = (row === 'A' && col === 1);
+
+      const btn = document.createElement('button');
+      btn.id = `btn-seat-${seatId}`;
+      btn.setAttribute('role', 'gridcell');
+      btn.setAttribute('aria-label', `Fileira ${row}, Assento ${col}`);
+
+      if (isOccupied) {
+        btn.className = 'w-10 h-10 rounded-lg bg-cine-seatOccupied border border-zinc-800 text-zinc-600 flex items-center justify-center cursor-not-allowed opacity-40';
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="x" class="w-3.5 h-3.5"></i>';
+      } else if (isReserved) {
+        btn.className = 'w-10 h-10 rounded-lg bg-cine-seatReserved border border-cine-seatReservedBorder text-amber-500 flex items-center justify-center cursor-not-allowed animate-pulse';
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="clock" class="w-3 h-3"></i>';
+      } else if (isPcdWheelchair) {
+        btn.className = 'w-10 h-10 rounded-lg bg-cine-accessible text-white flex items-center justify-center hover:scale-105 transition focus-accessible';
+        btn.innerHTML = '<i data-lucide="accessibility" class="w-3.5 h-3.5"></i>';
+        btn.onclick = () => toggleSeat(seatId, btn);
+      } else {
+        btn.className = 'w-10 h-10 rounded-lg bg-cine-seatAvail hover:bg-zinc-700 border border-cine-border text-cine-textSecondary font-bold text-xs flex items-center justify-center hover:scale-105 transition focus-accessible';
+        btn.textContent = String(col).padStart(2, '0');
+        btn.onclick = () => toggleSeat(seatId, btn);
+      }
+      return btn;
+    }
+
     function toggleSeat(seatId, btn) {
+      if ('vibrate' in navigator) navigator.vibrate(25);
       if (selectedSeats.has(seatId)) {
         selectedSeats.delete(seatId);
-        btn.classList.remove('bg-cine-primary', 'text-cine-primaryText', 'border-cine-primary', 'shadow-lg');
-        btn.classList.add('bg-cine-seatAvail', 'border-cine-border', 'text-cine-textSecondary');
-        btn.innerHTML = seatId.substring(1);
+        btn.className = 'w-10 h-10 rounded-lg bg-cine-seatAvail hover:bg-zinc-700 border border-cine-border text-cine-textSecondary font-bold text-xs flex items-center justify-center hover:scale-105 transition focus-accessible';
+        btn.textContent = seatId.slice(1);
       } else {
         selectedSeats.add(seatId);
-        btn.classList.remove('bg-cine-seatAvail', 'border-cine-border', 'text-cine-textSecondary');
-        btn.classList.add('bg-cine-primary', 'text-cine-primaryText', 'border-cine-primary', 'shadow-lg', 'shadow-cine-primary/20');
-        btn.innerHTML = '<i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>';
-        lucide.createIcons();
+        btn.className = 'w-10 h-10 rounded-lg bg-cine-primary text-cine-primaryText font-black flex items-center justify-center shadow-lg shadow-cine-primary/30 scale-105 transition focus-accessible';
+        btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i>';
       }
+      rebalanceTickets();
       updateSummary();
+      lucide.createIcons();
+    }
+
+    function rebalanceTickets() {
+      const totalSeats = selectedSeats.size;
+      ticketCounts.inteira = totalSeats;
+      ticketCounts.meia = 0;
+      ticketCounts.clube = 0;
+      document.getElementById('count-inteira').textContent = ticketCounts.inteira;
+      document.getElementById('count-meia').textContent = ticketCounts.meia;
+      document.getElementById('count-clube').textContent = ticketCounts.clube;
+    }
+
+    function adjustTicketType(type, delta) {
+      const current = ticketCounts[type];
+      const next = current + delta;
+      if (next < 0) return;
+
+      const otherTypes = Object.keys(ticketCounts).filter(k => k !== type);
+      const otherTotal = otherTypes.reduce((acc, k) => acc + ticketCounts[k], 0);
+
+      if (next + otherTotal > selectedSeats.size) {
+        // Find an other type to deduct
+        for (const ot of otherTypes) {
+          if (ticketCounts[ot] > 0) {
+            ticketCounts[ot]--;
+            ticketCounts[type] = next;
+            break;
+          }
+        }
+      } else {
+        ticketCounts[type] = next;
+      }
+
+      document.getElementById('count-inteira').textContent = ticketCounts.inteira;
+      document.getElementById('count-meia').textContent = ticketCounts.meia;
+      document.getElementById('count-clube').textContent = ticketCounts.clube;
+      updateSummary();
+    }
+
+    function calculateTicketsTotal() {
+      const pInteira = baseTicketPrice;
+      const pMeia = baseTicketPrice * 0.5;
+      const pClube = baseTicketPrice * 0.7;
+      return (ticketCounts.inteira * pInteira) + (ticketCounts.meia * pMeia) + (ticketCounts.clube * pClube);
     }
 
     function updateSummary() {
@@ -825,8 +1339,9 @@
           list.appendChild(badge);
         });
 
-        const total = (selectedSeats.size * baseTicketPrice) + concessionTotal;
-        totalDisplay.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+        const ticketsTotal = calculateTicketsTotal();
+        const grandTotal = ticketsTotal + concessionTotal;
+        totalDisplay.textContent = `R$ ${grandTotal.toFixed(2).replace('.', ',')}`;
 
         btnProceed.disabled = false;
         btnProceed.className = 'px-6 py-3 rounded-xl bg-cine-primary hover:opacity-95 text-cine-primaryText font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-cine-primary/25 cursor-pointer transition';
@@ -836,8 +1351,15 @@
     function openSeatSelection(movie, time, room, price) {
       baseTicketPrice = price;
       document.getElementById('active-movie').textContent = movie;
-      document.getElementById('active-details').textContent = `Hoje, 06/11 • ${time} • ${room} • Valor Inteira: R$ ${price.toFixed(2).replace('.', ',')}`;
+      document.getElementById('active-room').textContent = room;
+      document.getElementById('active-details').textContent = `Hoje, 06/11 • ${time} • ${room} • Inteira: R$ ${price.toFixed(2).replace('.', ',')}`;
+      
+      document.getElementById('label-price-inteira').textContent = `R$ ${price.toFixed(2).replace('.', ',')}`;
+      document.getElementById('label-price-meia').textContent = `R$ ${(price * 0.5).toFixed(2).replace('.', ',')}`;
+      document.getElementById('label-price-clube').textContent = `R$ ${(price * 0.7).toFixed(2).replace('.', ',')}`;
+
       selectedSeats.clear();
+      rebalanceTickets();
       initSeatGrid();
       updateSummary();
       switchView('seats');
@@ -846,7 +1368,7 @@
 
     function startTimer() {
       if (timerInterval) clearInterval(timerInterval);
-      timerSec = 600; // 10 minutes (OCC Trava)
+      timerSec = 600; // 10 minutes
       updateTimer();
 
       timerInterval = setInterval(() => {
@@ -855,6 +1377,7 @@
           clearInterval(timerInterval);
           alert('Trava temporária de 10 min expirou. Seus assentos foram liberados.');
           selectedSeats.clear();
+          rebalanceTickets();
           initSeatGrid();
           updateSummary();
         }
@@ -868,11 +1391,10 @@
       const el = document.getElementById('seat-timer');
       el.textContent = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
 
-      // Urgency state (< 2 min / 120s)
       if (timerSec <= 120) {
         el.className = 'text-base font-mono font-black text-cine-alert animate-pulse';
         if (timerSec === 120 && 'vibrate' in navigator) {
-          navigator.vibrate([100, 50, 100]); // Haptic warning
+          navigator.vibrate([100, 50, 100]);
         }
       } else {
         el.className = 'text-base font-mono font-black text-cine-primary';
@@ -880,8 +1402,30 @@
     }
 
     function switchView(view) {
-      document.getElementById('view-catalog').classList.toggle('hidden', view !== 'catalog');
+      document.getElementById('view-catalog-movie').classList.toggle('hidden', view !== 'catalog');
+      document.getElementById('view-catalog-cinema').classList.add('hidden');
       document.getElementById('view-seats').classList.toggle('hidden', view !== 'seats');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function setDualEntry(type) {
+      const btnMovie = document.getElementById('entry-by-movie');
+      const btnCinema = document.getElementById('entry-by-cinema');
+      const viewMovie = document.getElementById('view-catalog-movie');
+      const viewCinema = document.getElementById('view-catalog-cinema');
+      document.getElementById('view-seats').classList.add('hidden');
+
+      if (type === 'movie') {
+        btnMovie.className = 'px-3.5 py-1.5 rounded-lg bg-cine-surfaceN2 text-white font-bold shadow-sm flex items-center gap-1.5 transition';
+        btnCinema.className = 'px-3.5 py-1.5 rounded-lg text-cine-textSecondary hover:text-white flex items-center gap-1.5 transition';
+        viewMovie.classList.remove('hidden');
+        viewCinema.classList.add('hidden');
+      } else {
+        btnCinema.className = 'px-3.5 py-1.5 rounded-lg bg-cine-surfaceN2 text-white font-bold shadow-sm flex items-center gap-1.5 transition';
+        btnMovie.className = 'px-3.5 py-1.5 rounded-lg text-cine-textSecondary hover:text-white flex items-center gap-1.5 transition';
+        viewCinema.classList.remove('hidden');
+        viewMovie.classList.add('hidden');
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -892,11 +1436,11 @@
       const banner = document.getElementById('banner-theater-mode');
       if (inTheaterMode) {
         banner.classList.remove('hidden');
-        btn.innerHTML = '<i data-lucide="sun" class="w-3.5 h-3.5 text-cine-primary"></i> <span class="hidden sm:inline">Modo Padrão</span>';
+        btn.innerHTML = '<i data-lucide="sun" class="w-3.5 h-3.5 text-cine-primary"></i> <span class="hidden md:inline">Modo Padrão</span>';
         if ('vibrate' in navigator) navigator.vibrate(50);
       } else {
         banner.classList.add('hidden');
-        btn.innerHTML = '<i data-lucide="moon" class="w-3.5 h-3.5 text-amber-300"></i> <span class="hidden sm:inline">Modo Sala Escura</span>';
+        btn.innerHTML = '<i data-lucide="moon" class="w-3.5 h-3.5 text-amber-300"></i> <span class="hidden md:inline">Modo Sala Escura</span>';
       }
       lucide.createIcons();
     }
@@ -921,30 +1465,67 @@
     }
 
     function updateDrawerTotal() {
-      const total = (selectedSeats.size * baseTicketPrice) + concessionTotal;
-      document.getElementById('drawer-total').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+      const ticketsTotal = calculateTicketsTotal();
+      const grandTotal = ticketsTotal + concessionTotal;
+      document.getElementById('drawer-total').textContent = `R$ ${grandTotal.toFixed(2).replace('.', ',')}`;
     }
 
     function skipToCheckout() {
       document.getElementById('drawer-concession').classList.add('hidden');
-      const seatsArr = Array.from(selectedSeats).sort().join(', ');
-      alert(`[Checkout SandBox - MAR-02 / ADR-005]\n\nFilme: ${document.getElementById('active-movie').textContent}\nAssentos: ${seatsArr}\nAlimentação: R$ ${concessionTotal.toFixed(2).replace('.', ',')}\nTotal: ${document.getElementById('price-total').textContent}\n\nConforme ADR-005, o pagamento é processado sem colisão de reserva!`);
+      openCheckoutModal();
+    }
+
+    // CHECKOUT MODAL & SMART TICKET
+    function openCheckoutModal() {
+      const modal = document.getElementById('modal-checkout');
+      modal.classList.remove('hidden');
+
+      const movie = document.getElementById('active-movie').textContent;
+      const seatsArr = Array.from(selectedSeats).sort().join(', ') || 'D04, D05';
+      const ticketsTotal = calculateTicketsTotal();
+      const grandTotal = ticketsTotal + concessionTotal;
+
+      document.getElementById('checkout-movie-title').textContent = movie;
+      document.getElementById('checkout-seats-label').textContent = seatsArr;
+      document.getElementById('checkout-tickets-subtotal').textContent = `R$ ${ticketsTotal.toFixed(2).replace('.', ',')}`;
+      document.getElementById('checkout-concession-subtotal').textContent = `R$ ${concessionTotal.toFixed(2).replace('.', ',')}`;
+      document.getElementById('checkout-total-price').textContent = `R$ ${grandTotal.toFixed(2).replace('.', ',')}`;
+
+      document.getElementById('checkout-view-review').classList.remove('hidden');
+      document.getElementById('checkout-view-ticket').classList.add('hidden');
+    }
+
+    function closeCheckoutModal() {
+      document.getElementById('modal-checkout').classList.add('hidden');
+    }
+
+    function setPaymentMethod(method) {
+      const tabPix = document.getElementById('tab-pay-pix');
+      const tabCard = document.getElementById('tab-pay-card');
+      const pixBox = document.getElementById('payment-pix-box');
+
+      if (method === 'pix') {
+        tabPix.className = 'p-3 rounded-xl bg-cine-surfaceN1 border-2 border-cine-primary text-white font-bold text-xs flex items-center justify-center gap-2 transition';
+        tabCard.className = 'p-3 rounded-xl bg-cine-surfaceN1 border border-cine-border text-zinc-400 font-bold text-xs flex items-center justify-center gap-2 transition';
+        pixBox.classList.remove('hidden');
+      } else {
+        tabCard.className = 'p-3 rounded-xl bg-cine-surfaceN1 border-2 border-cine-primary text-white font-bold text-xs flex items-center justify-center gap-2 transition';
+        tabPix.className = 'p-3 rounded-xl bg-cine-surfaceN1 border border-cine-border text-zinc-400 font-bold text-xs flex items-center justify-center gap-2 transition';
+        pixBox.classList.add('hidden');
+      }
+    }
+
+    function confirmPaymentAndIssueTicket() {
+      if ('vibrate' in navigator) navigator.vibrate([60, 40, 80]);
+      document.getElementById('checkout-view-review').classList.add('hidden');
+      document.getElementById('checkout-view-ticket').classList.remove('hidden');
+
+      document.getElementById('ticket-movie-name').textContent = document.getElementById('active-movie').textContent;
+      document.getElementById('ticket-seats-name').textContent = Array.from(selectedSeats).sort().join(', ') || 'D04, D05';
     }
 
     function toggleLgpdModal(show) {
       document.getElementById('modal-lgpd').classList.toggle('hidden', !show);
-    }
-
-    function setDualEntry(type) {
-      const btnMovie = document.getElementById('entry-by-movie');
-      const btnCinema = document.getElementById('entry-by-cinema');
-      if (type === 'movie') {
-        btnMovie.className = 'px-3.5 py-1.5 rounded-lg bg-cine-surfaceN2 text-white font-bold shadow-sm flex items-center gap-1.5 transition';
-        btnCinema.className = 'px-3.5 py-1.5 rounded-lg text-cine-textSecondary hover:text-white flex items-center gap-1.5 transition';
-      } else {
-        btnCinema.className = 'px-3.5 py-1.5 rounded-lg bg-cine-surfaceN2 text-white font-bold shadow-sm flex items-center gap-1.5 transition';
-        btnMovie.className = 'px-3.5 py-1.5 rounded-lg text-cine-textSecondary hover:text-white flex items-center gap-1.5 transition';
-      }
     }
 
     // Init
