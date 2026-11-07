@@ -47,32 +47,86 @@
   </script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts for Material 3 Archetypes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Oswald:wght@500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <style>
-    /* FONTES EXTRAÍDAS DIRETAMENTE DO BENCHMARK */
-    /* Oswald = Cinemark Brasil (Marquee Titles) */
-    /* Work Sans = Cinemark Brasil (UI / Tabelas / Assentos) */
-    /* Playfair Display = Everyman Cinemas (Hospitalidade / Harmonizações) */
-    @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Work+Sans:wght@400;500;600;700&display=swap');
+    /* ==================================================== */
+    /* MATERIAL 3 DESIGN SYSTEM TOKENS & ARCHETYPE THEMES  */
+    /* ==================================================== */
     :root {
-      font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      /* Padrão: 3. Cinéphile Studio Minimal (Letterboxd & Cinemark) */
+      --md-sys-color-primary: #00E054;
+      --md-sys-color-on-primary: #090A0C;
+      --md-sys-color-surface: #141416;
+      --md-sys-color-surface-container: #1F1F23;
+      --md-sys-color-surface-container-high: #2A2A2E;
+      --md-sys-color-secondary: #F59E0B;
+      --md-sys-color-outline: #323238;
+      --md-sys-font-display: 'Oswald', sans-serif;
+      --md-sys-font-body: 'Work Sans', sans-serif;
+      font-family: var(--md-sys-font-body);
     }
+
+    /* ARQUÉTIPO 1: BOUTIQUE & GOLDEN AGE (EVERYMAN & CURZON) */
+    body[data-archetype="boutique-gold"] {
+      --md-sys-color-primary: #EAB308;
+      --md-sys-color-on-primary: #1C1917;
+      --md-sys-color-surface: #12100D;
+      --md-sys-color-surface-container: #1C1917;
+      --md-sys-color-surface-container-high: #292524;
+      --md-sys-color-secondary: #E8A2A8;
+      --md-sys-color-outline: #44403C;
+      --md-sys-font-display: 'Playfair Display', serif;
+      --md-sys-font-body: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* ARQUÉTIPO 2: CYBER IMAX MULTIPLEX (TECNOLOGIA & ESPETÁCULO) */
+    body[data-archetype="cyber-imax"] {
+      --md-sys-color-primary: #00F0FF;
+      --md-sys-color-on-primary: #030712;
+      --md-sys-color-surface: #070A11;
+      --md-sys-color-surface-container: #0F172A;
+      --md-sys-color-surface-container-high: #1E293B;
+      --md-sys-color-secondary: #FF0055;
+      --md-sys-color-outline: #334155;
+      --md-sys-font-display: 'Space Grotesk', sans-serif;
+      --md-sys-font-body: 'Inter', sans-serif;
+    }
+
+    /* ARQUÉTIPO 3: CINÉPHILE STUDIO MINIMAL (LETTERBOXD & MUBI) */
+    body[data-archetype="cinephile-minimal"] {
+      --md-sys-color-primary: #00E054;
+      --md-sys-color-on-primary: #090A0C;
+      --md-sys-color-surface: #141416;
+      --md-sys-color-surface-container: #1F1F23;
+      --md-sys-color-surface-container-high: #2A2A2E;
+      --md-sys-color-secondary: #F59E0B;
+      --md-sys-color-outline: #323238;
+      --md-sys-font-display: 'Oswald', sans-serif;
+      --md-sys-font-body: 'Work Sans', sans-serif;
+    }
+
     .font-marquee {
-      font-family: 'Oswald', sans-serif;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
+      font-family: var(--md-sys-font-display) !important;
+      letter-spacing: 0.02em;
     }
     .font-luxury {
       font-family: 'Playfair Display', serif;
     }
     html, body {
-      background-color: #12100D !important;
-      background: #12100D !important;
+      background-color: var(--md-sys-color-surface, #12100D) !important;
+      background: var(--md-sys-color-surface, #12100D) !important;
       color: #FFFFFF !important;
       width: 100%;
       min-height: 100vh;
       margin: 0;
       padding: 0;
       overflow-x: hidden;
+      font-family: var(--md-sys-font-body, 'Work Sans', sans-serif);
+      transition: background-color 0.25s ease;
     }
     /* In-Theater Dark UI Mode (OLED Absolute Black) */
     body.in-theater-mode {
@@ -105,12 +159,32 @@
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col transition-colors duration-300">
+<body data-archetype="boutique-gold" class="min-h-screen flex flex-col transition-colors duration-300">
 
   <!-- ACCESSIBILITY SKIP-LINK -->
   <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 z-50 px-4 py-2 bg-cine-accessible text-white font-bold rounded-lg shadow-xl">
     Pular para o conteúdo principal
   </a>
+
+  <!-- MATERIAL 3 DESIGN ARTIFACT EXPLORER BAR -->
+  <div id="m3-archetype-bar" class="bg-black/95 border-b border-zinc-800 px-4 lg:px-8 py-2 flex flex-wrap items-center justify-between gap-3 text-xs z-50 transition-colors">
+    <div class="flex items-center gap-2.5">
+      <div class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse shadow-sm shadow-amber-400"></div>
+      <span class="font-extrabold uppercase tracking-widest text-[11px] text-zinc-200">Material 3 Design Explorer:</span>
+      <span class="text-zinc-400 text-[11px] hidden md:inline">Alterne entre as 3 visões concorrentes de design:</span>
+    </div>
+    <div class="flex items-center gap-1.5 p-1 rounded-xl bg-zinc-900 border border-zinc-700/80 shadow-inner">
+      <button onclick="setArchetype('boutique-gold')" id="btn-arch-boutique" class="px-3 py-1 rounded-lg text-xs font-black transition flex items-center gap-1.5 bg-amber-500 text-black shadow-sm" title="Everyman & Curzon: Sofás, veludo, serifas e ouro âmbar">
+        <span>🏛️</span> 1. Boutique Gold
+      </button>
+      <button onclick="setArchetype('cyber-imax')" id="btn-arch-cyber" class="px-3 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 text-zinc-400 hover:text-white" title="CGV & IMAX: Telas gigantes, som Dolby, neon laser cyan & magenta">
+        <span>⚡</span> 2. Cyber IMAX
+      </button>
+      <button onclick="setArchetype('cinephile-minimal')" id="btn-arch-cinephile" class="px-3 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 text-zinc-400 hover:text-white" title="Letterboxd & MUBI: Carvão neutro, alta densidade e verde de contraste">
+        <span>🎬</span> 3. Cinéphile Minimal
+      </button>
+    </div>
+  </div>
 
   <!-- TOP APP BAR -->
   <header class="sticky top-0 z-40 bg-[#12100D] border-b border-cine-border px-4 lg:px-8 py-3 flex items-center justify-between transition-colors">
@@ -1475,6 +1549,29 @@
       }
     }
 
+    function setArchetype(arch) {
+      document.body.setAttribute('data-archetype', arch);
+      localStorage.setItem('cinefood-archetype', arch);
+
+      const btnBoutique = document.getElementById('btn-arch-boutique');
+      const btnCyber = document.getElementById('btn-arch-cyber');
+      const btnCinephile = document.getElementById('btn-arch-cinephile');
+
+      if (!btnBoutique || !btnCyber || !btnCinephile) return;
+
+      [btnBoutique, btnCyber, btnCinephile].forEach(b => {
+        b.className = 'px-3 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 text-zinc-400 hover:text-white';
+      });
+
+      if (arch === 'boutique-gold') {
+        btnBoutique.className = 'px-3 py-1 rounded-lg text-xs font-black transition flex items-center gap-1.5 bg-amber-500 text-black shadow-sm';
+      } else if (arch === 'cyber-imax') {
+        btnCyber.className = 'px-3 py-1 rounded-lg text-xs font-black transition flex items-center gap-1.5 bg-cyan-400 text-black shadow-sm';
+      } else {
+        btnCinephile.className = 'px-3 py-1 rounded-lg text-xs font-black transition flex items-center gap-1.5 bg-emerald-500 text-black shadow-sm';
+      }
+    }
+
     function switchView(view) {
       document.getElementById('view-catalog-movie').classList.toggle('hidden', view !== 'catalog');
       document.getElementById('view-catalog-cinema').classList.add('hidden');
@@ -1604,6 +1701,8 @@
 
     // Init
     window.addEventListener('DOMContentLoaded', () => {
+      const savedArch = localStorage.getItem('cinefood-archetype') || 'boutique-gold';
+      setArchetype(savedArch);
       initDateStrip();
       initSeatGrid();
       lucide.createIcons();
