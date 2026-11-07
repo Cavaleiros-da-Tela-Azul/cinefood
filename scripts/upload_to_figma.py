@@ -7,7 +7,7 @@ import requests
 
 def upload():
     # 1. Read step output to get exact presigned upload data
-    step_output_path = r"C:/Users/gabri/.gemini/antigravity/brain/739f1de0-9e13-448b-a6db-bb2827f81d2b/.system_generated/steps/1201/output.txt"
+    step_output_path = r"C:/Users/gabri/.gemini/antigravity/brain/739f1de0-9e13-448b-a6db-bb2827f81d2b/.system_generated/steps/1233/output.txt"
     with open(step_output_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
