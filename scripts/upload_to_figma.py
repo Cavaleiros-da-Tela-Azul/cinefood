@@ -6,7 +6,7 @@ import json
 import requests
 
 def upload():
-    step_output_path = r"C:/Users/gabri/.gemini/antigravity/brain/739f1de0-9e13-448b-a6db-bb2827f81d2b/.system_generated/steps/1479/output.txt"
+    step_output_path = r"C:/Users/gabri/.gemini/antigravity/brain/739f1de0-9e13-448b-a6db-bb2827f81d2b/.system_generated/steps/1511/output.txt"
     with open(step_output_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
