@@ -1,11 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "name": "CineFood Material 3 Design System",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "metadata": {
     "sourceKit": "Material 3 Design Kit (Figma Community 7dLlJrXTCWy4uYlVoV3Ns9)",
     "extractedPages": ["Styles (49823:12141)", "Navigation (55141:14251)", "Buttons (55141:14168)", "Cards (55141:14171)"],
-    "extractedAt": "2026-11-07T18:12:00Z"
+    "extractedAt": "2026-11-07T18:12:00Z",
+    "updatedWithSkills": "Emil Kowalski Design Engineering & Mobile Native Skills (2026-11-07)"
   },
   "typography": {
     "scale": {
@@ -99,6 +100,27 @@
         "surface-container": "#1F1F23",
         "surface-container-high": "#2A2A2E",
         "outline": "#323238"
+      }
+    },
+    "solar-sunset": {
+      "name": "Solar Sunset Cinema (Alamo Neon & Sunset Marquee)",
+      "inspiration": "Paleta Oficial Solicitada (#FF4D00, #FF9F1C, #FFD166, #1B1B3A, #0B0B12) & Alamo Drafthouse",
+      "fontDisplay": "'Space Grotesk', sans-serif",
+      "fontBody": "'Plus Jakarta Sans', sans-serif",
+      "colorRoles": {
+        "primary": "#FF4D00",
+        "on-primary": "#0B0B12",
+        "primary-container": "#4D1700",
+        "on-primary-container": "#FFD166",
+        "secondary": "#FF9F1C",
+        "on-secondary": "#0B0B12",
+        "tertiary": "#FFD166",
+        "on-tertiary": "#0B0B12",
+        "surface": "#0B0B12",
+        "on-surface": "#FFF8F0",
+        "surface-container": "#1B1B3A",
+        "surface-container-high": "#26264D",
+        "outline": "#3D3D6B"
       }
     }
   }
