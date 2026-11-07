@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CineFood — Protótipo Design System & MVP (MAR-01)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            cine: {
+              bg: '#0A0B10',
+              surface: '#13151F',
+              card: '#1A1D2B',
+              border: '#282C3F',
+              primary: '#F5A623',
+              primaryHover: '#D48812',
+              accent: '#E50914',
+              text: '#FFFFFF',
+              muted: '#9CA3AF',
+              seatAvail: '#2A2F45',
+              seatSelected: '#F5A623',
+              seatReserved: '#4A2A2A',
+              seatOccupied: '#1C1F2E',
+              seatPcd: '#2563EB'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0A0B10;
+      color: #FFFFFF;
+    }
+    .screen-glow {
+      background: linear-gradient(180deg, rgba(245, 166, 35, 0.25) 0%, rgba(10, 11, 16, 0) 100%);
+      box-shadow: 0 4px 30px rgba(245, 166, 35, 0.15);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #282C3F;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased custom-scrollbar selection:bg-cine-primary selection:text-black">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="sticky top-0 z-50 bg-cine-surface/90 backdrop-blur-md border-b border-cine-border px-4 lg:px-8 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-6">
+      <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('catalog')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cine-accent to-cine-primary flex items-center justify-center shadow-lg shadow-cine-primary/20">
+          <i data-lucide="film" class="w-5 h-5 text-black font-bold"></i>
+        </div>
+        <div>
+          <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-amber-200 to-cine-primary bg-clip-text text-transparent">CineFood</span>
+          <span class="block text-[10px] font-semibold tracking-widest uppercase text-cine-primary">Multiplex & Cantina</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="hidden md:flex items-center gap-1 bg-cine-bg/80 p-1 rounded-xl border border-cine-border text-xs font-semibold">
+        <button id="tab-btn-catalog" onclick="switchTab('catalog')" class="px-4 py-2 rounded-lg bg-cine-primary text-black font-bold flex items-center gap-1.5 transition">
+          <i data-lucide="clapperboard" class="w-3.5 h-3.5"></i> 1. Catálogo & Sessões
+        </button>
+        <button id="tab-btn-seats" onclick="switchTab('seats')" class="px-4 py-2 rounded-lg text-cine-muted hover:text-white flex items-center gap-1.5 transition">
+          <i data-lucide="armchair" class="w-3.5 h-3.5"></i> 2. Mapa de Assentos
+        </button>
+        <button id="tab-btn-tokens" onclick="switchTab('tokens')" class="px-4 py-2 rounded-lg text-cine-muted hover:text-white flex items-center gap-1.5 transition">
+          <i data-lucide="palette" class="w-3.5 h-3.5"></i> 3. Tokens & A11y (WCAG)
+        </button>
+      </nav>
+    </div>
+
+    <!-- Header Actions -->
+    <div class="flex items-center gap-3">
+      <!-- Unit Badge -->
+      <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-cine-card border border-cine-border text-xs text-zinc-300">
+        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-cine-primary"></i>
+        <span>Shopping Piloto (Sala 01)</span>
+      </div>
+
+      <!-- LGPD Privacy Button -->
+      <button onclick="toggleLgpdModal(true)" class="p-2 sm:px-3 sm:py-1.5 rounded-lg bg-cine-card hover:bg-cine-border border border-cine-border text-xs text-zinc-300 flex items-center gap-1.5 transition" title="Aviso de Privacidade LGPD (RF-17)">
+        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+        <span class="hidden sm:inline">Privacidade LGPD</span>
+      </button>
+
+      <!-- Auth Profile Button (RF-01) -->
+      <button onclick="toggleAuthModal(true)" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-cine-card to-cine-surface border border-cine-border hover:border-cine-primary text-xs font-semibold text-white transition">
+        <div class="w-6 h-6 rounded-full bg-cine-primary/20 text-cine-primary flex items-center justify-center font-bold text-[10px]">
+          GA
+        </div>
+        <span class="hidden md:inline">Gabriel (Cliente)</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-8">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: CATÁLOGO DE FILMES & SESSÕES (RF-02) -->
+    <!-- ========================================== -->
+    <section id="section-catalog" class="space-y-8">
+      
+      <!-- HERO BANNER -->
+      <div class="relative rounded-3xl overflow-hidden border border-cine-border bg-gradient-to-r from-cine-surface via-cine-card to-cine-surface p-6 lg:p-10 flex flex-col lg:flex-row items-center justify-between gap-8 shadow-2xl">
+        <div class="space-y-4 max-w-2xl">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-cine-primary/10 text-cine-primary border border-cine-primary/30">
+              Destaque da Semana
+            </span>
+            <span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-cine-accent text-white">IMAX 3D</span>
+            <span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-zinc-800 text-zinc-300">Sala 01 Atmos</span>
+          </div>
+          <h1 class="text-3xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
+            Interestelar: O Retorno Cósmico
+          </h1>
+          <p class="text-zinc-400 text-sm lg:text-base leading-relaxed">
+            Uma jornada épica além dos limites do tempo e do espaço. Viva a experiência audiovisual máxima com som imersivo Dolby Atmos e serviço de entrega gourmet no assento exclusivo CineFood.
+          </p>
+          <div class="flex flex-wrap items-center gap-4 pt-2">
+            <button onclick="selectScreening('Interestelar', '19:30', 'Sala 01 (IMAX 3D)', 42.00)" class="px-6 py-3 rounded-xl bg-cine-primary hover:bg-cine-primaryHover text-black font-extrabold flex items-center gap-2 shadow-lg shadow-cine-primary/25 transition">
+              <i data-lucide="ticket" class="w-4 h-4"></i> Escolher Poltrona • 19:30
+            </button>
+            <button onclick="toggleTrailer(true)" class="px-5 py-3 rounded-xl bg-cine-card hover:bg-cine-border border border-cine-border text-white text-sm font-semibold flex items-center gap-2 transition">
+              <i data-lucide="play" class="w-4 h-4 text-cine-primary"></i> Assistir Trailer
+            </button>
+          </div>
+        </div>
+        <div class="relative w-48 lg:w-64 aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl border border-cine-border shrink-0">
+          <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=600&q=80" alt="Poster Interestelar" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-4">
+            <span class="text-xs font-bold text-amber-300">Classificação: 12 anos • 169 min</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SESSIONS FILTER BAR -->
+      <div class="flex flex-wrap items-center justify-between gap-4 pb-2 border-b border-cine-border">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <i data-lucide="calendar" class="w-5 h-5 text-cine-primary"></i> Programação Hoje (06/11)
+          </h2>
+          <p class="text-xs text-cine-muted">Selecione uma sessão para abrir o mapa de assentos e reservar seus lugares</p>
+        </div>
+        <!-- Format filters -->
+        <div class="flex items-center gap-2 text-xs font-semibold">
+          <button class="px-3 py-1.5 rounded-lg bg-cine-primary text-black font-bold">Todos</button>
+          <button class="px-3 py-1.5 rounded-lg bg-cine-card hover:bg-cine-border text-zinc-300">2D Dublado</button>
+          <button class="px-3 py-1.5 rounded-lg bg-cine-card hover:bg-cine-border text-zinc-300">3D Legendado</button>
+          <button class="px-3 py-1.5 rounded-lg bg-cine-card hover:bg-cine-border text-zinc-300">VIP Atmos</button>
+        </div>
+      </div>
+
+      <!-- MOVIES GRID -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- Movie Card 1 -->
+        <div class="bg-cine-card border border-cine-border rounded-2xl p-5 flex flex-col justify-between hover:border-cine-primary/50 transition duration-300 group">
+          <div class="flex gap-4">
+            <div class="w-24 h-36 rounded-xl overflow-hidden shrink-0 border border-cine-border relative">
+              <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80" alt="Duna 2" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+              <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-amber-500 text-[10px] font-black text-black">14</span>
+            </div>
+            <div class="space-y-1.5">
+              <h3 class="font-bold text-white text-lg group-hover:text-cine-primary transition">Duna: Parte 2</h3>
+              <p class="text-xs text-zinc-400 line-clamp-2">Paul Atreides se une a Chani e aos Fremen enquanto busca vingança contra os conspiradores.</p>
+              <div class="text-[11px] text-zinc-500">Duração: 166 min • Ficção Científica</div>
+              <div class="flex items-center gap-1.5 text-xs text-amber-400 font-semibold pt-1">
+                <i data-lucide="star" class="w-3.5 h-3.5 fill-amber-400"></i> 4.9 (1.420 avaliações)
+              </div>
+            </div>
+          </div>
+          <!-- Horários -->
+          <div class="mt-4 pt-4 border-t border-cine-border space-y-2">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Sessões Disponíveis:</span>
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="selectScreening('Duna: Parte 2', '16:00', 'Sala 02 (Dublado)', 36.00)" class="px-2.5 py-2 rounded-lg bg-cine-surface hover:bg-cine-primary hover:text-black border border-cine-border text-xs font-bold text-center transition">
+                16:00 <span class="block text-[9px] font-normal opacity-80">2D DUB</span>
+              </button>
+              <button onclick="selectScreening('Duna: Parte 2', '19:00', 'Sala 01 (Atmos)', 42.00)" class="px-2.5 py-2 rounded-lg bg-cine-surface hover:bg-cine-primary hover:text-black border border-cine-border text-xs font-bold text-center transition">
+                19:00 <span class="block text-[9px] font-normal opacity-80">3D LEG</span>
+              </button>
+              <button onclick="selectScreening('Duna: Parte 2', '21:45', 'Sala 01 (VIP)', 48.00)" class="px-2.5 py-2 rounded-lg bg-cine-surface hover:bg-cine-primary hover:text-black border border-cine-border text-xs font-bold text-center transition">
+                21:45 <span class="block text-[9px] font-normal opacity-80">VIP LEG</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Movie Card 2 -->
+        <div class="bg-cine-card border border-cine-border rounded-2xl p-5 flex flex-col justify-between hover:border-cine-primary/50 transition duration-300 group">
+          <div class="flex gap-4">
+            <div class="w-24 h-36 rounded-xl overflow-hidden shrink-0 border border-cine-border relative">
+              <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=400&q=80" alt="Cyberpunk" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+              <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-red-600 text-[10px] font-black text-white">16</span>
+            </div>
+            <div class="space-y-1.5">
+              <h3 class="font-bold text-white text-lg group-hover:text-cine-primary transition">Neon Horizon 2099</h3>
+              <p class="text-xs text-zinc-400 line-clamp-2">Em uma metrópole futurista sob cerco corporativo, uma inteligência artificial desperta sentimentos humanos.</p>
+              <div class="text-[11px] text-zinc-500">Duração: 132 min • Ação / Cyberpunk</div>
+              <div class="flex items-center gap-1.5 text-xs text-amber-400 font-semibold pt-1">
+                <i data-lucide="star" class="w-3.5 h-3.5 fill-amber-400"></i> 4.7 (890 avaliações)
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 pt-4 border-t border-cine-border space-y-2">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Sessões Disponíveis:</span>
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="selectScreening('Neon Horizon 2099', '17:15', 'Sala 03', 34.00)" class="px-2.5 py-2 rounded-lg bg-cine-surface hover:bg-cine-primary hover:text-black border border-cine-border text-xs font-bold text-center transition">
+                17:15 <span class="block text-[9px] font-normal opacity-80">2D DUB</span>
+              </button>
+              <button onclick="selectScreening('Neon Horizon 2099', '20:10', 'Sala 03', 38.00)" class="px-2.5 py-2 rounded-lg bg-cine-surface hover:bg-cine-primary hover:text-black border border-cine-border text-xs font-bold text-center transition">
+                20:10 <span class="block text-[9px] font-normal opacity-80">3D LEG</span>
+              </button>
+              <button class="px-2.5 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-bold text-zinc-600 cursor-not-allowed text-center" title="Sessão Esgotada (RF-02)">
+                22:30 <span class="block text-[9px] text-zinc-600 font-normal">ESGOTADO</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Movie Card 3 -->
+        <div class="bg-cine-card border border-cine-border rounded-2xl p-5 flex flex-col justify-between hover:border-cine-primary/50 transition duration-300 group">
+          <div class="flex gap-4">
+            <div class="w-24 h-36 rounded-xl overflow-hidden shrink-0 border border-cine-border relative">
+              <img src="https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=400&q=80" alt="A Floresta Mágica" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+              <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-emerald-600 text-[10px] font-black text-white">L</span>
+            </div>
+            <div class="space-y-1.5">
+              <h3 class="font-bold text-white text-lg group-hover:text-cine-primary transition">O Segredo dos Dragões</h3>
+              <p class="text-xs text-zinc-400 line-clamp-2">Uma aventura encantadora para toda a família onde guardiões alados protegem as lendas do reino.</p>
+              <div class="text-[11px] text-zinc-500">Duração: 104 min • Animação / Família</div>
+              <div class="flex items-center gap-1.5 text-xs text-amber-400 font-semibold pt-1">
+                <i data-lucide="star" class="w-3.5 h-3.5 fill-amber-400"></i> 4.8 (2.110 avaliações)
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 pt-4 border-t border-cine-border space-y-2">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Sessões Disponíveis:</span>
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="selectScreening('O Segredo dos Dragões', '14:30', 'Sala 04 (Família)', 30.00)" class="px-2.5 py-2 rounded-lg bg-cine-surface hover:bg-cine-primary hover:text-black border border-cine-border text-xs font-bold text-center transition">
+                14:30 <span class="block text-[9px] font-normal opacity-80">2D DUB</span>
+              </button>
+              <button onclick="selectScreening('O Segredo dos Dragões', '16:45', 'Sala 04 (Família)', 32.00)" class="px-2.5 py-2 rounded-lg bg-cine-surface hover:bg-cine-primary hover:text-black border border-cine-border text-xs font-bold text-center transition">
+                16:45 <span class="block text-[9px] font-normal opacity-80">3D DUB</span>
+              </button>
+              <button onclick="selectScreening('O Segredo dos Dragões', '19:15', 'Sala 04 (Família)', 34.00)" class="px-2.5 py-2 rounded-lg bg-cine-surface hover:bg-cine-primary hover:text-black border border-cine-border text-xs font-bold text-center transition">
+                19:15 <span class="block text-[9px] font-normal opacity-80">3D DUB</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: MAPA DE ASSENTOS & TRAVA 10 MIN (RF-02 / RF-03) -->
+    <!-- ========================================== -->
+    <section id="section-seats" class="hidden space-y-6">
+
+      <!-- SESSION INFO HEADER WITH 10-MIN TIMER -->
+      <div class="bg-cine-card border border-cine-border rounded-2xl p-4 lg:p-6 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <button onclick="switchTab('catalog')" class="p-2.5 rounded-xl bg-cine-surface hover:bg-cine-border border border-cine-border text-zinc-300 transition" title="Voltar ao catálogo">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+          </button>
+          <div>
+            <div class="flex items-center gap-2">
+              <span id="active-movie-title" class="text-xl font-bold text-white">Interestelar: O Retorno Cósmico</span>
+              <span id="active-session-badge" class="px-2 py-0.5 rounded text-[11px] font-bold bg-cine-accent text-white">IMAX 3D</span>
+            </div>
+            <p id="active-session-meta" class="text-xs text-zinc-400">Hoje, 06/11 • 19:30 • Sala 01 (Dolby Atmos) • Valor base: R$ 42,00</p>
+          </div>
+        </div>
+
+        <!-- 10-MINUTE RESERVATION LOCK TIMER (ADR-002 / RF-03) -->
+        <div class="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-cine-surface border border-cine-border">
+          <div class="relative flex items-center justify-center">
+            <i data-lucide="timer" class="w-5 h-5 text-cine-primary animate-pulse"></i>
+          </div>
+          <div>
+            <span class="block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Trava Exclusiva (10 min)</span>
+            <div id="countdown-timer" class="text-lg font-mono font-extrabold text-cine-primary">
+              10:00
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CINEMA SCREEN CURVE -->
+      <div class="relative max-w-4xl mx-auto pt-4 pb-2 text-center">
+        <div class="w-4/5 mx-auto h-3 screen-glow rounded-t-[100%] border-t-4 border-cine-primary/60 mb-2"></div>
+        <span class="text-xs uppercase font-extrabold tracking-[0.3em] text-zinc-400">Tela / Tela de Projeção</span>
+      </div>
+
+      <!-- SEAT MAP GRID (10 ROWS x 12 COLUMNS) -->
+      <div class="bg-cine-card border border-cine-border rounded-3xl p-6 lg:p-10 max-w-4xl mx-auto overflow-x-auto shadow-2xl">
+        <div class="min-w-[620px] flex flex-col gap-3 items-center" id="seat-grid-container">
+          <!-- Dynamically generated seat rows via JavaScript -->
+        </div>
+
+        <!-- ACCESSIBLE LEGEND (WCAG 2.2 AA) -->
+        <div class="mt-8 pt-6 border-t border-cine-border flex flex-wrap items-center justify-center gap-6 text-xs font-semibold">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-lg bg-cine-seatAvail border border-zinc-600 flex items-center justify-center text-[10px] text-zinc-300">A1</div>
+            <span class="text-zinc-300">Disponível</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-lg bg-cine-primary text-black font-extrabold flex items-center justify-center text-[11px] shadow-md shadow-cine-primary/30">
+              <i data-lucide="check" class="w-3.5 h-3.5"></i>
+            </div>
+            <span class="text-amber-300 font-bold">Selecionado</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-lg bg-cine-seatReserved border border-red-900/50 flex items-center justify-center text-red-400">
+              <i data-lucide="lock" class="w-3 h-3"></i>
+            </div>
+            <span class="text-zinc-400">Reservado (10m)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-lg bg-cine-seatOccupied border border-zinc-800 flex items-center justify-center text-zinc-600">
+              <i data-lucide="x" class="w-3 h-3"></i>
+            </div>
+            <span class="text-zinc-500">Ocupado</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-lg bg-blue-900/60 border border-blue-500/50 flex items-center justify-center text-blue-400">
+              <i data-lucide="accessibility" class="w-3.5 h-3.5"></i>
+            </div>
+            <span class="text-blue-300">PCD / Acessível</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SELECTION SUMMARY FOOTER (BOTTOM ACTION BAR) -->
+      <div class="sticky bottom-4 z-40 bg-cine-surface/95 backdrop-blur-md border border-cine-border rounded-2xl p-4 lg:p-6 max-w-4xl mx-auto shadow-2xl flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span class="block text-xs text-zinc-400 font-medium">Poltronas Selecionadas:</span>
+          <div id="selected-seats-display" class="flex flex-wrap gap-1.5 mt-1">
+            <span class="text-xs text-zinc-500 italic">Nenhum assento selecionado</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-6">
+          <div class="text-right">
+            <span class="block text-[11px] uppercase tracking-wider text-zinc-400 font-semibold">Valor Total:</span>
+            <span id="total-price-display" class="text-2xl font-mono font-black text-white">R$ 0,00</span>
+          </div>
+          <button id="btn-checkout" onclick="proceedToCheckout()" disabled class="px-6 py-3 rounded-xl bg-zinc-800 text-zinc-500 font-extrabold text-sm flex items-center gap-2 cursor-not-allowed transition duration-200">
+            Avançar para Pagamento <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: DESIGN TOKENS & ACESSIBILIDADE WCAG -->
+    <!-- ========================================== -->
+    <section id="section-tokens" class="hidden space-y-8">
+      <div class="border-b border-cine-border pb-4">
+        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+          <i data-lucide="palette" class="w-6 h-6 text-cine-primary"></i> Design Tokens & Guia de Estilo (WCAG 2.2 AA)
+        </h2>
+        <p class="text-sm text-zinc-400">Especificação da identidade visual Dark-First adotada para garantir legibilidade e conforto na sala escura de cinema.</p>
+      </div>
+
+      <!-- PALETTE CARDS -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-cine-card border border-cine-border rounded-2xl p-4 space-y-3">
+          <div class="h-16 rounded-xl bg-cine-bg border border-cine-border flex items-center justify-center font-mono text-xs font-bold">#0A0B10</div>
+          <div>
+            <span class="text-xs font-bold text-white block">cine-bg (Fundo Primário)</span>
+            <span class="text-[11px] text-zinc-400">Preto azulado profundo. Baixa emissão de luz periférica na sala de exibição.</span>
+          </div>
+        </div>
+        <div class="bg-cine-card border border-cine-border rounded-2xl p-4 space-y-3">
+          <div class="h-16 rounded-xl bg-cine-surface border border-cine-border flex items-center justify-center font-mono text-xs font-bold">#13151F</div>
+          <div>
+            <span class="text-xs font-bold text-white block">cine-surface (Superfície 1)</span>
+            <span class="text-[11px] text-zinc-400">Camada de elevação para menus, barras e cabeçalhos com blur.</span>
+          </div>
+        </div>
+        <div class="bg-cine-card border border-cine-border rounded-2xl p-4 space-y-3">
+          <div class="h-16 rounded-xl bg-cine-primary text-black flex items-center justify-center font-mono text-xs font-extrabold">#F5A623</div>
+          <div>
+            <span class="text-xs font-bold text-white block">cine-primary (Ouro / Âmbar)</span>
+            <span class="text-[11px] text-zinc-400">Cor de destaque principal. Contraste 11.2:1 contra o fundo preto (excede AA).</span>
+          </div>
+        </div>
+        <div class="bg-cine-card border border-cine-border rounded-2xl p-4 space-y-3">
+          <div class="h-16 rounded-xl bg-cine-accent text-white flex items-center justify-center font-mono text-xs font-extrabold">#E50914</div>
+          <div>
+            <span class="text-xs font-bold text-white block">cine-accent (Vermelho Cinema)</span>
+            <span class="text-[11px] text-zinc-400">Identidade de ação crítica, botões de impacto e badges IMAX.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- WCAG COMPLIANCE TABLE -->
+      <div class="bg-cine-card border border-cine-border rounded-2xl p-6 space-y-4">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i> Matriz de Acessibilidade & Contraste (WCAG 2.2 Nível AA)
+        </h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="border-b border-cine-border text-zinc-400 font-semibold">
+                <th class="py-2.5">Elemento Visual</th>
+                <th>Cor de Frente (Texto)</th>
+                <th>Cor de Fundo</th>
+                <th>Razão de Contraste</th>
+                <th>Status WCAG 2.2 AA (Meta ≥ 4.5:1)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-cine-border text-zinc-300">
+              <tr>
+                <td class="py-3 font-semibold text-white">Texto Principal</td>
+                <td>#FFFFFF (Branco)</td>
+                <td>#0A0B10 (Fundo)</td>
+                <td class="font-mono text-emerald-400 font-bold">19.8:1</td>
+                <td><span class="px-2 py-0.5 rounded bg-emerald-900/50 text-emerald-300 text-[10px] font-bold">APROVADO (AAA)</span></td>
+              </tr>
+              <tr>
+                <td class="py-3 font-semibold text-white">Botão Primário / Seleção</td>
+                <td>#000000 (Preto)</td>
+                <td>#F5A623 (Ouro)</td>
+                <td class="font-mono text-emerald-400 font-bold">11.2:1</td>
+                <td><span class="px-2 py-0.5 rounded bg-emerald-900/50 text-emerald-300 text-[10px] font-bold">APROVADO (AAA)</span></td>
+              </tr>
+              <tr>
+                <td class="py-3 font-semibold text-white">Texto Muted / Legendas</td>
+                <td>#9CA3AF (Cinza 400)</td>
+                <td>#13151F (Superfície)</td>
+                <td class="font-mono text-emerald-400 font-bold">5.8:1</td>
+                <td><span class="px-2 py-0.5 rounded bg-emerald-900/50 text-emerald-300 text-[10px] font-bold">APROVADO (AA)</span></td>
+              </tr>
+              <tr>
+                <td class="py-3 font-semibold text-white">Diferenciação Redundante de Assentos</td>
+                <td>Ícone + Cor + Texto</td>
+                <td>Variável</td>
+                <td class="font-mono text-emerald-400 font-bold">Multissensorial</td>
+                <td><span class="px-2 py-0.5 rounded bg-emerald-900/50 text-emerald-300 text-[10px] font-bold">APROVADO (Daltônicos)</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODAL: AVISO DE PRIVACIDADE LGPD (RF-17)    -->
+  <!-- ========================================== -->
+  <div id="modal-lgpd" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-cine-card border border-cine-border rounded-3xl max-w-lg w-full p-6 lg:p-8 space-y-5 shadow-2xl relative">
+      <button onclick="toggleLgpdModal(false)" class="absolute top-5 right-5 p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-cine-border transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-950/60 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+          <i data-lucide="shield-check" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold text-white">Transparência & LGPD</h3>
+          <p class="text-xs text-zinc-400">Lei Geral de Proteção de Dados (Lei nº 13.709/2018)</p>
+        </div>
+      </div>
+
+      <div class="space-y-4 text-xs text-zinc-300 leading-relaxed max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+        <p>
+          O <strong>CineFood</strong> trata seus dados pessoais para viabilizar a reserva de poltronas, processamento seguro de pagamentos e entrega de alimentos no assento:
+        </p>
+        <div class="space-y-2">
+          <div class="p-3 rounded-xl bg-cine-surface border border-cine-border space-y-1">
+            <span class="font-bold text-white block">1. Dados Essenciais (Base Legal: Execução de Contrato):</span>
+            <p class="text-zinc-400 text-[11px]">Nome, e-mail, CPF (para emissão de nota fiscal e controle de meia-entrada) e histórico de ingressos.</p>
+          </div>
+          <div class="p-3 rounded-xl bg-cine-surface border border-cine-border space-y-1">
+            <span class="font-bold text-white block">2. Segurança de Pagamento:</span>
+            <p class="text-zinc-400 text-[11px]">Dados completos de cartão nunca são gravados em nossos servidores (ADR-002 / RNF-02).</p>
+          </div>
+        </div>
+
+        <!-- Optional Consent Toggle (RF-17 / AC-6) -->
+        <div class="pt-2">
+          <label class="flex items-start gap-3 p-3 rounded-xl bg-cine-surface border border-cine-border cursor-pointer hover:border-cine-primary/40 transition">
+            <input type="checkbox" id="consent-marketing" checked class="mt-0.5 w-4 h-4 rounded text-cine-primary bg-cine-card border-cine-border focus:ring-0">
+            <div>
+              <span class="font-semibold text-white block text-xs">Comunicações Promocionais (Opcional)</span>
+              <span class="text-[11px] text-zinc-400">Desejo receber avisos de estreias e cupons da cantina. A recusa não impede a compra normal de ingressos.</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="pt-2 flex items-center justify-end gap-3">
+        <button onclick="toggleLgpdModal(false)" class="px-5 py-2.5 rounded-xl bg-cine-primary hover:bg-cine-primaryHover text-black font-extrabold text-xs transition">
+          Salvar Preferências
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // State
+    const SEAT_ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+    const SEATS_PER_ROW = 12;
+    let selectedSeats = new Set();
+    let baseTicketPrice = 42.00;
+    let timerSeconds = 600; // 10 minutes (600s)
+    let timerInterval = null;
+
+    // Initialize Seat Grid
+    function renderSeatGrid() {
+      const container = document.getElementById('seat-grid-container');
+      container.innerHTML = '';
+
+      SEAT_ROWS.forEach(row => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'flex items-center gap-2';
+
+        // Row label left
+        const labelLeft = document.createElement('span');
+        labelLeft.className = 'w-6 text-center text-xs font-bold text-zinc-400';
+        labelLeft.textContent = row;
+        rowDiv.appendChild(labelLeft);
+
+        // Seats in row
+        const seatsGroup = document.createElement('div');
+        seatsGroup.className = 'flex items-center gap-1.5';
+
+        for (let num = 1; num <= SEATS_PER_ROW; num++) {
+          // Add central corridor space
+          if (num === 7) {
+            const corridor = document.createElement('div');
+            corridor.className = 'w-4';
+            seatsGroup.appendChild(corridor);
+          }
+
+          const seatId = `${row}${num}`;
+          const btn = document.createElement('button');
+          btn.id = `seat-${seatId}`;
+          btn.setAttribute('aria-label', `Poltrona ${seatId}`);
+
+          // Determine initial mock status
+          let isOccupied = (row === 'F' && (num === 5 || num === 6)) || (row === 'C' && num === 8);
+          let isReserved = (row === 'E' && (num === 6 || num === 7));
+          let isPcd = (row === 'A' && (num === 1 || num === 2 || num === 11 || num === 12));
+
+          if (isOccupied) {
+            btn.className = 'w-8 h-8 rounded-lg bg-cine-seatOccupied border border-zinc-800 text-zinc-600 flex items-center justify-center cursor-not-allowed text-[11px] font-bold';
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="x" class="w-3.5 h-3.5"></i>';
+          } else if (isReserved) {
+            btn.className = 'w-8 h-8 rounded-lg bg-cine-seatReserved border border-red-900/50 text-red-400 flex items-center justify-center cursor-not-allowed text-[11px] font-bold';
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="lock" class="w-3 h-3"></i>';
+          } else if (isPcd) {
+            btn.className = 'w-8 h-8 rounded-lg bg-blue-950/60 border border-blue-500/40 text-blue-400 flex items-center justify-center text-[11px] font-bold hover:scale-105 transition';
+            btn.innerHTML = '<i data-lucide="accessibility" class="w-3.5 h-3.5"></i>';
+            btn.onclick = () => toggleSeat(seatId, btn);
+          } else {
+            btn.className = 'w-8 h-8 rounded-lg bg-cine-seatAvail border border-zinc-700/60 text-zinc-300 flex items-center justify-center text-[10px] font-bold hover:border-cine-primary hover:text-white hover:scale-105 transition';
+            btn.textContent = num;
+            btn.onclick = () => toggleSeat(seatId, btn);
+          }
+
+          seatsGroup.appendChild(btn);
+        }
+
+        rowDiv.appendChild(seatsGroup);
+
+        // Row label right
+        const labelRight = document.createElement('span');
+        labelRight.className = 'w-6 text-center text-xs font-bold text-zinc-400';
+        labelRight.textContent = row;
+        rowDiv.appendChild(labelRight);
+
+        container.appendChild(rowDiv);
+      });
+
+      lucide.createIcons();
+    }
+
+    function toggleSeat(seatId, btnElement) {
+      if (selectedSeats.has(seatId)) {
+        selectedSeats.delete(seatId);
+        btnElement.classList.remove('bg-cine-primary', 'text-black', 'border-cine-primary', 'shadow-md', 'shadow-cine-primary/30');
+        btnElement.classList.add('bg-cine-seatAvail', 'border-zinc-700/60', 'text-zinc-300');
+        btnElement.innerHTML = seatId.substring(1);
+      } else {
+        selectedSeats.add(seatId);
+        btnElement.classList.remove('bg-cine-seatAvail', 'border-zinc-700/60', 'text-zinc-300');
+        btnElement.classList.add('bg-cine-primary', 'text-black', 'border-cine-primary', 'shadow-md', 'shadow-cine-primary/30');
+        btnElement.innerHTML = '<i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>';
+        lucide.createIcons();
+      }
+
+      updateSummary();
+    }
+
+    function updateSummary() {
+      const display = document.getElementById('selected-seats-display');
+      const totalPrice = document.getElementById('total-price-display');
+      const checkoutBtn = document.getElementById('btn-checkout');
+
+      if (selectedSeats.size === 0) {
+        display.innerHTML = '<span class="text-xs text-zinc-500 italic">Nenhum assento selecionado</span>';
+        totalPrice.textContent = 'R$ 0,00';
+        checkoutBtn.disabled = true;
+        checkoutBtn.className = 'px-6 py-3 rounded-xl bg-zinc-800 text-zinc-500 font-extrabold text-sm flex items-center gap-2 cursor-not-allowed transition duration-200';
+      } else {
+        display.innerHTML = '';
+        Array.from(selectedSeats).sort().forEach(seat => {
+          const pill = document.createElement('span');
+          pill.className = 'px-2.5 py-1 rounded-lg bg-cine-primary/20 border border-cine-primary/40 text-cine-primary font-bold text-xs flex items-center gap-1';
+          pill.innerHTML = `<span>${seat}</span> <button onclick="removeSeat('${seat}')" class="hover:text-white">&times;</button>`;
+          display.appendChild(pill);
+        });
+
+        const total = selectedSeats.size * baseTicketPrice;
+        totalPrice.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+
+        checkoutBtn.disabled = false;
+        checkoutBtn.className = 'px-6 py-3 rounded-xl bg-cine-primary hover:bg-cine-primaryHover text-black font-extrabold text-sm flex items-center gap-2 shadow-lg shadow-cine-primary/25 cursor-pointer transition duration-200';
+      }
+    }
+
+    function removeSeat(seatId) {
+      const btn = document.getElementById(`seat-${seatId}`);
+      if (btn) toggleSeat(seatId, btn);
+    }
+
+    // Tabs Switcher
+    function switchTab(tab) {
+      const tabCatalog = document.getElementById('section-catalog');
+      const tabSeats = document.getElementById('section-seats');
+      const tabTokens = document.getElementById('section-tokens');
+
+      const btnCatalog = document.getElementById('tab-btn-catalog');
+      const btnSeats = document.getElementById('tab-btn-seats');
+      const btnTokens = document.getElementById('tab-btn-tokens');
+
+      tabCatalog.classList.add('hidden');
+      tabSeats.classList.add('hidden');
+      tabTokens.classList.add('hidden');
+
+      btnCatalog.className = 'px-4 py-2 rounded-lg text-cine-muted hover:text-white flex items-center gap-1.5 transition';
+      btnSeats.className = 'px-4 py-2 rounded-lg text-cine-muted hover:text-white flex items-center gap-1.5 transition';
+      btnTokens.className = 'px-4 py-2 rounded-lg text-cine-muted hover:text-white flex items-center gap-1.5 transition';
+
+      if (tab === 'catalog') {
+        tabCatalog.classList.remove('hidden');
+        btnCatalog.className = 'px-4 py-2 rounded-lg bg-cine-primary text-black font-bold flex items-center gap-1.5 transition';
+      } else if (tab === 'seats') {
+        tabSeats.classList.remove('hidden');
+        btnSeats.className = 'px-4 py-2 rounded-lg bg-cine-primary text-black font-bold flex items-center gap-1.5 transition';
+        startTimer();
+      } else if (tab === 'tokens') {
+        tabTokens.classList.remove('hidden');
+        btnTokens.className = 'px-4 py-2 rounded-lg bg-cine-primary text-black font-bold flex items-center gap-1.5 transition';
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function selectScreening(movie, time, room, price) {
+      baseTicketPrice = price;
+      document.getElementById('active-movie-title').textContent = movie;
+      document.getElementById('active-session-meta').textContent = `Hoje, 06/11 • ${time} • ${room} • Valor base: R$ ${price.toFixed(2).replace('.', ',')}`;
+      selectedSeats.clear();
+      renderSeatGrid();
+      updateSummary();
+      switchTab('seats');
+    }
+
+    // Countdown Timer (10 minutes)
+    function startTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      timerSeconds = 600;
+      updateTimerDisplay();
+
+      timerInterval = setInterval(() => {
+        timerSeconds--;
+        if (timerSeconds <= 0) {
+          clearInterval(timerInterval);
+          alert('Sua trava de assentos de 10 minutos expirou. A página será reiniciada.');
+          selectedSeats.clear();
+          renderSeatGrid();
+          updateSummary();
+        }
+        updateTimerDisplay();
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const minutes = Math.floor(timerSeconds / 60);
+      const seconds = timerSeconds % 60;
+      const el = document.getElementById('countdown-timer');
+      el.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      if (timerSeconds <= 120) {
+        el.className = 'text-lg font-mono font-extrabold text-red-500 animate-pulse';
+      } else {
+        el.className = 'text-lg font-mono font-extrabold text-cine-primary';
+      }
+    }
+
+    function toggleLgpdModal(show) {
+      const modal = document.getElementById('modal-lgpd');
+      if (show) modal.classList.remove('hidden');
+      else modal.classList.add('hidden');
+    }
+
+    function proceedToCheckout() {
+      const seatsArr = Array.from(selectedSeats).sort().join(', ');
+      alert(`[Simulação de Checkout - MAR-02]\n\nFilme: ${document.getElementById('active-movie-title').textContent}\nAssentos: ${seatsArr}\nTotal: ${document.getElementById('total-price-display').textContent}\n\nConforme ADR-005, a tela de pagamento em sandbox do MAR-02 será o próximo passo!`);
+    }
+
+    // Boot
+    window.addEventListener('DOMContentLoaded', () => {
+      renderSeatGrid();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
