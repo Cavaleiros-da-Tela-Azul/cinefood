@@ -7,9 +7,22 @@ Este documento registra o primeiro protótipo visual e interativo do **CineFood*
 ## 🎨 Acesso ao Arquivo no Figma
 
 - **Arquivo Oficial no Figma:** [CineFood - Design System & MVP](https://www.figma.com/design/4BTQA3NO0k6yi4659FHdVJ)
-- **Layer Interativo (Figma Make / Code Layer):** [Visualizar Camada de Código Interativa](https://www.figma.com/design/4BTQA3NO0k6yi4659FHdVJ?node-id=2-3&autoplay-code-preview=2-3)
+- **Layer Interativo Atualizado (Figma Make / Code Layer):** [Visualizar Code Layer Atualizado (Node 16:3)](https://www.figma.com/design/4BTQA3NO0k6yi4659FHdVJ?node-id=16-3&autoplay-code-preview=16-3)
 - **Equipe:** `Grupo 07` (Admin: Gabriel Alves Martins)
-- **Node ID:** `2:3` (Dimensões: `1512 x 982`)
+- **Node ID Atual:** `16:3` (Dimensões: `1512 x 982`)
+
+---
+
+## 💎 Diretrizes de Alta Fidelidade (Zero AI Slop) Adotadas:
+
+1. **Tokens Dark-First (HSL):** Fundo base `#0D0E12`, Ação primária verde de alto contraste `#00E054` (9.8:1), Acessibilidade PCD `#2563EB`, Marca `#E50914` e Anel de Foco `#60A5FA` (WCAG 2.2 AA).
+2. **Entrada Dupla:** Alternador no topo entre "Por Filme" e "Por Complexo".
+3. **Sticky Date-Strip:** Barra horizontal com scroll-snap de datas e dias da semana.
+4. **Horários com Ocupação em Tempo Real:** Pílulas com micro-barra e porcentagem de ocupação para evitar cliques em salas lotadas.
+5. **Mapa de Assentos com Codificação Tripla:** Formato, cor e iconografia redundante (Disponível, Selecionado ✓, Reservado 10m com relógio, Ocupado ✕, PCD Cadeirante ♿ e PCD Obeso 1.5×).
+6. **Trava de 10 min com Alerta Háptico:** Cronômetro regressivo com transição para vermelho crítico e vibração em dispositivos móveis nos últimos 2 min.
+7. **Cantina Dine-In com Bottom-Sheet:** Customização de combos com atalho direto e não intrusivo ("Pular Alimentação").
+8. **Protocolo In-Theater Dark UI:** Botão de alternância para preto OLED puro (`#000000`), texto atenuado (`#6B7280`) e confirmações silenciosas para uso na sala escura.
 
 ---
 

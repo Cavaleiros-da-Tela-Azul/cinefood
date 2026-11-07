@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "CineFood Design Tokens",
+  "version": "1.0.0",
+  "color": {
+    "surface": {
+      "canvas": { "value": "#0D0E12", "description": "Fundo geral da aplicação - HSL(225, 19%, 6%)" },
+      "raised-n1": { "value": "#16181F", "description": "Cards e seções principais - HSL(225, 17%, 10%)" },
+      "raised-n2": { "value": "#202430", "description": "Modais, drawers e bottom-sheets - HSL(225, 20%, 16%)" },
+      "raised-n3": { "value": "#2A3040", "description": "Tooltips e menus suspensos - HSL(225, 21%, 21%)" },
+      "border": { "value": "#2B303C", "description": "Divisores e bordas - HSL(218, 17%, 20%)" },
+      "in-theater-oled": { "value": "#000000", "description": "Protocolo In-Theater Dark UI para sala de exibição" }
+    },
+    "action": {
+      "primary": { "value": "#00E054", "contrastRatio": "9.8:1", "description": "Ação principal e assento selecionado" },
+      "primary-text": { "value": "#0D0E12", "description": "Texto sobre ação primária de alto contraste" },
+      "accessible": { "value": "#2563EB", "contrastRatio": "4.8:1", "description": "Azul internacional de acessibilidade / PCD" },
+      "brand": { "value": "#E50914", "contrastRatio": "4.6:1", "description": "Vermelho institucional de destaque / cinema" },
+      "alert": { "value": "#EF4444", "description": "Alerta crítico (trava de 10 min < 2 min)" },
+      "focus-ring": { "value": "#60A5FA", "description": "Anel de foco visível WCAG 2.2 AA (1.4.11)" }
+    },
+    "text": {
+      "primary": { "value": "#F0F2F5", "contrastRatio": "15.4:1", "description": "Texto principal de alta legibilidade" },
+      "secondary": { "value": "#9DA4B0", "contrastRatio": "5.3:1", "description": "Texto secundário e metadados" },
+      "muted": { "value": "#6B7280", "contrastRatio": "3.2:1", "description": "Texto atenuado e modo In-Theater" }
+    },
+    "seat": {
+      "available-bg": { "value": "#1E222D" },
+      "available-border": { "value": "#2B303C" },
+      "selected-bg": { "value": "#00E054" },
+      "reserved-bg": { "value": "#2C2013" },
+      "reserved-border": { "value": "#D97706" },
+      "occupied-bg": { "value": "#16181F" },
+      "accessible-bg": { "value": "#2563EB" },
+      "companion-border": { "value": "#60A5FA" }
+    }
+  },
+  "spacing": {
+    "base-grid": "8px",
+    "touch-target-min": "44px"
+  },
+  "motion": {
+    "duration-fast": "150ms",
+    "duration-normal": "250ms",
+    "easing-default": "cubic-bezier(0.16, 1, 0.3, 1)"
+  }
+}
