@@ -12,8 +12,10 @@
       "in-theater-oled": { "value": "#000000", "description": "Protocolo In-Theater Dark UI para sala de exibição" }
     },
     "action": {
-      "primary": { "value": "#00E054", "contrastRatio": "9.8:1", "description": "Ação principal e assento selecionado" },
+      "primary": { "value": "#00E054", "contrastRatio": "9.8:1", "description": "Ação principal e assento selecionado (Letterboxd standard)" },
       "primary-text": { "value": "#0D0E12", "description": "Texto sobre ação primária de alto contraste" },
+      "culinary-amber": { "value": "#F59E0B", "contrastRatio": "7.5:1", "description": "Destaque gastronômico / Dine-In / Marquee (Alamo Drafthouse PMS 7409 & Everyman brass)" },
+      "culinary-amber-hover": { "value": "#D97706", "description": "Hover gastronômico" },
       "accessible": { "value": "#2563EB", "contrastRatio": "4.8:1", "description": "Azul internacional de acessibilidade / PCD" },
       "brand": { "value": "#E50914", "contrastRatio": "4.6:1", "description": "Vermelho institucional de destaque / cinema" },
       "alert": { "value": "#EF4444", "description": "Alerta crítico (trava de 10 min < 2 min)" },
@@ -38,6 +40,18 @@
   "spacing": {
     "base-grid": "8px",
     "touch-target-min": "44px"
+  },
+  "typography": {
+    "font-family-display": "'Plus Jakarta Sans', -apple-system, sans-serif",
+    "font-family-ui": "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+    "font-family-mono": "'JetBrains Mono', ui-monospace, SFMono-Regular, monospace",
+    "weights": {
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700,
+      "black": 800
+    }
   },
   "motion": {
     "duration-fast": "150ms",

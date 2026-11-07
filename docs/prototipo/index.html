@@ -20,6 +20,8 @@
               border: '#2B303C',
               primary: '#00E054', // High-contrast green (Letterboxd / Cinépolis standard, 9.8:1 contrast)
               primaryText: '#0D0E12',
+              culinary: '#F59E0B', // Warm Amber (Alamo PMS 7409 & Everyman brass hospitality)
+              culinaryDark: '#D97706',
               brand: '#E50914',   // Cinema red
               accessible: '#2563EB', // Blue PCD (WCAG)
               focusRing: '#60A5FA',
@@ -140,6 +142,17 @@
       </div>
     </div>
   </header>
+
+  <!-- IN-THEATER SILENT STATUS BANNER (ALAMO PARADOX MITIGATION) -->
+  <aside id="banner-theater-mode" class="hidden bg-black border-b border-zinc-800 px-4 py-2 text-center text-xs text-zinc-400 flex flex-wrap items-center justify-center gap-3">
+    <span class="inline-flex items-center gap-1.5 text-amber-400 font-bold">
+      <i data-lucide="moon" class="w-3.5 h-3.5"></i> Protocolo In-Theater Ativo:
+    </span>
+    <span>OLED absoluto (0 cd/m²), tipografia atenuada e áudio suprimido para não incomodar outros espectadores.</span>
+    <button onclick="quickRepeatLastOrder()" class="px-2.5 py-1 rounded-md bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 font-bold text-[11px] flex items-center gap-1 transition">
+      <i data-lucide="repeat" class="w-3 h-3 text-cine-primary"></i> 1-Tap Reorder (Repetir Pedido)
+    </button>
+  </aside>
 
   <!-- STICKY DATE-STRIP (HORIZONTAL SCROLL-SNAP) -->
   <nav aria-label="Seleção de Datas de Exibição" class="sticky top-[57px] z-30 bg-cine-canvas/95 backdrop-blur-md border-b border-cine-border px-4 lg:px-8 py-2">
@@ -474,55 +487,150 @@
       <!-- Drawer Header with Direct Bypass ("Pular Alimentação") -->
       <div class="flex items-center justify-between border-b border-cine-border pb-4">
         <div>
-          <span class="text-[10px] uppercase font-bold tracking-wider text-cine-primary block">Dine-In • Entrega na Poltrona</span>
-          <h3 class="text-xl font-black text-white">Deseja adicionar lanche e bebida?</h3>
+          <span class="text-[10px] uppercase font-bold tracking-wider text-cine-culinary block flex items-center gap-1">
+            <i data-lucide="utensils" class="w-3 h-3"></i> Dine-In • Gastronomia na Poltrona
+          </span>
+          <h3 class="text-xl font-black text-white">Adicionar experiência culinária?</h3>
         </div>
         <button onclick="skipToCheckout()" class="px-3 py-1.5 rounded-lg bg-cine-surfaceN1 hover:bg-cine-surfaceN3 border border-cine-border text-xs text-cine-textSecondary font-semibold transition focus-accessible">
           Pular Alimentação ➔
         </button>
       </div>
 
+      <!-- ALAMO PARADOX MITIGATION: DELIVERY TIMING SELECTOR -->
+      <div class="p-3.5 rounded-2xl bg-cine-surfaceN1 border border-cine-border space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="clock" class="w-3.5 h-3.5 text-cine-culinary"></i> Quando você deseja receber na poltrona?
+          </span>
+          <span class="text-[10px] text-zinc-400">Zero luz acesa na sala</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+          <label class="flex items-center gap-2 p-2 rounded-xl bg-cine-surfaceN2 border border-cine-primary/60 cursor-pointer">
+            <input type="radio" name="delivery-timing" value="trailers" checked class="accent-cine-primary">
+            <div>
+              <span class="font-bold text-white block text-[11px]">Nos Trailers</span>
+              <span class="text-[9px] text-zinc-400">Recomendado (Antes do filme)</span>
+            </div>
+          </label>
+          <label class="flex items-center gap-2 p-2 rounded-xl bg-cine-surfaceN2 border border-cine-border hover:border-zinc-500 cursor-pointer">
+            <input type="radio" name="delivery-timing" value="midway" class="accent-cine-primary">
+            <div>
+              <span class="font-bold text-white block text-[11px]">30m de Sessão</span>
+              <span class="text-[9px] text-zinc-400">Entrega silenciosa runner</span>
+            </div>
+          </label>
+          <label class="flex items-center gap-2 p-2 rounded-xl bg-cine-surfaceN2 border border-cine-border hover:border-zinc-500 cursor-pointer">
+            <input type="radio" name="delivery-timing" value="foyer" class="accent-cine-primary">
+            <div>
+              <span class="font-bold text-white block text-[11px]">Balcão Foyer</span>
+              <span class="text-[9px] text-zinc-400">Retirada express sem fila</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
       <!-- Food Menu Items with Dark Photography -->
       <div class="space-y-3 overflow-y-auto pr-1 flex-1">
         
-        <!-- Combo 1 -->
+        <!-- Item 1: Burger Gourmet (Everyman Spielburger inspired) -->
         <div class="p-3.5 rounded-2xl bg-cine-surfaceN1 border border-cine-border flex items-center justify-between gap-4">
           <div class="flex items-center gap-3.5">
             <div class="w-16 h-16 rounded-xl bg-[#121212] overflow-hidden shrink-0 border border-white/5">
-              <img src="https://images.unsplash.com/photo-1578849278619-e73505e9610f?auto=format&fit=crop&w=200&q=80" alt="Pipoca Grande" class="w-full h-full object-cover">
+              <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=200&q=80" alt="Mini Smash Burgers" class="w-full h-full object-cover">
             </div>
             <div>
-              <h4 class="font-bold text-white text-sm">Combo Gourmet Mega</h4>
-              <p class="text-xs text-cine-textSecondary">Pipoca Balde Salgada + 2 Refrigerantes 700ml</p>
-              <span class="text-xs font-mono font-black text-cine-primary block mt-1">R$ 38,00</span>
+              <div class="flex items-center gap-2">
+                <h4 class="font-bold text-white text-sm">Duo Mini Smash Burgers</h4>
+                <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30">Dine-In</span>
+              </div>
+              <p class="text-xs text-cine-textSecondary">Dois mini burgers em pão brioche macio, cheddar inglês e maionese defumada</p>
+              <span class="text-xs font-mono font-black text-cine-culinary block mt-1">R$ 38,00</span>
             </div>
           </div>
-          <button onclick="addConcessionItem('Combo Gourmet Mega', 38.00)" class="px-3.5 py-2 rounded-xl bg-cine-surfaceN3 hover:bg-cine-primary hover:text-cine-primaryText text-white text-xs font-bold transition focus-accessible">
+          <button onclick="addConcessionItem('Duo Mini Smash Burgers', 38.00)" class="px-3.5 py-2 rounded-xl bg-cine-surfaceN3 hover:bg-cine-primary hover:text-cine-primaryText text-white text-xs font-bold transition focus-accessible shrink-0">
             + Adicionar
           </button>
         </div>
 
-        <!-- Combo 2 -->
+        <!-- Item 2: Pipoca Trufada -->
         <div class="p-3.5 rounded-2xl bg-cine-surfaceN1 border border-cine-border flex items-center justify-between gap-4">
           <div class="flex items-center gap-3.5">
             <div class="w-16 h-16 rounded-xl bg-[#121212] overflow-hidden shrink-0 border border-white/5">
-              <img src="https://images.unsplash.com/photo-1585647347384-2593bc35786b?auto=format&fit=crop&w=200&q=80" alt="Pipoca Doce" class="w-full h-full object-cover">
+              <img src="https://images.unsplash.com/photo-1578849278619-e73505e9610f?auto=format&fit=crop&w=200&q=80" alt="Pipoca Trufada" class="w-full h-full object-cover">
             </div>
             <div>
-              <h4 class="font-bold text-white text-sm">Pipoca Trufada Chocolate</h4>
-              <p class="text-xs text-cine-textSecondary">Receita artesanal com raspas de chocolate meio amargo</p>
-              <span class="text-xs font-mono font-black text-cine-primary block mt-1">R$ 26,00</span>
+              <div class="flex items-center gap-2">
+                <h4 class="font-bold text-white text-sm">Pipoca Trufada c/ Parmesão Reggiano</h4>
+                <span class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">Chef Special</span>
+              </div>
+              <p class="text-xs text-cine-textSecondary">Azeite de trufas brancas, parmesão ralado na hora e flor de sal</p>
+              <span class="text-xs font-mono font-black text-cine-culinary block mt-1">R$ 28,00</span>
             </div>
           </div>
-          <button onclick="addConcessionItem('Pipoca Trufada Chocolate', 26.00)" class="px-3.5 py-2 rounded-xl bg-cine-surfaceN3 hover:bg-cine-primary hover:text-cine-primaryText text-white text-xs font-bold transition focus-accessible">
+          <button onclick="addConcessionItem('Pipoca Trufada c/ Parmesão', 28.00)" class="px-3.5 py-2 rounded-xl bg-cine-surfaceN3 hover:bg-cine-primary hover:text-cine-primaryText text-white text-xs font-bold transition focus-accessible shrink-0">
+            + Adicionar
+          </button>
+        </div>
+
+        <!-- Item 3: Crispy Hot Honey Chicken -->
+        <div class="p-3.5 rounded-2xl bg-cine-surfaceN1 border border-cine-border flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3.5">
+            <div class="w-16 h-16 rounded-xl bg-[#121212] overflow-hidden shrink-0 border border-white/5">
+              <img src="https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=200&q=80" alt="Crispy Bites" class="w-full h-full object-cover">
+            </div>
+            <div>
+              <h4 class="font-bold text-white text-sm">Crispy Hot Honey Chicken Bites</h4>
+              <p class="text-xs text-cine-textSecondary">Bocados crocantes de frango marinado, mel picante e molho aioli suave</p>
+              <span class="text-xs font-mono font-black text-cine-culinary block mt-1">R$ 32,00</span>
+            </div>
+          </div>
+          <button onclick="addConcessionItem('Crispy Hot Honey Bites', 32.00)" class="px-3.5 py-2 rounded-xl bg-cine-surfaceN3 hover:bg-cine-primary hover:text-cine-primaryText text-white text-xs font-bold transition focus-accessible shrink-0">
+            + Adicionar
+          </button>
+        </div>
+
+        <!-- Item 4: Coquetelaria Silenciosa (Anti-Clinking) -->
+        <div class="p-3.5 rounded-2xl bg-cine-surfaceN1 border border-cine-border flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3.5">
+            <div class="w-16 h-16 rounded-xl bg-[#121212] overflow-hidden shrink-0 border border-white/5">
+              <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=200&q=80" alt="Vinho & Coquetéis" class="w-full h-full object-cover">
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h4 class="font-bold text-white text-sm">Vinho Tinto Malbec (Taça Velvet Touch)</h4>
+                <span class="text-[9px] px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30">Anti-Ruído</span>
+              </div>
+              <p class="text-xs text-cine-textSecondary">Servido em taça aveludada especial para poltrona, eliminando ruídos de vidro</p>
+              <span class="text-xs font-mono font-black text-cine-culinary block mt-1">R$ 32,00</span>
+            </div>
+          </div>
+          <button onclick="addConcessionItem('Vinho Malbec Taça Velvet', 32.00)" class="px-3.5 py-2 rounded-xl bg-cine-surfaceN3 hover:bg-cine-primary hover:text-cine-primaryText text-white text-xs font-bold transition focus-accessible shrink-0">
+            + Adicionar
+          </button>
+        </div>
+
+        <!-- Item 5: Combo Completo CineFood -->
+        <div class="p-3.5 rounded-2xl bg-cine-surfaceN1 border border-cine-border flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3.5">
+            <div class="w-16 h-16 rounded-xl bg-[#121212] overflow-hidden shrink-0 border border-white/5">
+              <img src="https://images.unsplash.com/photo-1585647347384-2593bc35786b?auto=format&fit=crop&w=200&q=80" alt="Combo Completo" class="w-full h-full object-cover">
+            </div>
+            <div>
+              <h4 class="font-bold text-white text-sm">Combo Pipoca Doce Caramelo & Flor de Sal</h4>
+              <p class="text-xs text-cine-textSecondary">Pipoca artesanal com caramelo toffee crocante e refrigerante artesanal 500ml</p>
+              <span class="text-xs font-mono font-black text-cine-culinary block mt-1">R$ 26,00</span>
+            </div>
+          </div>
+          <button onclick="addConcessionItem('Pipoca Caramelo Flor de Sal', 26.00)" class="px-3.5 py-2 rounded-xl bg-cine-surfaceN3 hover:bg-cine-primary hover:text-cine-primaryText text-white text-xs font-bold transition focus-accessible shrink-0">
             + Adicionar
           </button>
         </div>
 
         <!-- Notification of delivery binding -->
         <div class="p-3 rounded-xl bg-cine-surfaceN3/60 border border-cine-border text-[11px] text-cine-textSecondary flex items-center gap-2">
-          <i data-lucide="info" class="w-4 h-4 text-cine-primary shrink-0"></i>
-          <span>Seu pedido será entregue diretamente na(s) sua(s) poltrona(s) selecionada(s) antes do início do longa-metragem.</span>
+          <i data-lucide="shield-check" class="w-4 h-4 text-cine-primary shrink-0"></i>
+          <span>Seu pedido é vinculado diretamente ao ID da sua poltrona. O garçom runner entrega silenciosamente sem interrupção.</span>
         </div>
       </div>
 
@@ -781,13 +889,23 @@
       inTheaterMode = !inTheaterMode;
       document.body.classList.toggle('in-theater-mode', inTheaterMode);
       const btn = document.getElementById('btn-theater-mode');
+      const banner = document.getElementById('banner-theater-mode');
       if (inTheaterMode) {
+        banner.classList.remove('hidden');
         btn.innerHTML = '<i data-lucide="sun" class="w-3.5 h-3.5 text-cine-primary"></i> <span class="hidden sm:inline">Modo Padrão</span>';
         if ('vibrate' in navigator) navigator.vibrate(50);
       } else {
+        banner.classList.add('hidden');
         btn.innerHTML = '<i data-lucide="moon" class="w-3.5 h-3.5 text-amber-300"></i> <span class="hidden sm:inline">Modo Sala Escura</span>';
       }
       lucide.createIcons();
+    }
+
+    function quickRepeatLastOrder() {
+      if ('vibrate' in navigator) navigator.vibrate([40, 30, 40]);
+      concessionTotal += 28.00;
+      updateSummary();
+      alert('[1-Tap Silent Reorder • Protocolo In-Theater]\n\nItem "Pipoca Trufada c/ Parmesão" (R$ 28,00) repetido com sucesso!\nO Runner fará a entrega furtiva na sua poltrona sem acender luzes nem emitir ruído.');
     }
 
     function openConcessionDrawer() {
