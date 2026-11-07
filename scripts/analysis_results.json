@@ -1,0 +1,673 @@
+{
+  "Alamo Drafthouse": {
+    "url": "https://drafthouse.com",
+    "branding": {
+      "colorScheme": "light",
+      "fonts": [
+        {
+          "family": "Futura-Pt",
+          "role": "body"
+        }
+      ],
+      "colors": {
+        "primary": "#F5B324",
+        "accent": "#F5B324",
+        "background": "#FFFFFF",
+        "textPrimary": "#090909",
+        "link": "#F5B324"
+      },
+      "typography": {
+        "fontFamilies": {
+          "primary": "Futura-Pt",
+          "heading": "Futura-Pt"
+        },
+        "fontStacks": {
+          "heading": [
+            "Futura-Pt",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "San Francisco",
+            "Segoe UI",
+            "Roboto",
+            "Helvetica Neue",
+            "sans-serif"
+          ],
+          "body": [
+            "Futura-Pt",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "San Francisco",
+            "Segoe UI",
+            "Roboto",
+            "Helvetica Neue",
+            "sans-serif"
+          ],
+          "paragraph": [
+            "Futura-Pt",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "San Francisco",
+            "Segoe UI",
+            "Roboto",
+            "Helvetica Neue",
+            "sans-serif"
+          ]
+        },
+        "fontSizes": {
+          "h1": "26px",
+          "h2": "16px",
+          "body": "14px"
+        }
+      },
+      "spacing": {
+        "baseUnit": 4,
+        "borderRadius": "4px"
+      },
+      "components": {
+        "buttonPrimary": {
+          "background": "#090909",
+          "textColor": "#F5B324",
+          "borderRadius": "0px",
+          "borderRadiusCorners": {
+            "topLeft": "0px",
+            "topRight": "0px",
+            "bottomRight": "0px",
+            "bottomLeft": "0px"
+          },
+          "shadow": "none"
+        },
+        "buttonSecondary": {
+          "background": "#000000",
+          "textColor": "#000000",
+          "borderRadius": "0px",
+          "borderRadiusCorners": {
+            "topLeft": "0px",
+            "topRight": "0px",
+            "bottomRight": "0px",
+            "bottomLeft": "0px"
+          },
+          "shadow": "none"
+        }
+      },
+      "images": {
+        "logo": "https://sspa.prod.aws.drafthouse.com/releases/9210356b27d8/assets/logo-black-DeZZQKld.svg",
+        "favicon": "https://sspa.prod.aws.drafthouse.com/releases/9210356b27d8/favicon.png",
+        "ogImage": null,
+        "logoHref": "/",
+        "logoAlt": "Alamo Drafthouse Cinema - Home"
+      },
+      "personality": {
+        "tone": "bold",
+        "energy": "high",
+        "targetAudience": "general consumers"
+      },
+      "designSystem": {
+        "framework": "custom",
+        "componentLibrary": ""
+      },
+      "confidence": {
+        "buttons": 0.7600000000000001,
+        "colors": 0.7366666666666667,
+        "overall": 0.7483333333333334
+      },
+      "brandName": "Movies & showtimes",
+      "logo": "https://sspa.prod.aws.drafthouse.com/releases/9210356b27d8/assets/logo-black-DeZZQKld.svg"
+    },
+    "headings_sample": [
+      "## MORE MOVIES",
+      "## SELECT YOUR LOCAL ALAMO",
+      "# Movies & showtimes",
+      "## **GODZILLA MINUS ZERO roars into Alamo**",
+      "## **Destination: Planet Holiday**",
+      "## Now Playing",
+      "## Now Playing",
+      "### Select from these options to filter the results:",
+      "## ![Special Offers](https://sspa.prod.aws.drafthouse.com/releases/9210356b27d8/assets/Holiday_2026_SectionHeader_SpecialOffers-ZBLuth81.webp)",
+      "### [See PEARL. Get the exclusive pint.](https://drafthouse.com/event/a24-x-alamo-cinema-club-mandatory-bundle-pearl)",
+      "### [Get the exclusive RED ROCKET Pint Glass](https://drafthouse.com/event/a24-x-alamo-cinema-club-mandatory-bundle-red-rocket)",
+      "### [New exclusive Godzilla collectibles](https://giftshop.drafthouse.com/collections/alamo-drafthouse-x-godzilla)"
+    ],
+    "food_sample": [
+      "ALAMO DRAFTHOUSEFilm, Food, Fun",
+      "![](data:image/svg+xml,%3csvg%20viewBox='0%200%20939%20939'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill='%23090909'%20d='%20M845.394,533.334%20c5.099,-0.007,9.975,1.997,13.485,5.542%20s5.341,8.317,5.066,13.196%20c-10.203,176.818,-163.877,301.262,-351.944,301.262%20s-341.741,-124.444,-351.907,-301.227%20c-0.286,-4.885,1.542,-9.667,5.052,-13.219%20s8.393,-5.562,13.499,-5.554%20h666.75%20M326.493,640%20c-20.491,0,-37.101,15.919,-37.101,35.556%20s16.611,35.556,37.101,35.556%20c20.491,0,37.101,-15.919,37.101,-35.556%20s-16.611,-35.556,-37.101,-35.556%20M419.246,711.111%20c-20.491,0,-37.101,15.919,-37.101,35.556%20s16.611,35.556,37.101,35.556%20c20.491,0,37.101,-15.919,37.101,-35.556%20c0,-9.43,-3.909,-18.474,-10.867,-25.142%20s-16.395,-10.414,-26.235,-10.414%20M512,640%20c-20.491,0,-37.101,15.919,-37.101,35.556%20s16.611,35.556,37.101,35.556%20c20.491,0,37.101,-15.919,37.101,-35.556%20s-16.611,-35.556,-37.101,-35.556%20M604.754,711.111%20c-20.491,0,-37.101,15.919,-37.101,35.556%20s16.611,35.556,37.101,35.556%20c20.491,0,37.101,-15.919,37.101,-35.556%20c0,-9.43,-3.909,-18.474,-10.867,-25.142%20s-16.395,-10.414,-26.235,-10.414%20M697.507,640%20c-20.491,0,-37.101,15.919,-37.101,35.556%20s16.611,35.556,37.101,35.556%20c20.491,0,37.101,-15.919,37.101,-35.556%20s-16.611,-35.556,-37.101,-35.556%20M864.464,302.223%20c-11.886,0,-23.285,-4.528,-31.685,-12.587%20l-60.364,-57.813%20c-22.577,-21.637,-57.066,-27.007,-85.63,-13.333%20l-151.3,72.462%20c-15.441,7.423,-32.479,11.283,-49.753,11.271%20h-326.196%20c-40.981,0,-74.203,-31.838,-74.203,-71.111%20s33.222,-71.111,74.203,-71.111%20h704.928%20c40.981,0,74.203,31.838,74.203,71.111%20s-33.222,71.111,-74.203,71.111%20M178.087,106.667%20c-10.245,0,-18.551,-7.959,-18.551,-17.778%20v-17.778%20c0,-39.274,33.222,-71.111,74.203,-71.111%20h556.522%20c40.981,0,74.203,31.838,74.203,71.111%20v17.778%20c0,9.818,-8.305,17.778,-18.551,17.778%20h-667.826%20M159.536,480%20c0,0,-74.203,-14.222,-74.203,-53.333%20s33.391,-53.333,74.203,-53.333%20c14.553,-0.090,28.943,2.948,42.11,8.889%20c7.984,3.799,17.659,1.62,23.040,-5.191%20c19.454,-25.265,50.499,-39.902,83.256,-39.253%20c33.942,-3.259,66.919,12.020,85.333,39.538%20c1.613,2.524,4.435,4.108,7.521,4.223%20s6.027,-1.257,7.839,-3.654%20c26.209,-27.859,64.314,-42.644,103.365,-40.107%20c39.052,-2.543,77.159,12.243,103.365,40.107%20c1.83,2.381,4.772,3.738,7.856,3.624%20s5.908,-1.684,7.541,-4.193%20c18.397,-27.518,51.364,-42.8,85.296,-39.538%20c32.72,-0.682,63.749,13.901,83.219,39.111%20c5.385,6.829,15.084,9.010,23.077,5.191%20c13.166,-5.944,27.556,-8.982,42.11,-8.889%20c40.997,0,74.203,14.222,74.203,53.333%20s-74.203,53.333,-74.203,53.333%20l-704.928,0.142%20Z%20'%3e%3c/path%3e%3c/svg%3e)Food & Drink Menus",
+      "MENUSSEASON PASSGIFT CARDS",
+      "\\| 10% FOOD AND DRINK DISCOUNT",
+      "Sean Baker’s Texas tale returns to the big screen with exclusive merch & menu",
+      "Set phasers for film, food, and fun this holiday season.",
+      "![](https://crafthouse-assets-prod.s3.amazonaws.com/images/posts/the-food-rhombus-has-evolved/REVISED_YourNewMenuandYou_Web_BlogHeader_800x600.jpg)",
+      "### [THE FOOD RHOMBUS™ Has Evolved](https://drafthouse.com/news/the-food-rhombus-has-evolved)",
+      "New pizzas. New sandwiches. New salads, snacks, and sweets. And a whole new line up of boozy shakes, cocktails and zero-proof drinks. There's more to the THE FOOD RHOMBUS™ than ever.",
+      "- [Food & Drink](https://drafthouse.com/food-and-drink)"
+    ],
+    "formats_sample": [
+      "Privacy Policy[Your Privacy Choices - opens in a new window](https://privacyportal.onetrust.com/webform/d19e506f-1a64-463d-94e4-914dd635817d/b9eb997c-9ede-451b-8fd4-29891782a928) Your Privacy Choices ![privacy choice](<Base64-Image-Removed>)",
+      "![Company Logo](https://cdn.cookielaw.org/logos/d19e506f-1a64-463d-94e4-914dd635817d/b3adfcef-3e46-4bf5-90c5-de654490444b/3e52e08a-f636-4696-8723-c8714386d69f/sp_logo_black.png)"
+    ],
+    "markdown_length": 37998
+  },
+  "Everyman Cinemas": {
+    "url": "https://www.everymancinema.com",
+    "branding": {
+      "colorScheme": "light",
+      "fonts": [
+        {
+          "family": "Roboto",
+          "role": "body"
+        },
+        {
+          "family": "Baskerville Std",
+          "role": "heading"
+        }
+      ],
+      "colors": {
+        "primary": "#EE9CA6",
+        "secondary": "#EFCFD3",
+        "accent": "#EE9CA6",
+        "background": "#FFFFFF",
+        "textPrimary": "#000000",
+        "link": "#EE9CA6"
+      },
+      "typography": {
+        "fontFamilies": {
+          "primary": "Roboto",
+          "heading": "Baskerville Std"
+        },
+        "fontStacks": {
+          "heading": [
+            "Roboto",
+            "sans-serif"
+          ],
+          "body": [
+            "Roboto",
+            "sans-serif"
+          ],
+          "paragraph": [
+            "Roboto",
+            "sans-serif"
+          ]
+        },
+        "fontSizes": {
+          "h1": "16px",
+          "h2": "48px",
+          "body": "16px"
+        }
+      },
+      "spacing": {
+        "baseUnit": 4,
+        "borderRadius": "8px"
+      },
+      "components": {
+        "buttonPrimary": {
+          "background": "#EE9CA6",
+          "textColor": "#212020",
+          "borderRadius": "8px",
+          "borderRadiusCorners": {
+            "topLeft": "8px",
+            "topRight": "8px",
+            "bottomRight": "8px",
+            "bottomLeft": "8px"
+          },
+          "shadow": "none"
+        },
+        "buttonSecondary": {
+          "background": "#EFCFD3",
+          "textColor": "#000000",
+          "borderColor": "#212020",
+          "borderRadius": "8px",
+          "borderRadiusCorners": {
+            "topLeft": "8px",
+            "topRight": "8px",
+            "bottomRight": "8px",
+            "bottomLeft": "8px"
+          },
+          "shadow": "none"
+        }
+      },
+      "images": {
+        "logo": "https://cms-assets.webediamovies.pro/cdn-cgi/image/dpr=1,fit=crop,gravity=auto,metadata=none,quality=85,width=379,height=46/production/279/fda91d18e4256797bd75c64c34a5547a.png",
+        "favicon": "https://cms-assets.webediamovies.pro/cdn-cgi/image/width=192,height=192,fit=contain,quality=100/production/2/d757bf555569b234393e995da3b1d4cb.png",
+        "ogImage": null,
+        "logoHref": "/",
+        "logoAlt": "Everyman Cinema – Home"
+      },
+      "personality": {
+        "tone": "modern",
+        "energy": "medium",
+        "targetAudience": "general consumers"
+      },
+      "designSystem": {
+        "framework": "custom",
+        "componentLibrary": ""
+      },
+      "confidence": {
+        "buttons": 0.9700000000000001,
+        "colors": 0.9233333333333333,
+        "overall": 0.9466666666666668
+      },
+      "brandName": "Cinema & Film Listings",
+      "logo": "https://cms-assets.webediamovies.pro/cdn-cgi/image/dpr=1,fit=crop,gravity=auto,metadata=none,quality=85,width=379,height=46/production/279/fda91d18e4256797bd75c64c34a5547a.png"
+    },
+    "headings_sample": [
+      "### Christmas at Everyman",
+      "## Our Partners"
+    ],
+    "food_sample": [
+      "Festive **classics**, new winter **cocktails**, **sharing plates**, **gifts** and more: the season has officially begun! Bring the family for a Christmas favourite, gather friends for a night out, or treat yourself to a quiet screening with something warming in hand.",
+      "[![When Harry Met Sally presented by The Rhubarb Society + RomCom Quiz](https://cms-assets.webediamovies.pro/cdn-cgi/image/dpr=1,fit=scale-down,gravity=auto,metadata=none,quality=85,width=2500/production/279/b5e7757b182c3241fd4ddbe29aac5d83.jpg)\\\\",
+      "**When Harry Met Sally presented by The Rhubarb Society + RomCom Quiz**](https://www.everymancinema.com/film-listing/1000054383-when-harry-met-sally-presented-by-the-rhubarb-society-romcom-quiz/ \"When Harry Met Sally presented by The Rhubarb Society + RomCom Quiz\")",
+      "[Food & drink](https://www.everymancinema.com/food-and-drink/)"
+    ],
+    "formats_sample": [
+      "[![Primetime](https://cms-assets.webediamovies.pro/cdn-cgi/image/dpr=1,fit=scale-down,gravity=auto,metadata=none,quality=85,width=1112/production/279/448a79e42fc6b0f5acfd66752022e747.jpg)](https://www.everymancinema.com/film-listing/1000013908-primetime/)",
+      "[Primetime\\\\",
+      "15](https://www.everymancinema.com/film-listing/1000013908-primetime/)",
+      "[Book Tickets](https://www.everymancinema.com/film-listing/1000013908-primetime/)",
+      "[![Clayface](https://all.web.img.acsta.net/r_1112_x/img/11/50/115070415a45416315f811f43de7e00f.jpg)](https://www.everymancinema.com/film-listing/1000016901-clayface/)",
+      "[![Primetime](https://cms-assets.webediamovies.pro/cdn-cgi/image/dpr=1,fit=scale-down,gravity=auto,metadata=none,quality=85,width=2500/production/279/bff5aeeb501bd54c5e9cfcfad42c5247.jpg)\\\\",
+      "**Primetime**](https://www.everymancinema.com/film-listing/1000013908-primetime/ \"Primetime\")",
+      "[![La Bola Negra](https://cms-assets.webediamovies.pro/cdn-cgi/image/dpr=1,fit=scale-down,gravity=auto,metadata=none,quality=85,width=2500/production/279/076406ffb352b765cfa233d89664c686.jpg)\\\\",
+      "[![RBO Cinema Season 2026-27: Carmen](https://cms-assets.webediamovies.pro/cdn-cgi/image/dpr=1,fit=scale-down,gravity=auto,metadata=none,quality=85,width=2500/production/279/96f3fab2c26d3df9c2ae8e15e47113e7.jpeg)\\\\",
+      "[![Verity](https://all.web.img.acsta.net/r_2500_x/img/41/7e/417eabd3d500bfc3621daa93fb241851.jpg)\\\\"
+    ],
+    "markdown_length": 30127
+  },
+  "Cinemark Brasil": {
+    "url": "https://www.cinemark.com.br",
+    "branding": {
+      "colorScheme": "light",
+      "fonts": [
+        {
+          "family": "Oswald",
+          "role": "heading"
+        },
+        {
+          "family": "Work Sans",
+          "role": "body"
+        }
+      ],
+      "colors": {
+        "primary": "#BE0D0D",
+        "secondary": "#0000FF",
+        "accent": "#FF3939",
+        "background": "#FFFFFF",
+        "textPrimary": "#AAA9A8",
+        "link": "#FF3939"
+      },
+      "typography": {
+        "fontFamilies": {
+          "primary": "Work Sans",
+          "heading": "Oswald"
+        },
+        "fontStacks": {
+          "heading": [
+            "Work Sans"
+          ],
+          "body": [
+            "Work Sans"
+          ],
+          "paragraph": [
+            "Work Sans"
+          ]
+        },
+        "fontSizes": {
+          "h1": "16px",
+          "h2": "14px",
+          "body": "20px"
+        }
+      },
+      "spacing": {
+        "baseUnit": 4,
+        "borderRadius": "10px"
+      },
+      "components": {
+        "buttonPrimary": {
+          "background": "#BE0D0D",
+          "textColor": "#FFFFFF",
+          "borderRadius": "10px",
+          "borderRadiusCorners": {
+            "topLeft": "10px",
+            "topRight": "10px",
+            "bottomRight": "10px",
+            "bottomLeft": "10px"
+          },
+          "shadow": "none"
+        },
+        "buttonSecondary": {
+          "background": "#12100D",
+          "textColor": "#AAA9A8",
+          "borderRadius": "0px",
+          "borderRadiusCorners": {
+            "topLeft": "0px",
+            "topRight": "0px",
+            "bottomRight": "0px",
+            "bottomLeft": "0px"
+          },
+          "shadow": "none"
+        }
+      },
+      "images": {
+        "logo": "https://www.cinemark.com.br/images/logo.svg",
+        "favicon": "https://www.cinemark.com.br/images/favicon.ico",
+        "ogImage": null,
+        "logoHref": "/",
+        "logoAlt": "Logo Cinemark"
+      },
+      "personality": {
+        "tone": "modern",
+        "energy": "high",
+        "targetAudience": "general consumers"
+      },
+      "designSystem": {
+        "framework": "chakra",
+        "componentLibrary": "chakra-ui"
+      },
+      "confidence": {
+        "buttons": 0.95,
+        "colors": 0.6166666666666667,
+        "overall": 0.7833333333333333
+      },
+      "brandName": "Cinemark Cinemas",
+      "logo": "https://www.cinemark.com.br/images/logo.svg"
+    },
+    "headings_sample": [
+      "## Now Playing",
+      "## Coming Soon",
+      "## Enjoy at Cinemark",
+      "## Prime",
+      "## Salas 3D",
+      "## Salas XD",
+      "## Poltronas D-BOX",
+      "## State",
+      "## State",
+      "## City",
+      "## City"
+    ],
+    "food_sample": [
+      "[![Cara de Barro](https://www.cinemark.com.br/_next/image?url=https%3A%2F%2Fcdnim.prd.cineticket.com.br%2Fimages%2Fcms%2FmoviePoster%2FMoviePoster-b0b3314a-76d1-4e7d-ae1e-163fe9c6e856.png&w=3840&q=75)\\\\",
+      "**Cara de Barro** \\\\",
+      "![18](https://www.cinemark.com.br/images/rating/18.svg)](https://www.cinemark.com.br/filme/cara-de-barro)",
+      "[![Como Roubar um Banco](https://www.cinemark.com.br/_next/image?url=https%3A%2F%2Fcdnim.prd.cineticket.com.br%2Fimages%2Fcms%2FmoviePoster%2FMoviePoster-190cc17f-c2cc-4cf9-bbe8-400e8d8178d9.png&w=3840&q=75)\\\\",
+      "**Como Roubar um Banco** \\\\",
+      "![No rating](https://www.cinemark.com.br/images/rating/no-rating.svg)](https://www.cinemark.com.br/filme/como-roubar-um-banco)",
+      "[![Cara de Barro](https://www.cinemark.com.br/_next/image?url=https%3A%2F%2Fcdnim.prd.cineticket.com.br%2Fimages%2Fcms%2FmoviePoster%2FMoviePoster-b0b3314a-76d1-4e7d-ae1e-163fe9c6e856.png&w=3840&q=75)\\\\",
+      "**Cara de Barro** \\\\",
+      "![18](https://www.cinemark.com.br/images/rating/18.svg)](https://www.cinemark.com.br/filme/cara-de-barro)",
+      "[![Como Roubar um Banco](https://www.cinemark.com.br/_next/image?url=https%3A%2F%2Fcdnim.prd.cineticket.com.br%2Fimages%2Fcms%2FmoviePoster%2FMoviePoster-190cc17f-c2cc-4cf9-bbe8-400e8d8178d9.png&w=3840&q=75)\\\\"
+    ],
+    "formats_sample": [
+      "![Whatsapp](https://www.cinemark.com.br/_next/image?url=https%3A%2F%2Fcdnim.prd.cineticket.com.br%2Fimages%2Fcms%2FbannerHero%2FBannerHero-f576989f-bbd2-423d-83f4-83dc69ea77df.webp&w=3840&q=75)",
+      "[![Os Farofeiros 3](https://www.cinemark.com.br/_next/image?url=https%3A%2F%2Fcdnim.prd.cineticket.com.br%2Fimages%2Fcms%2FmoviePoster%2FMoviePoster-3d125404-14e4-484f-a4ec-f118d54eaa28.png&w=3840&q=75)\\\\",
+      "[![Godzilla Minus Zero](https://www.cinemark.com.br/_next/image?url=https%3A%2F%2Fcdnim.prd.cineticket.com.br%2Fimages%2Fcms%2FmoviePoster%2FMoviePoster-e52ad0bc-bad0-4aae-8f83-862a4d583d57.png&w=3840&q=75)\\\\",
+      "[![Dune: Part Three](https://www.cinemark.com.br/_next/image?url=https%3A%2F%2Fcdnim.prd.cineticket.com.br%2Fimages%2Fcms%2FmoviePoster%2FMoviePoster-f764bb26-8af6-4470-995c-83dccde2e555.png&w=3840&q=75)\\\\",
+      "[![Os Farofeiros 3](https://www.cinemark.com.br/_next/image?url=https%3A%2F%2Fcdnim.prd.cineticket.com.br%2Fimages%2Fcms%2FmoviePoster%2FMoviePoster-3d125404-14e4-484f-a4ec-f118d54eaa28.png&w=3840&q=75)\\\\",
+      "[![Godzilla Minus Zero](https://www.cinemark.com.br/_next/image?url=https%3A%2F%2Fcdnim.prd.cineticket.com.br%2Fimages%2Fcms%2FmoviePoster%2FMoviePoster-e52ad0bc-bad0-4aae-8f83-862a4d583d57.png&w=3840&q=75)\\\\",
+      "[![Dune: Part Three](https://www.cinemark.com.br/_next/image?url=https%3A%2F%2Fcdnim.prd.cineticket.com.br%2Fimages%2Fcms%2FmoviePoster%2FMoviePoster-f764bb26-8af6-4470-995c-83dccde2e555.png&w=3840&q=75)\\\\",
+      "![Minimark](https://www.cinemark.com.br/_next/image?url=https%3A%2F%2Fcdnim.prd.cineticket.com.br%2Fimages%2Fcms%2FpromotionalBanner%2FPromotionalBanner-14673df6-4096-45f2-b249-30e8123eaa45.png&w=3840&q=75)",
+      "## Prime",
+      "Diversão com um toque de sofisticação e exclusividade. Conheça agora mesmo as salas Bradesco Prime."
+    ],
+    "markdown_length": 30626
+  },
+  "AMC Theatres": {
+    "url": "https://www.amctheatres.com",
+    "branding": {
+      "colorScheme": "dark",
+      "fonts": [
+        {
+          "family": "Gordita",
+          "role": "body"
+        }
+      ],
+      "colors": {
+        "primary": "#CE0E2D",
+        "accent": "#CE0E2D",
+        "background": "#000000",
+        "textPrimary": "#FFFFFF",
+        "link": "#CE0E2D"
+      },
+      "typography": {
+        "fontFamilies": {
+          "primary": "Gordita",
+          "heading": "Gordita"
+        },
+        "fontStacks": {
+          "heading": [
+            "Gordita",
+            "Helvetica",
+            "sans-serif"
+          ],
+          "body": [
+            "Gordita",
+            "Helvetica",
+            "sans-serif"
+          ],
+          "paragraph": [
+            "Gordita",
+            "Helvetica",
+            "sans-serif"
+          ]
+        },
+        "fontSizes": {
+          "h1": "16px",
+          "h2": "16px",
+          "body": "14px"
+        }
+      },
+      "spacing": {
+        "baseUnit": 4,
+        "borderRadius": "6px"
+      },
+      "components": {
+        "input": {
+          "background": "#000000",
+          "textColor": "#A8B8BC",
+          "borderColor": null,
+          "borderRadius": "0px",
+          "borderRadiusCorners": {
+            "topLeft": "0px",
+            "topRight": "0px",
+            "bottomRight": "0px",
+            "bottomLeft": "0px"
+          },
+          "shadow": "none"
+        },
+        "buttonPrimary": {
+          "background": "#CE0E2D",
+          "textColor": "#FFFFFF",
+          "borderRadius": "9999px",
+          "borderRadiusCorners": {
+            "topLeft": "9999px",
+            "topRight": "9999px",
+            "bottomRight": "9999px",
+            "bottomLeft": "9999px"
+          },
+          "shadow": "none"
+        },
+        "buttonSecondary": {
+          "background": "#FFFFFF",
+          "textColor": "#000000",
+          "borderRadius": "9999px",
+          "borderRadiusCorners": {
+            "topLeft": "9999px",
+            "topRight": "9999px",
+            "bottomRight": "9999px",
+            "bottomLeft": "9999px"
+          },
+          "shadow": "none"
+        }
+      },
+      "images": {
+        "logo": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xml%3Aspace%3D%22preserve%22%20fill%3D%22currentColor%22%20viewBox%3D%220%200%20549.33%20213.71%22%20width%3D%221em%22%20height%3D%22100%25%22%20class%3D%22w-full%20text-red-500%22%20data-fc-idx%3D%220%22%3E%3Ctitle%20style%3D%22fill%3A%20rgb(206%2C%2014%2C%2045)%20!important%3B%22%3EAMC%20Theatres%20Homepage%3C%2Ftitle%3E%3Cpath%20d%3D%22M25.77%20171.89v40.29H15.76v-40.29H1.02v-8.33h38.96v8.33zM104.19%20212.18v-22.01H84.91v22.01h-10v-48.62h10v18.27h19.28v-18.27h10.01v48.62zM151.17%20212.18v-48.62h35.23v8.33h-25.22v11.07h23.28v8.34h-23.28v12.55h26.35v8.33zM250.14%20212.18l-3.34-9.75h-18.01l-3.4%209.75h-10.21l16.95-48.63h11.53l16.68%2048.63zm-12.21-36.96-6.01%2018.88h12.47zM308.17%20171.89v40.29h-10.01v-40.29h-14.74v-8.33h38.95v8.33zM382.87%20212.18c-.81-1.48-1.21-2.93-1.33-4.54-.14-2.4%200-6.27%200-9.81%200-3.27-2.55-4.87-6.01-4.87h-11.74v19.22h-10.01v-48.63h27.02c4.87%200%209.74%202.46%2011.21%207.73.6%202.13%201.66%205.59.47%209.81-1.21%204.19-3.34%205.73-6.61%207.67%201.67%201.12%204.87%202.33%205.4%206.73.27%202.01.47%208.41.47%2010.87.07%202.74.8%203.34%201.88%204.01v1.81zm-5.53-40.29h-13.55v12.74h13.69c2.33%200%206.53-2.47%205.93-7.27-.01-3.47-1.61-5.47-6.07-5.47M427.09%20212.18v-48.62h35.21v8.33h-25.21v11.07h23.28v8.34h-23.28v12.55h26.35v8.33zM522.73%20178.36c.14-3.93-3.13-7.54-9.99-7.67-4.88-.06-8.48%201.59-8.81%205.59-.27%203.35.87%204.01%203.07%204.87%201.13%201.21%2010.33%202.67%2012.2%203.02%202.67.46%208.41%201.66%2011.48%204.79%205.6%205.88%203%2017.41-3.07%2021.36-4.13%202.67-9.8%203.33-15.21%203.4-2.48.07-8.34-.8-11.94-3.4-4.34-3.13-6.47-7.94-6.81-12.54h9.74c0%201.27.4%203.27%202.07%205.07%202.2%202.27%205.81%202.93%209.15%202.8%203.33-.07%206.47-1.07%207.74-2.27%202.13-2%202.6-5.8.2-8.2-3.2-3.34-12.81-3.34-19.08-5.48-5.27-1.79-9.6-5.59-8.8-13.46.8-7.74%206.4-13.48%2018.28-13.48%202.6%200%2011.68.21%2016.41%206.21%202.54%203.27%203.21%207.8%202.8%209.41h-9.43zM539.77%20208.41c0-2.63%202.14-4.77%204.79-4.77a4.76%204.76%200%200%201%204.76%204.77c0%202.66-2.12%204.79-4.76%204.79-2.64-.01-4.79-2.14-4.79-4.79m8.99%200c0-2.31-1.88-4.18-4.19-4.18-2.33%200-4.2%201.88-4.2%204.18%200%202.34%201.87%204.22%204.2%204.22a4.215%204.215%200%200%200%204.19-4.22m-1.82%202.67h-.78l-1.52-2.46h-1.21v2.46h-.65v-5.34h2.33c.44%200%20.9.03%201.3.26s.6.71.6%201.15c0%201.06-.74%201.44-1.69%201.47zm-2.51-2.98c.76%200%201.92.12%201.92-.96%200-.84-.73-.93-1.39-.93h-1.52v1.89zM283.07%2020.55c25.4-21.5%2052.03-21.07%2074.68-9.9%2021.06%2011.1%2028.61%2027.08%2028.95%2050.39l-.01%2057.21s-.21%2016.14-16.76%2016.14c-15.72%200-16.46-16.04-16.46-16.04l-.22-56.52s-.95-26.26-27.21-26.26c-26.39%200-28.49%2026.12-28.49%2026.12v55.64s0%2016.86-16.71%2016.86c-16.32%200-16.66-16.86-16.66-16.86l-.01-55.48s-.5-26.28-28.4-26.28c-27.76%200-27.05%2026.67-27.05%2026.67v57.06s-1.94%2015.01-16.58%2015.01c-15.18%200-16.72-15.15-16.72-15.15l-.1-57.58c0-21.23%204.1-42.29%2034.3-54.22%2013.72-5.42%2029.82-5.31%2044.26-2.02%209.63%203.5%2017.94%208.2%2026.04%2015.21l1.53%201.34zM121.95%20117.9c0-16.55-16.41-16.61-16.41-16.61H46.4c-3.5%200-3.91-2.67-3.07-5.79%207.23-17.94%2023.25-38.03%2040.38-46.81%2014.17-7.24%2030.42-14.77%2047.27-13.67%203.53.28%203.53%201.91%203.53%207.45v74.63s.85%2016.95%2017.26%2016.95c16.89%200%2015.55-16.39%2015.55-16.39l-.07-93.71c.22-5.69-.82-11.16-4.21-15.54-2.52-2.29-5.91-4.7-9.74-5.24-20.14-1.67-39.47.15-58%205.55-34.35%2010.01-67.18%2037.92-84.03%2071.13C5.54%2091.16.22%20106%200%20119.68c.22%206.56%202.96%2014.22%2010.45%2014.22l95.36.48s16.14.61%2016.14-16.48M516.3%2077.27c16.69%201.74%2014.61%2017.4%2014.61%2017.4-9.01%2028.34-35.56%2045.66-66.88%2045.66-38.75%200-70.17-31.43-70.17-70.18C393.86%2031.41%20425.27%200%20464.03%200c31.46%200%2058.09%2015.35%2066.99%2043.88%200%200%204.24%2017.18-14.22%2019.31-13.67%200-15.78-11.15-15.78-11.15-5.29-15.31-19.82-20.93-36.93-20.93-21.57%200-39.05%2017.48-39.05%2039.05%200%2021.58%2017.48%2039.07%2039.05%2039.07%2016.9%200%2031.28-7.5%2036.73-22.52%200-.01%203.35-9.71%2015.48-9.44%22%20style%3D%22fill%3A%20rgb(206%2C%2014%2C%2045)%20!important%3B%22%2F%3E%3C%2Fsvg%3E",
+        "favicon": "https://www.amctheatres.com/favicon.ico?ed10b9272c8608cf",
+        "ogImage": null,
+        "logoHref": "/",
+        "logoAlt": "AMC Theatres Homepage"
+      },
+      "personality": {
+        "tone": "bold",
+        "energy": "high",
+        "targetAudience": "general consumers"
+      },
+      "designSystem": {
+        "framework": "tailwind",
+        "componentLibrary": ""
+      },
+      "confidence": {
+        "buttons": 1,
+        "colors": 0.9366666666666666,
+        "overall": 0.9683333333333333
+      },
+      "brandName": "AMC Theatres",
+      "logo": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xml%3Aspace%3D%22preserve%22%20fill%3D%22currentColor%22%20viewBox%3D%220%200%20549.33%20213.71%22%20width%3D%221em%22%20height%3D%22100%25%22%20class%3D%22w-full%20text-red-500%22%20data-fc-idx%3D%220%22%3E%3Ctitle%20style%3D%22fill%3A%20rgb(206%2C%2014%2C%2045)%20!important%3B%22%3EAMC%20Theatres%20Homepage%3C%2Ftitle%3E%3Cpath%20d%3D%22M25.77%20171.89v40.29H15.76v-40.29H1.02v-8.33h38.96v8.33zM104.19%20212.18v-22.01H84.91v22.01h-10v-48.62h10v18.27h19.28v-18.27h10.01v48.62zM151.17%20212.18v-48.62h35.23v8.33h-25.22v11.07h23.28v8.34h-23.28v12.55h26.35v8.33zM250.14%20212.18l-3.34-9.75h-18.01l-3.4%209.75h-10.21l16.95-48.63h11.53l16.68%2048.63zm-12.21-36.96-6.01%2018.88h12.47zM308.17%20171.89v40.29h-10.01v-40.29h-14.74v-8.33h38.95v8.33zM382.87%20212.18c-.81-1.48-1.21-2.93-1.33-4.54-.14-2.4%200-6.27%200-9.81%200-3.27-2.55-4.87-6.01-4.87h-11.74v19.22h-10.01v-48.63h27.02c4.87%200%209.74%202.46%2011.21%207.73.6%202.13%201.66%205.59.47%209.81-1.21%204.19-3.34%205.73-6.61%207.67%201.67%201.12%204.87%202.33%205.4%206.73.27%202.01.47%208.41.47%2010.87.07%202.74.8%203.34%201.88%204.01v1.81zm-5.53-40.29h-13.55v12.74h13.69c2.33%200%206.53-2.47%205.93-7.27-.01-3.47-1.61-5.47-6.07-5.47M427.09%20212.18v-48.62h35.21v8.33h-25.21v11.07h23.28v8.34h-23.28v12.55h26.35v8.33zM522.73%20178.36c.14-3.93-3.13-7.54-9.99-7.67-4.88-.06-8.48%201.59-8.81%205.59-.27%203.35.87%204.01%203.07%204.87%201.13%201.21%2010.33%202.67%2012.2%203.02%202.67.46%208.41%201.66%2011.48%204.79%205.6%205.88%203%2017.41-3.07%2021.36-4.13%202.67-9.8%203.33-15.21%203.4-2.48.07-8.34-.8-11.94-3.4-4.34-3.13-6.47-7.94-6.81-12.54h9.74c0%201.27.4%203.27%202.07%205.07%202.2%202.27%205.81%202.93%209.15%202.8%203.33-.07%206.47-1.07%207.74-2.27%202.13-2%202.6-5.8.2-8.2-3.2-3.34-12.81-3.34-19.08-5.48-5.27-1.79-9.6-5.59-8.8-13.46.8-7.74%206.4-13.48%2018.28-13.48%202.6%200%2011.68.21%2016.41%206.21%202.54%203.27%203.21%207.8%202.8%209.41h-9.43zM539.77%20208.41c0-2.63%202.14-4.77%204.79-4.77a4.76%204.76%200%200%201%204.76%204.77c0%202.66-2.12%204.79-4.76%204.79-2.64-.01-4.79-2.14-4.79-4.79m8.99%200c0-2.31-1.88-4.18-4.19-4.18-2.33%200-4.2%201.88-4.2%204.18%200%202.34%201.87%204.22%204.2%204.22a4.215%204.215%200%200%200%204.19-4.22m-1.82%202.67h-.78l-1.52-2.46h-1.21v2.46h-.65v-5.34h2.33c.44%200%20.9.03%201.3.26s.6.71.6%201.15c0%201.06-.74%201.44-1.69%201.47zm-2.51-2.98c.76%200%201.92.12%201.92-.96%200-.84-.73-.93-1.39-.93h-1.52v1.89zM283.07%2020.55c25.4-21.5%2052.03-21.07%2074.68-9.9%2021.06%2011.1%2028.61%2027.08%2028.95%2050.39l-.01%2057.21s-.21%2016.14-16.76%2016.14c-15.72%200-16.46-16.04-16.46-16.04l-.22-56.52s-.95-26.26-27.21-26.26c-26.39%200-28.49%2026.12-28.49%2026.12v55.64s0%2016.86-16.71%2016.86c-16.32%200-16.66-16.86-16.66-16.86l-.01-55.48s-.5-26.28-28.4-26.28c-27.76%200-27.05%2026.67-27.05%2026.67v57.06s-1.94%2015.01-16.58%2015.01c-15.18%200-16.72-15.15-16.72-15.15l-.1-57.58c0-21.23%204.1-42.29%2034.3-54.22%2013.72-5.42%2029.82-5.31%2044.26-2.02%209.63%203.5%2017.94%208.2%2026.04%2015.21l1.53%201.34zM121.95%20117.9c0-16.55-16.41-16.61-16.41-16.61H46.4c-3.5%200-3.91-2.67-3.07-5.79%207.23-17.94%2023.25-38.03%2040.38-46.81%2014.17-7.24%2030.42-14.77%2047.27-13.67%203.53.28%203.53%201.91%203.53%207.45v74.63s.85%2016.95%2017.26%2016.95c16.89%200%2015.55-16.39%2015.55-16.39l-.07-93.71c.22-5.69-.82-11.16-4.21-15.54-2.52-2.29-5.91-4.7-9.74-5.24-20.14-1.67-39.47.15-58%205.55-34.35%2010.01-67.18%2037.92-84.03%2071.13C5.54%2091.16.22%20106%200%20119.68c.22%206.56%202.96%2014.22%2010.45%2014.22l95.36.48s16.14.61%2016.14-16.48M516.3%2077.27c16.69%201.74%2014.61%2017.4%2014.61%2017.4-9.01%2028.34-35.56%2045.66-66.88%2045.66-38.75%200-70.17-31.43-70.17-70.18C393.86%2031.41%20425.27%200%20464.03%200c31.46%200%2058.09%2015.35%2066.99%2043.88%200%200%204.24%2017.18-14.22%2019.31-13.67%200-15.78-11.15-15.78-11.15-5.29-15.31-19.82-20.93-36.93-20.93-21.57%200-39.05%2017.48-39.05%2039.05%200%2021.58%2017.48%2039.07%2039.05%2039.07%2016.9%200%2031.28-7.5%2036.73-22.52%200-.01%203.35-9.71%2015.48-9.44%22%20style%3D%22fill%3A%20rgb(206%2C%2014%2C%2045)%20!important%3B%22%2F%3E%3C%2Fsvg%3E"
+    },
+    "headings_sample": [
+      "### [Heated Rivalry: Episode 1 & 2](https://www.amctheatres.com/movies/heated-rivalry-episode-1-2-85457)",
+      "### [Rocky 50th Anniversary](https://www.amctheatres.com/movies/rocky-50th-anniversary-85010)",
+      "### [Street Fighter](https://www.amctheatres.com/movies/street-fighter-77447)",
+      "### [Ramayana](https://www.amctheatres.com/movies/ramayana-84991)",
+      "### [Clayface](https://www.amctheatres.com/movies/clayface-71218)",
+      "### [Wild Horse Nine](https://www.amctheatres.com/movies/wild-horse-nine-82937)",
+      "### [You Can See Everything](https://www.amctheatres.com/movies/you-can-see-everything-85142)",
+      "### [The Cat in the Hat](https://www.amctheatres.com/movies/the-cat-in-the-hat-76536)",
+      "### [Godzilla Minus Zero](https://www.amctheatres.com/movies/godzilla-minus-zero-82570)",
+      "### [Drummer Boy](https://www.amctheatres.com/movies/drummer-boy-83723)",
+      "### [Wildwood](https://www.amctheatres.com/movies/wildwood-82629)",
+      "### [Wicker](https://www.amctheatres.com/movies/wicker-84240)"
+    ],
+    "food_sample": [
+      "- ![The Cat in the Hat Snack Pack](https://amc-theatres-res.cloudinary.com/image/upload/c_limit,w_3840/f_auto/q_auto/v1792165088/amc-cdn/content/general/sl1nhnauwpvjc6k9s6sq.jpg)![The Cat in the Hat Snack Pack](https://amc-theatres-res.cloudinary.com/image/upload/c_limit,w_3840/f_auto/q_auto/v1792165075/amc-cdn/content/general/m972fuwi7tu3s0nd6hbw.jpg)",
+      "Share a large popcorn, two large drinks or ICEEs®, and two candies or cotton candies when you see THE CAT IN THE HAT, now playing.",
+      "Enjoy a large popcorn, 2 large drinks or ICEEs, and 2 KidsPacks for $29.99. That’s over 30% savings, and the best way to make movie night a win for everyone in the family. Available on mobile order at select locations.",
+      "![Snack’n Sip Combo Offer](https://amc-theatres-res.cloudinary.com/image/upload/c_limit,w_3840/f_auto/q_auto/v1793049775/amc-cdn/content/general/zbfbjspemxnhhpp78sjb.png)",
+      "Get your snack’n sip combo. Small popcorn & small unlimited Freestyle® OR ICEE® for $9. Includes 1 of 6 blind box collectible pins. See THE HUNGER GAMES: SUNRISE ON THE REAPING at AMC on 11/20.",
+      "[Get Offer](https://www.amctheatres.com/snacknsipcombo?rel=snacknsipcombo-pulse-3-hunger-games_fb-offer_hp_promo)",
+      "# AMC Theatres - Buy Movie Tickets, Find Your Local Theatre, Order Food & Drinks, and More"
+    ],
+    "formats_sample": [],
+    "markdown_length": 20930
+  },
+  "Odeon UK": {
+    "url": "https://www.odeon.co.uk",
+    "branding": {
+      "colorScheme": "light",
+      "fonts": [
+        {
+          "family": "Nunito Sans",
+          "role": "body"
+        }
+      ],
+      "colors": {
+        "primary": "#0068C8",
+        "secondary": "#0A1C3A",
+        "accent": "#0068C8",
+        "background": "#FFFFFF",
+        "textPrimary": "#FFFFFF",
+        "link": "#19AAFF"
+      },
+      "typography": {
+        "fontFamilies": {
+          "primary": "Nunito Sans",
+          "heading": "Nunito Sans"
+        },
+        "fontStacks": {
+          "heading": [
+            "NunitoSans",
+            "Helvetica",
+            "Arial",
+            "sans-serif"
+          ],
+          "body": [
+            "NunitoSans",
+            "Helvetica",
+            "Arial",
+            "sans-serif"
+          ],
+          "paragraph": [
+            "NunitoSans",
+            "Helvetica",
+            "Arial",
+            "sans-serif"
+          ]
+        },
+        "fontSizes": {
+          "h1": "18px",
+          "h2": "25px",
+          "body": "18px"
+        }
+      },
+      "spacing": {
+        "baseUnit": 4,
+        "borderRadius": "2px"
+      },
+      "components": {
+        "buttonPrimary": {
+          "background": "#0068C8",
+          "textColor": "#FFFFFF",
+          "borderRadius": "0px",
+          "borderRadiusCorners": {
+            "topLeft": "0px",
+            "topRight": "0px",
+            "bottomRight": "0px",
+            "bottomLeft": "0px"
+          },
+          "shadow": "none"
+        },
+        "buttonSecondary": {
+          "background": "#4E5A6C",
+          "textColor": "#FFFFFF",
+          "borderRadius": "0px",
+          "borderRadiusCorners": {
+            "topLeft": "0px",
+            "topRight": "0px",
+            "bottomRight": "0px",
+            "bottomLeft": "0px"
+          },
+          "shadow": "none"
+        }
+      },
+      "images": {
+        "logo": "https://www.odeon.co.uk/media/ehgpomhe/odeon-logo-web.svg",
+        "favicon": "https://www.odeon.co.uk/scripts/dist/favicon/uk/favicon.ico",
+        "ogImage": "https://www.odeon.co.uk/media/4w3lcb01/west-end-screen.jpg?width=1200&height=630&v=1da1e2c8668f270",
+        "logoHref": "/",
+        "logoAlt": "ODEON brand logo"
+      },
+      "personality": {
+        "tone": "modern",
+        "energy": "low",
+        "targetAudience": "general consumers"
+      },
+      "designSystem": {
+        "framework": "bootstrap",
+        "componentLibrary": ""
+      },
+      "confidence": {
+        "buttons": 0.92,
+        "colors": 0.85,
+        "overall": 0.885
+      },
+      "brandName": "ODEON Cinemas",
+      "logo": "https://www.odeon.co.uk/media/ehgpomhe/odeon-logo-web.svg"
+    },
+    "headings_sample": [
+      "## Top Films",
+      "## Offers & Competitions",
+      "## Book a film"
+    ],
+    "food_sample": [
+      "- Northwich Barons Quay",
+      "- Agbara Nla: The Return",
+      "- Arnie & Barney"
+    ],
+    "formats_sample": [
+      "- [![I Play Rocky poster](https://film-cdn.moviexchange.com/api/cdn/release/e38d5db1-ed19-403d-8584-ba7081ed5365/media/Poster?width=400)\\\\",
+      "- [![Primetime poster](https://film-cdn.moviexchange.com/api/cdn/release/82c18093-ab98-4569-bdfe-124b182769ee/media/Poster?width=400)\\\\",
+      "Primetime\\\\",
+      "![15](https://vwc.odeon.co.uk/CDN/media/entity/get/RatingIconGraphic/0000000002?height=60)](https://www.odeon.co.uk/films/primetime/HO00009553/) Play trailer",
+      "- [![Ghosts: The Possession of Button House poster](https://film-cdn.moviexchange.com/api/cdn/release/8d7d3d24-69d4-40ca-bb12-6c2d22239232/media/Poster?width=400)\\\\",
+      "Get 2 tickets for just £10 with Amazon Prime\\*",
+      "- Primetime"
+    ],
+    "markdown_length": 19212
+  }
+}
