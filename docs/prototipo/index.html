@@ -13,26 +13,28 @@
         extend: {
           colors: {
             cine: {
-              canvas: '#0D0E12',
-              surfaceN1: '#16181F',
-              surfaceN2: '#202430',
-              surfaceN3: '#2A3040',
-              border: '#2B303C',
-              primary: '#00E054', // High-contrast green (Letterboxd standard, 9.8:1 contrast)
-              primaryText: '#0D0E12',
-              culinary: '#F59E0B', // Warm Amber (Alamo Drafthouse PMS 7409 & Everyman brass)
-              culinaryDark: '#D97706',
-              brand: '#E50914',   // Cinema red
-              accessible: '#2563EB', // Blue PCD (WCAG 2.2 AA)
-              focusRing: '#60A5FA',
+              canvas: '#12100D',       // Extraído do Cinemark Brasil: --chakra-colors-black (#12100D)
+              canvasDeep: '#041218',   // Extraído do Ingresso.com
+              surfaceN1: '#1A202C',    // Extraído do Cinemark: card surface (#1A202C)
+              surfaceN2: '#212020',    // Extraído do Everyman Cinemas: --theme-ui-colors-accent (#212020)
+              surfaceN3: '#2D3748',    // Extraído do Cinemark: hover surface (#2D3748)
+              border: '#3C3C3B',       // Extraído do Everyman: footer/divider (#3C3C3B)
+              primary: '#00E054',      // Verde Ação Letterboxd (9.8:1 contraste)
+              primaryIngresso: '#00A651', // Verde de confirmação extraído do Ingresso.com
+              primaryText: '#12100D',
+              culinary: '#F5B324',     // Âmbar exato Alamo Drafthouse (PMS 7409: #F5B324 / #F0B323)
+              culinaryDark: '#F0B323',
+              brand: '#FF3939',        // Vermelho vibrante extraído do Cinemark Brasil (#FF3939)
+              accessible: '#2563EB',   // Azul PCD (WCAG 2.2 AA)
+              focusRing: 'rgba(66, 153, 225, 0.6)', // Extraído do Cinemark Brasil
               alert: '#EF4444',
-              textPrimary: '#F0F2F5',
-              textSecondary: '#9DA4B0',
-              textMuted: '#6B7280',
-              seatAvail: '#1E222D',
+              textPrimary: '#FFFFFF',
+              textSecondary: '#A0AEC0', // Extraído do Cinemark Brasil
+              textMuted: '#787272',     // Extraído do Cinemark Brasil e Alamo
+              seatAvail: '#1A202C',
               seatReserved: '#2C2013',
-              seatReservedBorder: '#D97706',
-              seatOccupied: '#16181F',
+              seatReservedBorder: '#F5B324',
+              seatOccupied: '#12100D',
               theaterOled: '#000000'
             }
           },
@@ -46,16 +48,25 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap');
+    /* FONTES EXTRAÍDAS DIRETAMENTE DO BENCHMARK */
+    /* Oswald = Cinemark Brasil (Marquee Titles) */
+    /* Work Sans = Cinemark Brasil (UI / Tabelas / Assentos) */
+    /* Playfair Display = Everyman Cinemas (Hospitalidade / Harmonizações) */
+    @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Work+Sans:wght@400;500;600;700&display=swap');
     :root {
-      font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, sans-serif;
+      font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     .font-marquee {
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .font-luxury {
+      font-family: 'Playfair Display', serif;
     }
     body {
-      background-color: #0D0E12;
-      color: #F0F2F5;
+      background-color: #12100D;
+      color: #FFFFFF;
       overflow-x: hidden;
     }
     /* In-Theater Dark UI Mode (OLED Absolute Black) */

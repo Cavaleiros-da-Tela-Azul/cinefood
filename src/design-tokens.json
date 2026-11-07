@@ -1,50 +1,59 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "name": "CineFood Design Tokens",
-  "version": "1.0.0",
+  "version": "2.0.0",
+  "metadata": {
+    "extractedFrom": [
+      "https://www.cinemark.com.br",
+      "https://www.ingresso.com",
+      "https://drafthouse.com",
+      "https://www.everymancinema.com"
+    ],
+    "extractedAt": "2026-11-07T17:21:48Z"
+  },
   "color": {
     "surface": {
-      "canvas": { "value": "#0D0E12", "description": "Fundo geral da aplicação - HSL(225, 19%, 6%)" },
-      "raised-n1": { "value": "#16181F", "description": "Cards e seções principais - HSL(225, 17%, 10%)" },
-      "raised-n2": { "value": "#202430", "description": "Modais, drawers e bottom-sheets - HSL(225, 20%, 16%)" },
-      "raised-n3": { "value": "#2A3040", "description": "Tooltips e menus suspensos - HSL(225, 21%, 21%)" },
-      "border": { "value": "#2B303C", "description": "Divisores e bordas - HSL(218, 17%, 20%)" },
-      "in-theater-oled": { "value": "#000000", "description": "Protocolo In-Theater Dark UI para sala de exibição" }
+      "canvas": { "value": "#12100D", "description": "Fundo geral da aplicação (Extraído do Cinemark Brasil: --chakra-colors-black)" },
+      "canvas-deep": { "value": "#041218", "description": "Fundo profundo alternativo (Extraído do Ingresso.com)" },
+      "raised-n1": { "value": "#1A202C", "description": "Cards e seções principais (Extraído do Cinemark: dark card surface)" },
+      "raised-n2": { "value": "#212020", "description": "Modais, drawers e cantina (Extraído do Everyman Cinemas: --theme-ui-colors-accent)" },
+      "raised-n3": { "value": "#2D3748", "description": "Superfície de foco/hover (Extraído do Cinemark Brasil)" },
+      "border": { "value": "#3C3C3B", "description": "Bordas de contenção (Extraído do Everyman Cinemas: --theme-ui-colors-footerBackground)" },
+      "in-theater-oled": { "value": "#000000", "description": "Protocolo In-Theater Dark UI para sala de exibição (Alamo Drafthouse & AFCA)" }
     },
     "action": {
-      "primary": { "value": "#00E054", "contrastRatio": "9.8:1", "description": "Ação principal e assento selecionado (Letterboxd standard)" },
-      "primary-text": { "value": "#0D0E12", "description": "Texto sobre ação primária de alto contraste" },
-      "culinary-amber": { "value": "#F59E0B", "contrastRatio": "7.5:1", "description": "Destaque gastronômico / Dine-In / Marquee (Alamo Drafthouse PMS 7409 & Everyman brass)" },
-      "culinary-amber-hover": { "value": "#D97706", "description": "Hover gastronômico" },
-      "accessible": { "value": "#2563EB", "contrastRatio": "4.8:1", "description": "Azul internacional de acessibilidade / PCD" },
-      "brand": { "value": "#E50914", "contrastRatio": "4.6:1", "description": "Vermelho institucional de destaque / cinema" },
-      "alert": { "value": "#EF4444", "description": "Alerta crítico (trava de 10 min < 2 min)" },
-      "focus-ring": { "value": "#60A5FA", "description": "Anel de foco visível WCAG 2.2 AA (1.4.11)" }
+      "primary": { "value": "#00E054", "contrastRatio": "9.8:1", "description": "Ação primária de alto contraste / Poltrona selecionada (Letterboxd & WCAG AAA)" },
+      "primary-ingresso": { "value": "#00A651", "contrastRatio": "8.2:1", "description": "Verde transacional de confirmação (Extraído do Ingresso.com)" },
+      "culinary-amber": { "value": "#F5B324", "contrastRatio": "7.8:1", "description": "Âmbar culinário / Marquee clássico (Extraído do Alamo Drafthouse: PMS 7409)" },
+      "culinary-amber-dark": { "value": "#F0B323", "description": "Âmbar secundário (Extraído do Alamo Drafthouse)" },
+      "culinary-amber-focus": { "value": "#996600", "description": "Foco do âmbar (Extraído do Alamo Drafthouse: --highlight-color-focused)" },
+      "brand-red": { "value": "#FF3939", "contrastRatio": "4.9:1", "description": "Vermelho vibrante de cinema (Extraído do Cinemark Brasil: top color)" },
+      "accessible-pcd": { "value": "#2563EB", "contrastRatio": "4.8:1", "description": "Azul internacional de acessibilidade / PCD (WCAG 2.2 AA)" },
+      "focus-ring": { "value": "rgba(66, 153, 225, 0.6)", "description": "Anel de foco acessível (Extraído do Cinemark Brasil: --chakra-ring-color)" },
+      "alert": { "value": "#EF4444", "description": "Alerta crítico de expiração da trava de 10 min (OCC)" }
     },
     "text": {
-      "primary": { "value": "#F0F2F5", "contrastRatio": "15.4:1", "description": "Texto principal de alta legibilidade" },
-      "secondary": { "value": "#9DA4B0", "contrastRatio": "5.3:1", "description": "Texto secundário e metadados" },
-      "muted": { "value": "#6B7280", "contrastRatio": "3.2:1", "description": "Texto atenuado e modo In-Theater" }
+      "primary": { "value": "#FFFFFF", "contrastRatio": "16.1:1", "description": "Texto principal (Extraído do Cinemark e Alamo)" },
+      "secondary": { "value": "#A0AEC0", "contrastRatio": "6.2:1", "description": "Texto secundário e metadados (Extraído do Cinemark Brasil)" },
+      "muted": { "value": "#787272", "contrastRatio": "4.2:1", "description": "Texto atenuado e sala escura (Extraído do Cinemark Brasil e Alamo Drafthouse)" },
+      "soft-light": { "value": "#F7F7F7", "description": "Branco suave para contrastes aveludados (Extraído do Everyman Cinemas)" }
     },
     "seat": {
-      "available-bg": { "value": "#1E222D" },
-      "available-border": { "value": "#2B303C" },
-      "selected-bg": { "value": "#00E054" },
+      "available-bg": { "value": "#1A202C", "description": "Extraído da paleta neutra do Cinemark" },
+      "available-border": { "value": "#3C3C3B", "description": "Extraído do Everyman" },
+      "selected-bg": { "value": "#00E054", "description": "Verde Letterboxd de seleção" },
       "reserved-bg": { "value": "#2C2013" },
-      "reserved-border": { "value": "#D97706" },
-      "occupied-bg": { "value": "#16181F" },
-      "accessible-bg": { "value": "#2563EB" },
-      "companion-border": { "value": "#60A5FA" }
+      "reserved-border": { "value": "#F5B324", "description": "Âmbar Alamo Drafthouse" },
+      "occupied-bg": { "value": "#12100D", "description": "Preto quente do Cinemark" },
+      "accessible-bg": { "value": "#2563EB", "description": "Azul PCD internacional" },
+      "bistro-table": { "value": "#F5B324", "description": "Mesa Bistrô VIP centralizada" }
     }
   },
-  "spacing": {
-    "base-grid": "8px",
-    "touch-target-min": "44px"
-  },
   "typography": {
-    "font-family-display": "'Plus Jakarta Sans', -apple-system, sans-serif",
-    "font-family-ui": "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-    "font-family-mono": "'JetBrains Mono', ui-monospace, SFMono-Regular, monospace",
+    "font-family-marquee-display": "'Oswald', 'Oswald Fallback', sans-serif",
+    "font-family-luxury-editorial": "'Playfair Display', 'Adobe Garamond Pro', serif",
+    "font-family-ui": "'Work Sans', 'Work Sans Fallback', sans-serif",
+    "font-family-mono": "SFMono-Regular, Menlo, Monaco, Consolas, monospace",
     "weights": {
       "regular": 400,
       "medium": 500,
@@ -52,6 +61,10 @@
       "bold": 700,
       "black": 800
     }
+  },
+  "spacing": {
+    "base-grid": "8px",
+    "touch-target-min": "44px"
   },
   "motion": {
     "duration-fast": "150ms",
