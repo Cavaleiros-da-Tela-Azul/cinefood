@@ -8,6 +8,30 @@ export interface Screening {
   status: ScreeningStatus;
 }
 
+export interface Movie {
+  id: string;
+  title: string;
+  synopsis: string;
+  durationMinutes: number;
+  ageRating: string;
+}
+
+export interface ProgrammedScreening extends Screening {
+  movie: Movie;
+  cinemaName: string;
+  roomName: string;
+  format: string;
+  basePrice: number;
+}
+
+export interface ScreeningFilters {
+  movieId?: string;
+  movieQuery?: string;
+  date?: string;
+  format?: string;
+  startTime?: string;
+}
+
 /** Persisted seat state. A reservation can be a temporary ten-minute hold. */
 export interface StoredSeat {
   id: string;
