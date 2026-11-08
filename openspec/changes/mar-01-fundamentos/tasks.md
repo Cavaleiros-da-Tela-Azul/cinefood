@@ -20,7 +20,7 @@
 
 ## 4. Transparência e Consentimento LGPD (RF-17 / AC-5, AC-6)
 
-- [ ] 4.1 Criar suíte de testes em `tests/privacy/transparencia.test.ts` cobrindo versionamento de termos e consentimento facultativo sem bloqueio de jornada.
+- [x] 4.1 Criar suíte de testes em `tests/privacy/transparencia.test.ts` cobrindo versionamento de termos e consentimento facultativo sem bloqueio de jornada.
 - [ ] 4.2 Implementar endpoint de consulta de termos de privacidade e persistência de preferências do titular até a aprovação dos testes.
 
 ## 5. Integração e Verificação Mecânica do Contrato
