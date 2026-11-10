@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "CineFood — Diagrama de Sequência UML (Alinhado a Classes e Atividades: Reserva 10m, Webhook, Portaria, KDS, Runner e Avaliação)",
+    "output": "docs/diagramas/diagrama-sequencial.html",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    { "id": "cliente", "type": "frontend", "label": "Cliente (Web/App)", "sublabel": "Usuário & Bilheteria" },
+    { "id": "api", "type": "backend", "label": "API & PostgreSQL", "sublabel": "Monólito + BD (ACID)" },
+    { "id": "gateway", "type": "external", "label": "Gateway Pagto", "sublabel": "Pix/Cartão & Webhook" },
+    { "id": "portaria", "type": "security", "label": "Portaria QR", "sublabel": "STAFF-VAL-01 (RN-02)" },
+    { "id": "cozinha", "type": "messagebus", "label": "Cozinha / KDS", "sublabel": "STAFF-KDS-01 (RF-09)" },
+    { "id": "runner", "type": "external", "label": "Runner / Sala", "sublabel": "STAFF-RUN-02 (RN-03)" }
+  ],
+  "segments": [
+    { "from": 152, "to": 310, "label": "1. Seleção e Trava de Assento 10 min (RN-01 / ADR-002)" },
+    { "from": 332, "to": 590, "label": "2. Checkout Idempotente, Webhook e Cantina (ADR-003 / ADR-005)" },
+    { "from": 612, "to": 906, "label": "3. Operação Concorrente: Portaria (RN-02), Cozinha KDS e Runner (RN-03)" },
+    { "from": 928, "to": 1066, "label": "4. Pós-Sessão e Pós-Venda: Estorno CDC (RF-12) e Avaliação (RF-13)" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "cliente", "to": "api", "y": 170, "label": "1. POST /reservations (sessao, assento F8)", "variant": "emphasis", "note": "reservarTemporariamente(10m)" },
+    { "id": "m2", "from": "api", "to": "cliente", "y": 236, "label": "2. [alt] 200 OK (RESERVADO) | 409 Ocupado", "variant": "return" },
+    { "id": "m3", "from": "cliente", "to": "api", "y": 276, "label": "3. [opt Desistir/>10m] liberarReserva()", "variant": "dashed" },
+    { "id": "m4", "from": "cliente", "to": "api", "y": 350, "label": "4. POST /payments (PIX/Cartão, compraId)", "variant": "emphasis" },
+    { "id": "m5", "from": "api", "to": "gateway", "y": 385, "label": "5. Solicitar Cobrança (idempotencyKey, valorCentavos)", "variant": "emphasis", "note": "Fora da tx do banco (ADR-003)" },
+    { "id": "m6", "from": "gateway", "to": "api", "y": 445, "label": "6. [alt Recusado/Timeout] Webhook RECUSADO -> liberarReserva()", "variant": "security" },
+    { "id": "m7", "from": "gateway", "to": "api", "y": 480, "label": "7. [alt Aprovado] POST /webhooks/payments (APROVADO)", "variant": "security", "note": "confirmarOcupacao() + emitirIngressoQr()" },
+    { "id": "m8", "from": "api", "to": "cliente", "y": 540, "label": "8. 200 OK (Ingresso EMITIDO + qrToken)", "variant": "return" },
+    { "id": "m9", "from": "cliente", "to": "api", "y": 574, "label": "9. [opt Comida] POST /orders (modalidade)", "variant": "default" },
+    { "id": "m10", "from": "cliente", "to": "portaria", "y": 630, "label": "10. [par Portaria] Apresenta QR Code na entrada da sala", "variant": "emphasis" },
+    { "id": "m11", "from": "portaria", "to": "api", "y": 664, "label": "11. POST /tickets/validate (qrToken, operadorId)", "variant": "security", "note": "validarQrCodePortaria() -> UTILIZADO" },
+    { "id": "m12", "from": "api", "to": "portaria", "y": 722, "label": "12. [alt Válido] 200 OK (Poltrona F8) | [Inválido/Usado] 403", "variant": "return" },
+    { "id": "m13", "from": "api", "to": "cozinha", "y": 756, "label": "13. [par KDS] Liberar Preparo (Balcão ou após Portaria RST-04)", "variant": "dashed" },
+    { "id": "m14", "from": "cozinha", "to": "api", "y": 790, "label": "14. PATCH /orders/{id}/status (avancarPreparoKDS -> PRONTO)", "variant": "emphasis" },
+    { "id": "m15", "from": "api", "to": "cliente", "y": 824, "label": "15. [alt BALCAO] Push: Pronto no balcão", "variant": "return" },
+    { "id": "m16", "from": "runner", "to": "api", "y": 858, "label": "16. [alt ENTREGA_ASSENTO] podeEntregarNoAssento() -> Despacha Sala", "variant": "security" },
+    { "id": "m17", "from": "runner", "to": "cliente", "y": 892, "label": "17. Entrega na poltrona F8 (ou converterParaBalcao se >2m RF-20)", "variant": "emphasis" },
+    { "id": "m18", "from": "cliente", "to": "api", "y": 946, "label": "18. [opt Estorno CDC] solicitarEstornoCDC()", "variant": "dashed" },
+    { "id": "m19", "from": "cliente", "to": "api", "y": 982, "label": "19. PUT /screenings/{id}/rating (nota 1..5)", "variant": "emphasis", "note": "submeterAvaliacao() (exige UTILIZADO)" },
+    { "id": "m20", "from": "api", "to": "cliente", "y": 1044, "label": "20. 201 Created (Avaliação registrada)", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "api", "from": 165, "to": 290, "type": "backend" },
+    { "participant": "api", "from": 345, "to": 582, "type": "backend" },
+    { "participant": "gateway", "from": 380, "to": 490, "type": "external" },
+    { "participant": "api", "from": 658, "to": 866, "type": "backend" },
+    { "participant": "cozinha", "from": 750, "to": 798, "type": "messagebus" },
+    { "participant": "runner", "from": 850, "to": 900, "type": "external" },
+    { "participant": "api", "from": 940, "to": 1052, "type": "backend" }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Alinhamento 1:1 com Diagrama de Classes e Atividades",
+      "items": [
+        "Mesmos 6 participantes: Cliente (Web/App), API & PostgreSQL, Gateway Pagto, Portaria QR (STAFF-VAL-01), Cozinha/KDS (STAFF-KDS-01) e Runner/Sala (STAFF-RUN-02).",
+        "Invoca os métodos exatos das classes: reservarTemporariamente(10m), liberarReserva(), confirmarOcupacao(), emitirIngressoQr(), validarQrCodePortaria(), avancarPreparoKDS(), podeEntregarNoAssento(), confirmarEntregaAssento(), converterParaBalcao() e submeterAvaliacao()."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Correções Arquiteturais sobre o Rascunho Mermaid",
+      "items": [
+        "Checkouts Independentes (ADR-005 / RN-04): O pedido de alimentos ([opt] passo 9) usa POST /orders separado do checkout de ingresso, permitindo comprar só ingresso, comprar comida durante a sessão ou comprar só no balcão.",
+        "Trava da Cozinha (RST-04) e Fallback Runner (RF-20): Na entrega no assento, o preparo/despacho exige entrada validada na portaria (UTILIZADO) e prevê conversão para balcão se o cliente estiver ausente por >2 min."
+      ]
+    }
+  ]
+}

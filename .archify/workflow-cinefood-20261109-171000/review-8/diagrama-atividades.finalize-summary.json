@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "fail",
+  "type": "workflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/candidate.json",
+    "sha256": "95b537cccc17b137708f3eeff4448505705d00535cbde300801688a88f0d9d7f",
+    "bytes": 9536
+  },
+  "artifact": {
+    "path": "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-atividades.html",
+    "sha256": "fd8097683b35715d02f5456059e0dddf857576a80a2d0d260992e66aca587a70",
+    "bytes": 858894
+  },
+  "gates": {
+    "validate": "fail",
+    "deliver": "not-run",
+    "check": "not-run",
+    "browser-check": "not-run"
+  },
+  "failedStage": "validate",
+  "diagnostics": [
+    {
+      "code": "workflow/explicit-pin-conflict",
+      "severity": "error",
+      "message": "Workflow edge \"a1\" has explicit geometry that violates explicit route-route crossing.",
+      "subject": {
+        "diagramType": "workflow",
+        "edge": "a1",
+        "from": "escolher_sessao",
+        "to": "decisao_assento"
+      },
+      "evidence": {
+        "invariant": "explicit route-route crossing",
+        "conflictingPins": [
+          {
+            "edge": "a1",
+            "field": "fromSide",
+            "path": "/edges/0/fromSide",
+            "value": "bottom"
+          },
+          {
+            "edge": "a1",
+            "field": "toSide",
+            "path": "/edges/0/toSide",
+            "value": "top"
+          }
+        ],
+        "point": [
+          719.4,
+          449
+        ],
+        "segmentIndex": 3,
+        "otherSegmentIndex": 0,
+        "routeSegments": [
+          {
+            "edge": "a1",
+            "from": [
+              1396.6,
+              449
+            ],
+            "to": [
+              198.6,
+              449
+            ]
+          },
+          {
+            "edge": "a12",
+            "from": [
+              719.4,
+              393
+            ],
+            "to": [
+              719.4,
+              589
+            ]
+          }
+        ],
+        "sourceRouteSegments": [
+          {
+            "edge": "a1",
+            "from": [
+              1396.6,
+              449
+            ],
+            "to": [
+              198.6,
+              449
+            ]
+          },
+          {
+            "edge": "a12",
+            "from": [
+              719.4,
+              393
+            ],
+            "to": [
+              719.4,
+              589
+            ]
+          }
+        ]
+      },
+      "supportedFixes": [
+        "remove fromSide from edge \"a1\" so readable-v2 can replan the remaining authored route assertions",
+        "remove toSide from edge \"a1\" so readable-v2 can replan the remaining authored route assertions"
+      ]
+    }
+  ],
+  "diagnosticSummary": {
+    "total": 1,
+    "shown": 1,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/review-8/diagrama-atividades.finalize.json",
+    "summaryReceipt": "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/review-8/diagrama-atividades.finalize-summary.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-10T16:40:33.238Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 3587,
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  },
+  "nextAction": {
+    "action": "edit-in-place",
+    "candidate": "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/candidate.json",
+    "constraint": "Preserve unaffected semantics and geometry; apply each diagnostic's supportedFixes, or the fix its message names, and do not replace the whole candidate.",
+    "then": "finalize-once"
+  }
+}

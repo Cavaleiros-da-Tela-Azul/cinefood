@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "fail",
+  "type": "workflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/candidate.json",
+    "sha256": "12a540a266e7d550dd428b2e56681d779390d3423378fd883fa1fd4f8b1c84e2",
+    "bytes": 9765
+  },
+  "artifact": {
+    "path": "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-atividades.html",
+    "sha256": "fd8097683b35715d02f5456059e0dddf857576a80a2d0d260992e66aca587a70",
+    "bytes": 858894
+  },
+  "gates": {
+    "validate": "fail",
+    "deliver": "not-run",
+    "check": "not-run",
+    "browser-check": "not-run"
+  },
+  "failedStage": "validate",
+  "diagnostics": [
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"meia/assento (RF-02/16)\" needs a 9.5px minimum that stays readable on this 1465px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "escolher_sessao",
+        "path": "/nodes/0/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 9.5,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 1465,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 131.1,
+        "availableTextWidthPx": 84
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    },
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"Agora ou na Sessão\" needs a 9.5px minimum that stays readable on this 1465px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "decisao_comida",
+        "path": "/nodes/5/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 9.5,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 1465,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 102.6,
+        "availableTextWidthPx": 88
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    },
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"sem ingresso (CA-F09)\" needs a 9.5px minimum that stays readable on this 1465px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "retirada_balcao",
+        "path": "/nodes/9/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 9.5,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 1465,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 119.69999999999999,
+        "availableTextWidthPx": 104
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    },
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"ausente >2m (RF-20)\" needs a 9.5px minimum that stays readable on this 1465px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "converter_balcao",
+        "path": "/nodes/13/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 9.5,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 1465,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 108.3,
+        "availableTextWidthPx": 88
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    },
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"Balcão vs Sala (RF-08)\" needs a 9.5px minimum that stays readable on this 1465px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "checkout_cantina",
+        "path": "/nodes/10/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 9.5,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 1465,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 125.39999999999999,
+        "availableTextWidthPx": 84
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    },
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"Runner na sala (RF-09)\" needs a 9.5px minimum that stays readable on this 1465px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "runner_entrega",
+        "path": "/nodes/14/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 9.5,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 1465,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 125.39999999999999,
+        "availableTextWidthPx": 96
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    },
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"1 QR/assento (RF-05)\" needs a 9.5px minimum that stays readable on this 1465px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "emitir_qr",
+        "path": "/nodes/6/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 9.5,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 1465,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 114,
+        "availableTextWidthPx": 84
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    },
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"leitura única (RF-06)\" needs a 9.5px minimum that stays readable on this 1465px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "decisao_qr_portaria",
+        "path": "/nodes/11/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 9.5,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 1465,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 119.69999999999999,
+        "availableTextWidthPx": 88
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    }
+  ],
+  "diagnosticSummary": {
+    "total": 17,
+    "shown": 8,
+    "truncated": true,
+    "omittedByCode": {
+      "workflow/sublabel-readability": 9
+    }
+  },
+  "evidence": {
+    "receipt": "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/review-7/diagrama-atividades.finalize.json",
+    "summaryReceipt": "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/review-7/diagrama-atividades.finalize-summary.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-10T16:40:33.238Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 1180,
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  },
+  "nextAction": {
+    "action": "edit-in-place",
+    "candidate": "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/candidate.json",
+    "constraint": "Preserve unaffected semantics and geometry; apply each diagnostic's supportedFixes, or the fix its message names, and do not replace the whole candidate.",
+    "then": "finalize-once"
+  }
+}

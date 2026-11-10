@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "6861e248-74ef-4b91-9bf6-53738196575d",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/home/paulo-cesar/Downloads/cinefood/.archify/sequence-cinefood-20261109-171000/candidate.json",
+  "output": "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-sequencial.html",
+  "specification": {
+    "sha256": "dcb1256ceff33a5864bbbb4b08f062ad8d86bde9bd8d25d75904c5ab3831003a",
+    "bytes": 6400
+  },
+  "artifact": {
+    "sha256": "27cd8577dac200e2a28816e9a82390a7c21db047910140b582f826739c33db55",
+    "bytes": 849565
+  }
+}

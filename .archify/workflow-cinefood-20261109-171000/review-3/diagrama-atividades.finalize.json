@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "fail",
+  "type": "workflow",
+  "quality": "showcase",
+  "startedAt": "2026-11-10T18:13:42.512Z",
+  "specification": {
+    "path": "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/candidate.json",
+    "sha256": "686de9caeb673f441803472c66d779122dbe08f75db99c5e9f34949f61e6f790",
+    "bytes": 9474
+  },
+  "artifact": {
+    "path": "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-atividades.html",
+    "sha256": "fd8097683b35715d02f5456059e0dddf857576a80a2d0d260992e66aca587a70",
+    "bytes": 858894
+  },
+  "stages": {
+    "validate": {
+      "status": "fail",
+      "exitCode": 1,
+      "durationMs": null,
+      "command": [
+        "/usr/bin/node",
+        "/home/paulo-cesar/Downloads/cinefood/.agents/skills/archify/bin/archify.mjs",
+        "deliver",
+        "workflow",
+        "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/candidate.json",
+        "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-atividades.html",
+        "--quality",
+        "showcase",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": false,
+        "command": "deliver",
+        "receiptId": "f0136646-e893-486b-be8a-1e68c3ce38cc",
+        "stage": "render",
+        "type": "workflow",
+        "input": "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/candidate.json",
+        "output": "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-atividades.html",
+        "error": "Workflow layout validation failed:\n- Label \"◊ Checkout Cantina: Modalidade?\" (~211px) is wider than component \"checkout_cantina\" (200px) — shorten the label or increase node.width.",
+        "diagnostics": [
+          {
+            "code": "layout/constraint",
+            "severity": "error",
+            "message": "Label \"◊ Checkout Cantina: Modalidade?\" (~211px) is wider than component \"checkout_cantina\" (200px) — shorten the label or increase node.width.",
+            "subject": {
+              "diagramType": "workflow"
+            },
+            "evidence": {},
+            "supportedFixes": []
+          }
+        ],
+        "provenance": "failed",
+        "update": {
+          "status": "unavailable",
+          "installedVersion": null,
+          "availableVersion": null,
+          "releaseNotes": null,
+          "checkedAt": null,
+          "source": null,
+          "noticeRequired": false,
+          "noticeText": null,
+          "reason": "disabled"
+        }
+      },
+      "execution": "embedded-in-deliver"
+    },
+    "deliver": {
+      "status": "not-run",
+      "execution": "blocked-by-validate"
+    }
+  },
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  },
+  "diagnostics": [
+    {
+      "code": "layout/constraint",
+      "severity": "error",
+      "message": "Label \"◊ Checkout Cantina: Modalidade?\" (~211px) is wider than component \"checkout_cantina\" (200px) — shorten the label or increase node.width.",
+      "subject": {
+        "diagramType": "workflow"
+      },
+      "evidence": {},
+      "supportedFixes": []
+    }
+  ],
+  "evidence": {
+    "receipt": "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/review-3/diagrama-atividades.finalize.json",
+    "summaryReceipt": "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/review-3/diagrama-atividades.finalize-summary.json"
+  },
+  "visualReview": "not-requested",
+  "failedStage": "validate",
+  "finishedAt": "2026-11-10T18:13:44.237Z",
+  "durationMs": 1725,
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-10T16:40:33.238Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  }
+}

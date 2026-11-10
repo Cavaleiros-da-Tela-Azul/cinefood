@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "fail",
+  "type": "class",
+  "quality": "showcase",
+  "startedAt": "2026-11-10T17:26:05.987Z",
+  "specification": {
+    "path": "/home/paulo-cesar/Downloads/cinefood/.archify/class-cinefood-20261109-171000/candidate.json",
+    "sha256": "a3d96b506c9ceac8f5ae9bf3f65ee6bc42a2df620fe4124efca460b13ca5c7ae",
+    "bytes": 11887
+  },
+  "artifact": {
+    "path": "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-classes.html",
+    "sha256": "f9f69efae6d491b284d8ea739332dc24868ae9603e0b9c35f1fd4bc13d18db7f",
+    "bytes": 895498
+  },
+  "stages": {
+    "validate": {
+      "status": "fail",
+      "exitCode": 1,
+      "durationMs": null,
+      "command": [
+        "/usr/bin/node",
+        "/home/paulo-cesar/Downloads/cinefood/.agents/skills/archify/bin/archify.mjs",
+        "deliver",
+        "class",
+        "/home/paulo-cesar/Downloads/cinefood/.archify/class-cinefood-20261109-171000/candidate.json",
+        "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-classes.html",
+        "--quality",
+        "showcase",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": false,
+        "command": "deliver",
+        "receiptId": "0ed26233-9f56-454f-b89e-f5b6dcd4d848",
+        "stage": "render",
+        "type": "class",
+        "input": "/home/paulo-cesar/Downloads/cinefood/.archify/class-cinefood-20261109-171000/candidate.json",
+        "output": "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-classes.html",
+        "error": "Class diagram validation failed:\n- Label \"1..* programa sessões\" overlaps type \"cinema_sala_filme\" — adjust labelDx/labelDy/labelSegment or set labelAt.\n  label rect: [783, 201, 134, 14]\n  type \"cinema_sala_filme\" rect: [486, 40, 300, 354]\n  Suggested fix: set labelAt [850, 408] or set labelDy 197 (below); or set labelAt [850, 32] or set labelDy -179 (above)\n- Label \"1..* programa sessões\" overlaps type \"sessao_cinema\" — adjust labelDx/labelDy/labelSegment or set labelAt.\n  label rect: [783, 201, 134, 14]\n  type \"sessao_cinema\" rect: [914, 60, 300, 314]\n  Suggested fix: set labelAt [850, 388] or set labelDy 177 (below); or set labelAt [850, 52] or set labelDy -159 (above)\n- Label \"exige entrada (RST-04)\" overlaps type \"pedido_cantina\" — adjust labelDx/labelDy/labelSegment or set labelAt.\n  label rect: [780, 1210, 140, 14]\n  type \"pedido_cantina\" rect: [486, 1016, 300, 394]\n  Suggested fix: set labelAt [850, 1424] or set labelDy 204 (below); or set labelAt [850, 1008] or set labelDy -212 (above)\n- Label \"exige entrada (RST-04)\" overlaps type \"ingresso_avaliacao\" — adjust labelDx/labelDy/labelSegment or set labelAt.\n  label rect: [780, 1210, 140, 14]\n  type \"ingresso_avaliacao\" rect: [914, 1036, 300, 354]\n  Suggested fix: set labelAt [850, 1404] or set labelDy 184 (below); or set labelAt [850, 1028] or set labelDy -192 (above)",
+        "diagnostics": [
+          {
+            "code": "layout/constraint",
+            "severity": "error",
+            "message": "Label \"1..* programa sessões\" overlaps type \"cinema_sala_filme\" — adjust labelDx/labelDy/labelSegment or set labelAt.\n  label rect: [783, 201, 134, 14]\n  type \"cinema_sala_filme\" rect: [486, 40, 300, 354]\n  Suggested fix: set labelAt [850, 408] or set labelDy 197 (below); or set labelAt [850, 32] or set labelDy -179 (above)",
+            "subject": {
+              "diagramType": "class"
+            },
+            "evidence": {},
+            "supportedFixes": []
+          },
+          {
+            "code": "layout/constraint",
+            "severity": "error",
+            "message": "Label \"1..* programa sessões\" overlaps type \"sessao_cinema\" — adjust labelDx/labelDy/labelSegment or set labelAt.\n  label rect: [783, 201, 134, 14]\n  type \"sessao_cinema\" rect: [914, 60, 300, 314]\n  Suggested fix: set labelAt [850, 388] or set labelDy 177 (below); or set labelAt [850, 52] or set labelDy -159 (above)",
+            "subject": {
+              "diagramType": "class"
+            },
+            "evidence": {},
+            "supportedFixes": []
+          },
+          {
+            "code": "layout/constraint",
+            "severity": "error",
+            "message": "Label \"exige entrada (RST-04)\" overlaps type \"pedido_cantina\" — adjust labelDx/labelDy/labelSegment or set labelAt.\n  label rect: [780, 1210, 140, 14]\n  type \"pedido_cantina\" rect: [486, 1016, 300, 394]\n  Suggested fix: set labelAt [850, 1424] or set labelDy 204 (below); or set labelAt [850, 1008] or set labelDy -212 (above)",
+            "subject": {
+              "diagramType": "class"
+            },
+            "evidence": {},
+            "supportedFixes": []
+          },
+          {
+            "code": "layout/constraint",
+            "severity": "error",
+            "message": "Label \"exige entrada (RST-04)\" overlaps type \"ingresso_avaliacao\" — adjust labelDx/labelDy/labelSegment or set labelAt.\n  label rect: [780, 1210, 140, 14]\n  type \"ingresso_avaliacao\" rect: [914, 1036, 300, 354]\n  Suggested fix: set labelAt [850, 1404] or set labelDy 184 (below); or set labelAt [850, 1028] or set labelDy -192 (above)",
+            "subject": {
+              "diagramType": "class"
+            },
+            "evidence": {},
+            "supportedFixes": []
+          }
+        ],
+        "provenance": "failed",
+        "update": {
+          "status": "unavailable",
+          "installedVersion": null,
+          "availableVersion": null,
+          "releaseNotes": null,
+          "checkedAt": null,
+          "source": null,
+          "noticeRequired": false,
+          "noticeText": null,
+          "reason": "disabled"
+        }
+      },
+      "execution": "embedded-in-deliver"
+    },
+    "deliver": {
+      "status": "not-run",
+      "execution": "blocked-by-validate"
+    }
+  },
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  },
+  "diagnostics": [
+    {
+      "code": "layout/constraint",
+      "severity": "error",
+      "message": "Label \"1..* programa sessões\" overlaps type \"cinema_sala_filme\" — adjust labelDx/labelDy/labelSegment or set labelAt.\n  label rect: [783, 201, 134, 14]\n  type \"cinema_sala_filme\" rect: [486, 40, 300, 354]\n  Suggested fix: set labelAt [850, 408] or set labelDy 197 (below); or set labelAt [850, 32] or set labelDy -179 (above)",
+      "subject": {
+        "diagramType": "class"
+      },
+      "evidence": {},
+      "supportedFixes": []
+    },
+    {
+      "code": "layout/constraint",
+      "severity": "error",
+      "message": "Label \"1..* programa sessões\" overlaps type \"sessao_cinema\" — adjust labelDx/labelDy/labelSegment or set labelAt.\n  label rect: [783, 201, 134, 14]\n  type \"sessao_cinema\" rect: [914, 60, 300, 314]\n  Suggested fix: set labelAt [850, 388] or set labelDy 177 (below); or set labelAt [850, 52] or set labelDy -159 (above)",
+      "subject": {
+        "diagramType": "class"
+      },
+      "evidence": {},
+      "supportedFixes": []
+    },
+    {
+      "code": "layout/constraint",
+      "severity": "error",
+      "message": "Label \"exige entrada (RST-04)\" overlaps type \"pedido_cantina\" — adjust labelDx/labelDy/labelSegment or set labelAt.\n  label rect: [780, 1210, 140, 14]\n  type \"pedido_cantina\" rect: [486, 1016, 300, 394]\n  Suggested fix: set labelAt [850, 1424] or set labelDy 204 (below); or set labelAt [850, 1008] or set labelDy -212 (above)",
+      "subject": {
+        "diagramType": "class"
+      },
+      "evidence": {},
+      "supportedFixes": []
+    },
+    {
+      "code": "layout/constraint",
+      "severity": "error",
+      "message": "Label \"exige entrada (RST-04)\" overlaps type \"ingresso_avaliacao\" — adjust labelDx/labelDy/labelSegment or set labelAt.\n  label rect: [780, 1210, 140, 14]\n  type \"ingresso_avaliacao\" rect: [914, 1036, 300, 354]\n  Suggested fix: set labelAt [850, 1404] or set labelDy 184 (below); or set labelAt [850, 1028] or set labelDy -192 (above)",
+      "subject": {
+        "diagramType": "class"
+      },
+      "evidence": {},
+      "supportedFixes": []
+    }
+  ],
+  "evidence": {
+    "receipt": "/home/paulo-cesar/Downloads/cinefood/.archify/class-cinefood-20261109-171000/review-4/diagrama-classes.finalize.json",
+    "summaryReceipt": "/home/paulo-cesar/Downloads/cinefood/.archify/class-cinefood-20261109-171000/review-4/diagrama-classes.finalize-summary.json"
+  },
+  "visualReview": "not-requested",
+  "failedStage": "validate",
+  "finishedAt": "2026-11-10T17:26:06.921Z",
+  "durationMs": 933,
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-10T16:40:33.238Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  }
+}

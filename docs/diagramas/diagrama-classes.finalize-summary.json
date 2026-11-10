@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "skipped",
+  "type": "class",
+  "quality": "showcase",
+  "specification": {
+    "path": "/home/paulo-cesar/Downloads/cinefood/.archify/class-cinefood-20261109-171000/candidate.json",
+    "sha256": "8f18907ed977e362aed1aa767cb235d952e43b00528cbb03d38f13d8997d28e0",
+    "bytes": 8559
+  },
+  "artifact": {
+    "path": "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-classes.html",
+    "sha256": "f8ce449b597c03f288df0201936a50d000021e51f4b13c765956f8dc058377ee",
+    "bytes": 877216
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "skipped"
+  },
+  "failedStage": "browser-check",
+  "diagnostics": [
+    {
+      "code": "viewer/chrome-unavailable",
+      "severity": "warning",
+      "message": "No supported browser found. Install Chrome/Chromium (or Microsoft Edge), or set ARCHIFY_CHROME to its executable path.",
+      "subject": {
+        "artifact": "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-classes.html"
+      },
+      "evidence": {
+        "executable": null
+      },
+      "supportedFixes": [
+        "set ARCHIFY_CHROME to a Chrome/Chromium executable (or Microsoft Edge) and rerun browser-check"
+      ]
+    }
+  ],
+  "diagnosticSummary": {
+    "total": 1,
+    "shown": 1,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-classes.finalize.json",
+    "summaryReceipt": "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-classes.finalize-summary.json",
+    "browserCheckReceipt": "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-classes.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-09T20:11:25.446Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 1935,
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  }
+}

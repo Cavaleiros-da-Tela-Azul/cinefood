@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "fail",
+  "type": "workflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/candidate.json",
+    "sha256": "7e02376bbe8ff72135834f2b848439459102d4806b3eb855558d773bffb129b4",
+    "bytes": 9467
+  },
+  "artifact": {
+    "path": "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-atividades.html",
+    "sha256": "fd8097683b35715d02f5456059e0dddf857576a80a2d0d260992e66aca587a70",
+    "bytes": 858894
+  },
+  "gates": {
+    "validate": "fail",
+    "deliver": "not-run",
+    "check": "not-run",
+    "browser-check": "not-run"
+  },
+  "failedStage": "validate",
+  "diagnostics": [
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"escolhe lugar/meia (RF-02/16/17)\" needs a 13.2px minimum that stays readable on this 2046px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "escolher_sessao",
+        "path": "/nodes/0/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 13.2,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 2046,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 253.43999999999997,
+        "availableTextWidthPx": 132
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    },
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"Não | Agora | Na Sessão (ADR-005)\" needs a 13.2px minimum that stays readable on this 2046px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "decisao_comida",
+        "path": "/nodes/8/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 13.2,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 2046,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 261.35999999999996,
+        "availableTextWidthPx": 160
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    },
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"disputa canais (RF-03/14)\" needs a 13.2px minimum that stays readable on this 2046px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "decisao_assento",
+        "path": "/nodes/1/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 13.2,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 2046,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 198,
+        "availableTextWidthPx": 96
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    },
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"status RESERVADO (ADR-002)\" needs a 13.2px minimum that stays readable on this 2046px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "bloquear_10m",
+        "path": "/nodes/3/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 13.2,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 2046,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 205.92,
+        "availableTextWidthPx": 128
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    },
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"webhook Pix/cartão (RF-04)\" needs a 13.2px minimum that stays readable on this 2046px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "decisao_pagto",
+        "path": "/nodes/5/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 13.2,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 2046,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 205.92,
+        "availableTextWidthPx": 132
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    },
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"1 QR opaco/assento (RF-05)\" needs a 13.2px minimum that stays readable on this 2046px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "emitir_qr",
+        "path": "/nodes/7/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 13.2,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 2046,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 205.92,
+        "availableTextWidthPx": 112
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    },
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"entrada confirmada (RST-04)\" needs a 13.2px minimum that stays readable on this 2046px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "liberar_kds_sala",
+        "path": "/nodes/13/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 13.2,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 2046,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 213.83999999999997,
+        "availableTextWidthPx": 124
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    },
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"assento ocupado -> encerra\" needs a 13.2px minimum that stays readable on this 2046px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "desistir_indisponivel",
+        "path": "/nodes/2/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 13.2,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 2046,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 205.92,
+        "availableTextWidthPx": 112
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    }
+  ],
+  "diagnosticSummary": {
+    "total": 17,
+    "shown": 8,
+    "truncated": true,
+    "omittedByCode": {
+      "workflow/sublabel-readability": 9
+    }
+  },
+  "evidence": {
+    "receipt": "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/review-4/diagrama-atividades.finalize.json",
+    "summaryReceipt": "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/review-4/diagrama-atividades.finalize-summary.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-10T16:40:33.238Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 1724,
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  },
+  "nextAction": {
+    "action": "edit-in-place",
+    "candidate": "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/candidate.json",
+    "constraint": "Preserve unaffected semantics and geometry; apply each diagnostic's supportedFixes, or the fix its message names, and do not replace the whole candidate.",
+    "then": "finalize-once"
+  }
+}

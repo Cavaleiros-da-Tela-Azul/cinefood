@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "fail",
+  "type": "sequence",
+  "quality": "showcase",
+  "specification": {
+    "path": "/home/paulo-cesar/Downloads/cinefood/.archify/sequence-cinefood-20261109-171000/candidate.json",
+    "sha256": "fc957f0aba0175b1c2d4bfe1280d5e311691ec2bba7f7f942e53bf8ff09a4386",
+    "bytes": 5837
+  },
+  "artifact": {
+    "path": "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-sequencial.html",
+    "sha256": "ca7ac6937335b6e868b396ebdb01b30724da5661778375b7452d6a2711a97bfd",
+    "bytes": 841481
+  },
+  "gates": {
+    "validate": "fail",
+    "deliver": "not-run",
+    "check": "not-run",
+    "browser-check": "not-run"
+  },
+  "failedStage": "validate",
+  "diagnostics": [
+    {
+      "code": "sequence/segment-label-overlap",
+      "severity": "error",
+      "message": "Segment \"2. Webhook Autenticado, Compensação (Fig. 2) & Checkout Cantina (ADR-005)\" label would cover the note of message \"UPDATE assento SET RESERVADO (10 min)\" — move the segment start (from: 380) or that message so they are further apart, or shorten the note.",
+      "subject": {
+        "diagramType": "sequence",
+        "segment": "2. Webhook Autenticado, Compensação (Fig. 2) & Checkout Cantina (ADR-005)",
+        "path": "/segments/1/from"
+      },
+      "evidence": {
+        "label": {
+          "x": 56,
+          "y": 270,
+          "width": 393.6,
+          "height": 18
+        },
+        "attempts": 4,
+        "covered": {
+          "kind": "note",
+          "message": "UPDATE assento SET RESERVADO (10 min)",
+          "path": "/messages/2/note",
+          "bounds": {
+            "x": 310.7,
+            "y": 264.6,
+            "width": 126,
+            "height": 23.4
+          }
+        }
+      },
+      "supportedFixes": [
+        "set /segments/1/from to 377"
+      ]
+    },
+    {
+      "code": "sequence/segment-label-overlap",
+      "severity": "error",
+      "message": "Segment \"3. Validação Portaria (RST-04), Entrega Runner & Pós-Sessão (RF-06 a RF-18)\" label would cover the message route of message \"POST /orders (itens cantina + ingresso_id)\" — move the segment start (from: 625) or that message so they are further apart.",
+      "subject": {
+        "diagramType": "sequence",
+        "segment": "3. Validação Portaria (RST-04), Entrega Runner & Pós-Sessão (RF-06 a RF-18)",
+        "path": "/segments/2/from"
+      },
+      "evidence": {
+        "label": {
+          "x": 56,
+          "y": 515,
+          "width": 404,
+          "height": 18
+        },
+        "attempts": 4,
+        "covered": {
+          "kind": "message route",
+          "message": "POST /orders (itens cantina + ingresso_id)",
+          "path": "/messages/8/y",
+          "bounds": {
+            "x": 134.5,
+            "y": 513,
+            "width": 150.2,
+            "height": 4
+          }
+        }
+      },
+      "supportedFixes": [
+        "set /segments/2/from to 620"
+      ]
+    }
+  ],
+  "diagnosticSummary": {
+    "total": 2,
+    "shown": 2,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/home/paulo-cesar/Downloads/cinefood/.archify/sequence-cinefood-20261109-171000/review-2/diagrama-sequencial.finalize.json",
+    "summaryReceipt": "/home/paulo-cesar/Downloads/cinefood/.archify/sequence-cinefood-20261109-171000/review-2/diagrama-sequencial.finalize-summary.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-10T16:40:33.238Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 978,
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  },
+  "nextAction": {
+    "action": "edit-in-place",
+    "candidate": "/home/paulo-cesar/Downloads/cinefood/.archify/sequence-cinefood-20261109-171000/candidate.json",
+    "constraint": "Preserve unaffected semantics and geometry; apply each diagnostic's supportedFixes, or the fix its message names, and do not replace the whole candidate.",
+    "then": "finalize-once"
+  }
+}

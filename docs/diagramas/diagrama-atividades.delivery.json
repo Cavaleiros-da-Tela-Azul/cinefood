@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "15b06cbf-3662-4067-a269-7fc3191e607b",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/candidate.json",
+  "output": "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-atividades.html",
+  "specification": {
+    "sha256": "6e718e36a5aa784e5186b6b6716760e7366d76cc1f2712a949fafb9008419403",
+    "bytes": 9523
+  },
+  "artifact": {
+    "sha256": "e1c273315d633470bebe3564e26087dca30d9a48e38d0383378cba44e825ee4a",
+    "bytes": 864842
+  }
+}

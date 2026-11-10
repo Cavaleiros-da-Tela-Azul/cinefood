@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "fail",
+  "type": "class",
+  "quality": "showcase",
+  "specification": {
+    "path": "/home/paulo-cesar/Downloads/cinefood/.archify/class-cinefood-20261109-171000/candidate.json",
+    "sha256": "0dc85c8e1b64e1b8825efc8461c3bbc72d1ba139a980722a2932c8e7b3cec6ee",
+    "bytes": 11298
+  },
+  "artifact": {
+    "path": "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-classes.html",
+    "sha256": "f8ce449b597c03f288df0201936a50d000021e51f4b13c765956f8dc058377ee",
+    "bytes": 877216
+  },
+  "gates": {
+    "validate": "fail",
+    "deliver": "not-run",
+    "check": "not-run",
+    "browser-check": "not-run"
+  },
+  "failedStage": "validate",
+  "diagnostics": [
+    {
+      "code": "composition/proper-crossing",
+      "severity": "error",
+      "message": "[composition/proper-crossing] showcase class relationships[6] id \"compra_pedido\" \"compra_pagamento\" -> \"pedido_cantina\" crosses relationships[9] id \"avaliacao_ingresso\" \"historico_avaliacao\" -> \"ingresso_acesso\" at [627, 879] (segments 0 and 1) — move the types so unrelated relationships use separate corridors.",
+      "subject": {
+        "diagramType": "class",
+        "collection": "relationships",
+        "index": 6,
+        "id": "compra_pedido",
+        "from": "compra_pagamento",
+        "to": "pedido_cantina"
+      },
+      "evidence": {
+        "otherRelationship": {
+          "diagramType": "class",
+          "collection": "relationships",
+          "index": 9,
+          "id": "avaliacao_ingresso",
+          "from": "historico_avaliacao",
+          "to": "ingresso_acesso"
+        },
+        "point": [
+          627,
+          879
+        ],
+        "segmentIndex": 0,
+        "otherSegmentIndex": 1
+      },
+      "supportedFixes": [
+        "move the types so unrelated relationships use separate corridors"
+      ]
+    },
+    {
+      "code": "composition/label-route-clearance",
+      "severity": "error",
+      "message": "[composition/label-route-clearance] showcase class label \"1..* emite pós-pago\" on relationships[4] id \"compra_ingresso\" \"compra_pagamento\" -> \"ingresso_acesso\" label \"1..* emite pós-pago\" is 0px from relationships[3] id \"compra_assento\" \"compra_pagamento\" -> \"assento_sessao\" label \"converte reserva 10m\" segment 1 [841, 635] -> [841, 220] (label rect [763, 330, 122, 14]; minimum 4px) — if the authored labelAt are not required by the user, remove them so the renderer can re-plan; otherwise preserve that intent and adjust labelAt, labelDx, labelDy, or labelSegment; otherwise adjust the other relationship route/via/channel.",
+      "subject": {
+        "diagramType": "class",
+        "collection": "relationships",
+        "index": 4,
+        "id": "compra_ingresso",
+        "from": "compra_pagamento",
+        "to": "ingresso_acesso"
+      },
+      "evidence": {
+        "label": "1..* emite pós-pago",
+        "otherRelationship": {
+          "diagramType": "class",
+          "collection": "relationships",
+          "index": 3,
+          "id": "compra_assento",
+          "from": "compra_pagamento",
+          "to": "assento_sessao"
+        },
+        "segmentIndex": 1,
+        "clearancePx": 0,
+        "minimumPx": 4,
+        "labelRect": {
+          "relation": {
+            "id": "compra_ingresso",
+            "from": "compra_pagamento",
+            "to": "ingresso_acesso",
+            "kind": "composition",
+            "label": "1..* emite pós-pago",
+            "labelAt": [
+              824,
+              340
+            ]
+          },
+          "relationIndex": 4,
+          "label": "1..* emite pós-pago",
+          "x": 763.045,
+          "y": 330,
+          "width": 121.91,
+          "height": 14,
+          "lx": 824,
+          "ly": 340
+        },
+        "from": [
+          841,
+          635
+        ],
+        "to": [
+          841,
+          220
+        ]
+      },
+      "supportedFixes": [
+        "if the authored labelAt are not required by the user, remove them so the renderer can re-plan; otherwise preserve that intent and adjust labelAt, labelDx, labelDy, or labelSegment; otherwise adjust the other relationship route/via/channel"
+      ]
+    },
+    {
+      "code": "layout/constraint",
+      "severity": "error",
+      "message": "Label \"1..* emite pós-pago\" overlaps type \"sessao_catalogo\" — adjust labelDx/labelDy/labelSegment or set labelAt.\n  label rect: [763, 330, 122, 14]\n  type \"sessao_catalogo\" rect: [477, 80, 300, 254]\n  Suggested fix: set labelAt [824, 348] (below); or set labelAt [824, 72] (above)",
+      "subject": {
+        "diagramType": "class"
+      }
+    },
+    {
+      "code": "composition/label-route-clearance",
+      "severity": "error",
+      "message": "[composition/label-route-clearance] showcase class label \"1..* reserva estoque\" on relationships[8] id \"pedido_itens\" \"pedido_cantina\" -> \"item_produto\" label \"1..* reserva estoque\" is 0px from relationships[3] id \"compra_assento\" \"compra_pagamento\" -> \"assento_sessao\" label \"converte reserva 10m\" segment 1 [841, 635] -> [841, 220] (label rect [760, 610, 128, 14]; minimum 4px) — if the authored labelAt are not required by the user, remove them so the renderer can re-plan; otherwise preserve that intent and adjust labelAt, labelDx, labelDy, or labelSegment; otherwise adjust the other relationship route/via/channel.",
+      "subject": {
+        "diagramType": "class",
+        "collection": "relationships",
+        "index": 8,
+        "id": "pedido_itens",
+        "from": "pedido_cantina",
+        "to": "item_produto"
+      },
+      "evidence": {
+        "label": "1..* reserva estoque",
+        "otherRelationship": {
+          "diagramType": "class",
+          "collection": "relationships",
+          "index": 3,
+          "id": "compra_assento",
+          "from": "compra_pagamento",
+          "to": "assento_sessao"
+        },
+        "segmentIndex": 1,
+        "clearancePx": 0,
+        "minimumPx": 4,
+        "labelRect": {
+          "relation": {
+            "id": "pedido_itens",
+            "from": "pedido_cantina",
+            "to": "item_produto",
+            "kind": "composition",
+            "label": "1..* reserva estoque",
+            "labelAt": [
+              824,
+              620
+            ]
+          },
+          "relationIndex": 8,
+          "label": "1..* reserva estoque",
+          "x": 760.1,
+          "y": 610,
+          "width": 127.8,
+          "height": 14,
+          "lx": 824,
+          "ly": 620
+        },
+        "from": [
+          841,
+          635
+        ],
+        "to": [
+          841,
+          220
+        ]
+      },
+      "supportedFixes": [
+        "if the authored labelAt are not required by the user, remove them so the renderer can re-plan; otherwise preserve that intent and adjust labelAt, labelDx, labelDy, or labelSegment; otherwise adjust the other relationship route/via/channel"
+      ]
+    },
+    {
+      "code": "layout/constraint",
+      "severity": "error",
+      "message": "Label \"1..* reserva estoque\" overlaps type \"compra_pagamento\" — adjust labelDx/labelDy/labelSegment or set labelAt.\n  label rect: [760, 610, 128, 14]\n  type \"compra_pagamento\" rect: [477, 458, 300, 354]\n  Suggested fix: set labelAt [824, 826] (below); or set labelAt [824, 450] (above)",
+      "subject": {
+        "diagramType": "class"
+      }
+    }
+  ],
+  "diagnosticSummary": {
+    "total": 5,
+    "shown": 5,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/home/paulo-cesar/Downloads/cinefood/.archify/class-cinefood-20261109-171000/review-2/diagrama-classes.finalize.json",
+    "summaryReceipt": "/home/paulo-cesar/Downloads/cinefood/.archify/class-cinefood-20261109-171000/review-2/diagrama-classes.finalize-summary.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-10T16:40:33.238Z",
+    "source": "network",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 834,
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  },
+  "nextAction": {
+    "action": "edit-in-place",
+    "candidate": "/home/paulo-cesar/Downloads/cinefood/.archify/class-cinefood-20261109-171000/candidate.json",
+    "constraint": "Preserve unaffected semantics and geometry; apply each diagnostic's supportedFixes, or the fix its message names, and do not replace the whole candidate.",
+    "then": "finalize-once"
+  }
+}

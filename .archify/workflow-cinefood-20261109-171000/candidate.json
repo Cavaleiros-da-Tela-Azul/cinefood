@@ -1,0 +1,228 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "CineFood — Diagrama de Atividades UML Completo (Decisões, Falhas/Desistência, Estorno CDC, Balcão vs Sala e Pós-Sessão)",
+    "quality_profile": "showcase",
+    "output": "docs/diagramas/diagrama-atividades.html"
+  },
+  "lanes": [
+    { "id": "cliente", "label": "Cliente & Bilheteria" },
+    { "id": "cantina", "label": "Cantina KDS" },
+    { "id": "portaria", "label": "Portaria QR" },
+    { "id": "api_db", "label": "API & PostgreSQL" },
+    { "id": "excecoes", "label": "Exceções & Estorno", "variant": "exception" }
+  ],
+  "phases": [
+    { "id": "f1", "label": "1. Assento & Trava 10m", "fromCol": 0, "toCol": 1 },
+    { "id": "f2", "label": "2. Pagamento, Estorno & Comida", "fromCol": 2, "toCol": 2, "variant": "emphasis" },
+    { "id": "f3", "label": "3. Balcão vs Portaria QR", "fromCol": 3, "toCol": 3, "variant": "security" },
+    { "id": "f4", "label": "4. Entrega na Sala & Avaliação", "fromCol": 4, "toCol": 4, "variant": "dashed" }
+  ],
+  "mainPath": [
+    "escolher_sessao",
+    "decisao_assento",
+    "bloquear_10m",
+    "decisao_pagto",
+    "emitir_qr",
+    "decisao_qr_portaria",
+    "liberar_kds_sala",
+    "runner_entrega"
+  ],
+  "nodes": [
+    {
+      "id": "escolher_sessao",
+      "lane": "cliente",
+      "col": 0,
+      "type": "frontend",
+      "icon": "start",
+      "label": "Sessão & LGPD",
+      "sublabel": "meia/assento (RF-02/16)"
+    },
+    {
+      "id": "decisao_assento",
+      "lane": "api_db",
+      "col": 0,
+      "type": "database",
+      "icon": "decision",
+      "label": "◊ Assento Livre?",
+      "sublabel": "disputa (RF-03/14)"
+    },
+    {
+      "id": "desistir_indisponivel",
+      "lane": "excecoes",
+      "col": 0,
+      "type": "security",
+      "icon": "stop",
+      "label": "Trocar / Desistir",
+      "sublabel": "ocupado -> encerra"
+    },
+    {
+      "id": "bloquear_10m",
+      "lane": "api_db",
+      "col": 1,
+      "type": "database",
+      "icon": "clock",
+      "label": "Reservar 10 min",
+      "sublabel": "RESERVADO (ADR-002)"
+    },
+    {
+      "id": "desistir_checkout",
+      "lane": "excecoes",
+      "col": 1,
+      "type": "security",
+      "icon": "stop",
+      "label": "Desistiu / >10m",
+      "sublabel": "libera assento"
+    },
+    {
+      "id": "decisao_comida",
+      "lane": "cliente",
+      "col": 2,
+      "type": "frontend",
+      "icon": "decision",
+      "label": "◊ Pedir Comida?",
+      "sublabel": "Agora ou na Sessão"
+    },
+    {
+      "id": "emitir_qr",
+      "lane": "portaria",
+      "col": 2,
+      "type": "backend",
+      "icon": "success",
+      "label": "Emitir QR Code",
+      "sublabel": "1 QR/assento (RF-05)"
+    },
+    {
+      "id": "decisao_pagto",
+      "lane": "api_db",
+      "col": 2,
+      "type": "cloud",
+      "icon": "decision",
+      "label": "◊ Pagto Aprovado?",
+      "sublabel": "Pix/cartão (RF-04)"
+    },
+    {
+      "id": "falha_ou_estorno_cdc",
+      "lane": "excecoes",
+      "col": 2,
+      "type": "security",
+      "icon": "failure",
+      "label": "Falha / Estorno CDC",
+      "sublabel": "recusa ou art. 49 (RF-12)"
+    },
+    {
+      "id": "retirada_balcao",
+      "lane": "cliente",
+      "col": 3,
+      "type": "external",
+      "icon": "success",
+      "label": "Retirar no Balcão",
+      "sublabel": "sem ingresso (CA-F09)"
+    },
+    {
+      "id": "checkout_cantina",
+      "lane": "cantina",
+      "col": 3,
+      "type": "backend",
+      "icon": "decision",
+      "label": "◊ Modalidade?",
+      "sublabel": "Balcão vs Sala (RF-08)"
+    },
+    {
+      "id": "decisao_qr_portaria",
+      "lane": "portaria",
+      "col": 3,
+      "type": "security",
+      "icon": "decision",
+      "label": "◊ Entrou c/ QR?",
+      "sublabel": "leitura única (RF-06)"
+    },
+    {
+      "id": "barrar_ou_ausente",
+      "lane": "excecoes",
+      "col": 3,
+      "type": "security",
+      "icon": "failure",
+      "label": "Barrado / Faltou",
+      "sublabel": "sem sala e avaliação"
+    },
+    {
+      "id": "converter_balcao",
+      "lane": "cliente",
+      "col": 4,
+      "type": "security",
+      "icon": "waiting",
+      "label": "Mudar p/ Balcão",
+      "sublabel": "ausente >2m (RF-20)"
+    },
+    {
+      "id": "runner_entrega",
+      "lane": "cantina",
+      "col": 4,
+      "type": "external",
+      "icon": "decision",
+      "label": "◊ Achou Cliente?",
+      "sublabel": "Runner na sala (RF-09)"
+    },
+    {
+      "id": "liberar_kds_sala",
+      "lane": "portaria",
+      "col": 4,
+      "type": "messagebus",
+      "icon": "active",
+      "label": "Liberar KDS Sala",
+      "sublabel": "após portaria (RST-04)"
+    },
+    {
+      "id": "assistir_e_avaliar",
+      "lane": "api_db",
+      "col": 4,
+      "type": "frontend",
+      "icon": "flag",
+      "label": "Assistir & Avaliar",
+      "sublabel": "nota 1..5 (RF-13)"
+    }
+  ],
+  "edges": [
+    { "id": "a1", "from": "escolher_sessao", "to": "decisao_assento", "fromSide": "bottom", "toSide": "top", "label": "reservar", "variant": "default" },
+    { "id": "a2", "from": "decisao_assento", "to": "desistir_indisponivel", "fromSide": "bottom", "toSide": "top", "label": "[Não]", "variant": "security", "role": "error" },
+    { "id": "a3", "from": "decisao_assento", "to": "bloquear_10m", "fromSide": "right", "toSide": "left", "label": "[Sim] livre", "variant": "emphasis" },
+    { "id": "a4", "from": "bloquear_10m", "to": "desistir_checkout", "fromSide": "bottom", "toSide": "top", "label": "desistiu/10m", "variant": "security", "role": "error" },
+    { "id": "a5", "from": "bloquear_10m", "to": "decisao_pagto", "fromSide": "right", "toSide": "left", "label": "pagar", "variant": "emphasis" },
+    { "id": "a6", "from": "decisao_pagto", "to": "falha_ou_estorno_cdc", "fromSide": "bottom", "toSide": "top", "label": "[Não]/estorno", "variant": "security", "role": "error" },
+    { "id": "a7", "from": "decisao_pagto", "to": "emitir_qr", "fromSide": "top", "toSide": "bottom", "label": "[Sim] pago", "variant": "emphasis" },
+    { "id": "a8", "from": "emitir_qr", "to": "decisao_comida", "fromSide": "top", "toSide": "bottom", "label": "pedir lanche?", "variant": "default", "role": "branch" },
+    { "id": "a9", "from": "decisao_comida", "to": "checkout_cantina", "label": "[Sim] comida", "variant": "default", "role": "branch" },
+    { "id": "a10", "from": "emitir_qr", "to": "decisao_qr_portaria", "fromSide": "right", "toSide": "left", "label": "ir à sessão", "variant": "emphasis" },
+    { "id": "a11", "from": "checkout_cantina", "to": "retirada_balcao", "fromSide": "top", "toSide": "bottom", "label": "[Balcão]", "variant": "dashed", "role": "branch" },
+    { "id": "a12", "from": "decisao_qr_portaria", "to": "barrar_ou_ausente", "fromSide": "bottom", "toSide": "top", "label": "[Não] faltou", "variant": "security", "role": "error" },
+    { "id": "a13", "from": "decisao_qr_portaria", "to": "liberar_kds_sala", "fromSide": "right", "toSide": "left", "label": "[Sim] entrou", "variant": "emphasis" },
+    { "id": "a14", "from": "liberar_kds_sala", "to": "runner_entrega", "fromSide": "top", "toSide": "bottom", "label": "[Sala]", "variant": "emphasis" },
+    { "id": "a15", "from": "runner_entrega", "to": "converter_balcao", "fromSide": "top", "toSide": "bottom", "label": "[Não] >2m", "variant": "security", "role": "error" },
+    { "id": "a16", "from": "liberar_kds_sala", "to": "assistir_e_avaliar", "fromSide": "bottom", "toSide": "top", "label": "pós-filme", "variant": "emphasis" }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "6 Nós de Decisão UML (◊) com Todos os Caminhos [Sim] / [Não]",
+      "items": [
+        "1. ◊ Assento Livre? -> [Não]: Cliente escolhe outro assento ou desiste e encerra | [Sim]: Trava por 10 min (RESERVADO).",
+        "2. Trava 10 min -> Se o cliente desistir de continuar a compra ou o timer de 10m expirar, libera o assento automaticamente.",
+        "3. ◊ Pagto Aprovado? -> [Não / Estorno]: Recusa do gateway, Pix após 10m (reembolso RN-01) ou pedido de Estorno CDC art. 49 até 7 dias / antes da sessão (RF-12) | [Sim]: Emite QR Code.",
+        "4. ◊ Pedir Comida? -> [Só assistir]: Cliente segue direto para 'Ir à sessão' na portaria sem comprar comida | [Sim, antes ou durante a sessão]: Faz checkout separado da cantina (ADR-005).",
+        "5. ◊ Modalidade? -> [Balcão]: Prepara e entrega no balcão (dispensa ingresso ativo CA-F09) | [Sala]: Retém preparo até validar entrada na portaria (RST-04).",
+        "6. ◊ Entrou c/ QR? -> [Não / Faltou]: Barrado na portaria, bloqueia entrega na sala e impede avaliar o filme (CA-F13) | [Sim]: Consome QR (UTILIZADO), libera Runner na poltrona (ou converte p/ balcão após 2m ausente RF-20) e habilita avaliação (1..5)."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Correções Aplicadas sobre o Rascunho da Parte Vermelha (p. 29-32)",
+      "items": [
+        "Desacoplamento de Checkouts (ADR-005): O rascunho acoplava ingresso e comida num único pagamento inicial; agora permite só assistir, comprar comida depois ou pedir durante a sessão.",
+        "Trava da Cozinha (RST-04): O rascunho iniciava o preparo da cozinha antes da validação na portaria; agora a modalidade ENTREGA_ASSENTO aguarda confirmação de entrada (status=UTILIZADO).",
+        "Caminhos de Abandono, Estorno CDC (RF-12), Retirada no Balcão sem Ingresso (CA-F09), Não Comparecimento (CA-F13) e Fallback do Runner (RF-20) incluídos explicitamente."
+      ]
+    }
+  ]
+}

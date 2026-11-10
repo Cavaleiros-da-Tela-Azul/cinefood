@@ -1,0 +1,845 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "fail",
+  "type": "sequence",
+  "quality": "showcase",
+  "startedAt": "2026-11-10T18:35:28.933Z",
+  "specification": {
+    "path": "/home/paulo-cesar/Downloads/cinefood/.archify/sequence-cinefood-20261109-171000/candidate.json",
+    "sha256": "b668fcb899f578eaace0ada1d7fd2253e5d5e90f666c53982b17ca98ebb8319a",
+    "bytes": 6678
+  },
+  "artifact": {
+    "path": "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-sequencial.html",
+    "sha256": "1e8ab11feb65a7c026044ebec61e9bedc34b0fff9319caf459d712e66ddbbd01",
+    "bytes": 846990
+  },
+  "stages": {
+    "validate": {
+      "status": "fail",
+      "exitCode": 1,
+      "durationMs": null,
+      "command": [
+        "/usr/bin/node",
+        "/home/paulo-cesar/Downloads/cinefood/.agents/skills/archify/bin/archify.mjs",
+        "deliver",
+        "sequence",
+        "/home/paulo-cesar/Downloads/cinefood/.archify/sequence-cinefood-20261109-171000/candidate.json",
+        "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-sequencial.html",
+        "--quality",
+        "showcase",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": false,
+        "command": "deliver",
+        "receiptId": "873b45a5-38c8-4944-9520-2ff7062dc3f6",
+        "stage": "render",
+        "type": "sequence",
+        "input": "/home/paulo-cesar/Downloads/cinefood/.archify/sequence-cinefood-20261109-171000/candidate.json",
+        "output": "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-sequencial.html",
+        "error": "Sequence layout validation failed:\n- [composition/label-canvas-containment] showcase sequence label \"2. [alt Livre] 200 OK (RESERVADO 10m) | [Ocupado] 409 Conflict\" on messages[1] id \"m2\" \"api\" -> \"cliente\" extends past the left edge by 21.2px (label rect [-21, 210, 421, 18]; viewBox 932x1083) — shorten the label, reorder participants, or enlarge meta.viewBox.\n- [composition/label-canvas-containment] showcase sequence label \"3. [opt Desistir/Expirar 10m] AssentoSessao.liberarReserva()\" on messages[2] id \"m3\" \"cliente\" -> \"api\" extends past the left edge by 14.6px (label rect [-15, 250, 408, 18]; viewBox 932x1083) — shorten the label, reorder participants, or enlarge meta.viewBox.\n- [composition/label-canvas-containment] showcase sequence label \"9. [opt Comida antes/na sessão] POST /orders (modalidade)\" on messages[8] id \"m9\" \"cliente\" -> \"api\" extends past the left edge by 4.7px (label rect [-5, 514, 388, 18]; viewBox 932x1083) — shorten the label, reorder participants, or enlarge meta.viewBox.\n- [composition/label-canvas-containment] showcase sequence label \"15. [alt Modalidade BALCAO] Push: Pronto p/ retirada na bancada\" on messages[14] id \"m15\" \"api\" -> \"cliente\" extends past the left edge by 24.5px (label rect [-24, 744, 428, 18]; viewBox 932x1083) — shorten the label, reorder participants, or enlarge meta.viewBox.\n- [composition/label-canvas-containment] showcase sequence label \"18. [opt Estorno CDC art. 49] Compra.solicitarEstornoCDC() (RF-12)\" on messages[17] id \"m18\" \"cliente\" -> \"api\" extends past the left edge by 34.4px (label rect [-34, 864, 448, 18]; viewBox 932x1083) — shorten the label, reorder participants, or enlarge meta.viewBox.\n- [composition/label-canvas-containment] showcase sequence label \"19. PUT /screenings/{id}/rating (nota 1..5 pós-sessão RF-13)\" on messages[18] id \"m19\" \"cliente\" -> \"api\" extends past the left edge by 14.6px (label rect [-15, 900, 408, 18]; viewBox 932x1083) — shorten the label, reorder participants, or enlarge meta.viewBox.\n- Note on message \"1. POST /reservations (sessaoId, assento F8, meia)\" wraps to 3 lines (down to y=214) and reaches message \"2. [alt Livre] 200 OK (RESERVADO 10m) | [Ocupado] 409 Conflict\" at y=230 — move \"2. [alt Livre] 200 OK (RESERVADO 10m) | [Ocupado] 409 Conflict\" and later messages down so it sits at y=236 or below, or shorten the note.\n- Note on message \"7. [alt Aprovado] POST /webhooks/payments (APROVADO)\" wraps to 2 lines (down to y=483) and reaches message \"8. 200 OK (Ingresso EMITIDO com qrToken único)\" at y=502 — move \"8. 200 OK (Ingresso EMITIDO com qrToken único)\" and later messages down so it sits at y=505 or below, or shorten the note.\n- Note on message \"11. POST /tickets/validate (qrToken, operadorId)\" wraps to 3 lines (down to y=656) and reaches message \"12. [alt Válido] 200 OK (Poltrona F8) | [Inválido/Usado] 403\" at y=664 — move \"12. [alt Válido] 200 OK (Poltrona F8) | [Inválido/Usado] 403\" and later messages down so it sits at y=678 or below, or shorten the note.\n- Note on message \"19. PUT /screenings/{id}/rating (nota 1..5 pós-sessão RF-13)\" wraps to 3 lines (down to y=964) and reaches message \"20. 201 Created (Avaliação registrada com sucesso)\" at y=970 — move \"20. 201 Created (Avaliação registrada com sucesso)\" and later messages down so it sits at y=986 or below, or shorten the note.\n- Segment \"2. Checkout Idempotente, Webhook e Pedido Opcional da Cantina (ADR-003 / ADR-005)\" label would cover the note of message \"1. POST /reservations (sessaoId, assento F8, meia)\" — move the segment start (from: 308) or that message so they are further apart, or shorten the note.",
+        "diagnostics": [
+          {
+            "code": "composition/label-canvas-containment",
+            "severity": "error",
+            "message": "[composition/label-canvas-containment] showcase sequence label \"2. [alt Livre] 200 OK (RESERVADO 10m) | [Ocupado] 409 Conflict\" on messages[1] id \"m2\" \"api\" -> \"cliente\" extends past the left edge by 21.2px (label rect [-21, 210, 421, 18]; viewBox 932x1083) — shorten the label, reorder participants, or enlarge meta.viewBox.",
+            "subject": {
+              "diagramType": "sequence",
+              "collection": "messages",
+              "index": 1,
+              "id": "m2",
+              "from": "api",
+              "to": "cliente"
+            },
+            "evidence": {
+              "label": "2. [alt Livre] 200 OK (RESERVADO 10m) | [Ocupado] 409 Conflict",
+              "labelRect": {
+                "x": -21.19999999999999,
+                "y": 210,
+                "width": 421.2,
+                "height": 18
+              },
+              "viewBox": [
+                932,
+                1083
+              ],
+              "overflowPx": {
+                "left": 21.2
+              },
+              "tolerancePx": 0.5
+            },
+            "supportedFixes": [
+              "shorten the label, reorder participants, or enlarge meta.viewBox"
+            ]
+          },
+          {
+            "code": "composition/label-canvas-containment",
+            "severity": "error",
+            "message": "[composition/label-canvas-containment] showcase sequence label \"3. [opt Desistir/Expirar 10m] AssentoSessao.liberarReserva()\" on messages[2] id \"m3\" \"cliente\" -> \"api\" extends past the left edge by 14.6px (label rect [-15, 250, 408, 18]; viewBox 932x1083) — shorten the label, reorder participants, or enlarge meta.viewBox.",
+            "subject": {
+              "diagramType": "sequence",
+              "collection": "messages",
+              "index": 2,
+              "id": "m3",
+              "from": "cliente",
+              "to": "api"
+            },
+            "evidence": {
+              "label": "3. [opt Desistir/Expirar 10m] AssentoSessao.liberarReserva()",
+              "labelRect": {
+                "x": -14.599999999999994,
+                "y": 250,
+                "width": 408,
+                "height": 18
+              },
+              "viewBox": [
+                932,
+                1083
+              ],
+              "overflowPx": {
+                "left": 14.6
+              },
+              "tolerancePx": 0.5
+            },
+            "supportedFixes": [
+              "shorten the label, reorder participants, or enlarge meta.viewBox"
+            ]
+          },
+          {
+            "code": "composition/label-canvas-containment",
+            "severity": "error",
+            "message": "[composition/label-canvas-containment] showcase sequence label \"9. [opt Comida antes/na sessão] POST /orders (modalidade)\" on messages[8] id \"m9\" \"cliente\" -> \"api\" extends past the left edge by 4.7px (label rect [-5, 514, 388, 18]; viewBox 932x1083) — shorten the label, reorder participants, or enlarge meta.viewBox.",
+            "subject": {
+              "diagramType": "sequence",
+              "collection": "messages",
+              "index": 8,
+              "id": "m9",
+              "from": "cliente",
+              "to": "api"
+            },
+            "evidence": {
+              "label": "9. [opt Comida antes/na sessão] POST /orders (modalidade)",
+              "labelRect": {
+                "x": -4.699999999999989,
+                "y": 514,
+                "width": 388.2,
+                "height": 18
+              },
+              "viewBox": [
+                932,
+                1083
+              ],
+              "overflowPx": {
+                "left": 4.7
+              },
+              "tolerancePx": 0.5
+            },
+            "supportedFixes": [
+              "shorten the label, reorder participants, or enlarge meta.viewBox"
+            ]
+          },
+          {
+            "code": "composition/label-canvas-containment",
+            "severity": "error",
+            "message": "[composition/label-canvas-containment] showcase sequence label \"15. [alt Modalidade BALCAO] Push: Pronto p/ retirada na bancada\" on messages[14] id \"m15\" \"api\" -> \"cliente\" extends past the left edge by 24.5px (label rect [-24, 744, 428, 18]; viewBox 932x1083) — shorten the label, reorder participants, or enlarge meta.viewBox.",
+            "subject": {
+              "diagramType": "sequence",
+              "collection": "messages",
+              "index": 14,
+              "id": "m15",
+              "from": "api",
+              "to": "cliente"
+            },
+            "evidence": {
+              "label": "15. [alt Modalidade BALCAO] Push: Pronto p/ retirada na bancada",
+              "labelRect": {
+                "x": -24.49999999999997,
+                "y": 744,
+                "width": 427.79999999999995,
+                "height": 18
+              },
+              "viewBox": [
+                932,
+                1083
+              ],
+              "overflowPx": {
+                "left": 24.5
+              },
+              "tolerancePx": 0.5
+            },
+            "supportedFixes": [
+              "shorten the label, reorder participants, or enlarge meta.viewBox"
+            ]
+          },
+          {
+            "code": "composition/label-canvas-containment",
+            "severity": "error",
+            "message": "[composition/label-canvas-containment] showcase sequence label \"18. [opt Estorno CDC art. 49] Compra.solicitarEstornoCDC() (RF-12)\" on messages[17] id \"m18\" \"cliente\" -> \"api\" extends past the left edge by 34.4px (label rect [-34, 864, 448, 18]; viewBox 932x1083) — shorten the label, reorder participants, or enlarge meta.viewBox.",
+            "subject": {
+              "diagramType": "sequence",
+              "collection": "messages",
+              "index": 17,
+              "id": "m18",
+              "from": "cliente",
+              "to": "api"
+            },
+            "evidence": {
+              "label": "18. [opt Estorno CDC art. 49] Compra.solicitarEstornoCDC() (RF-12)",
+              "labelRect": {
+                "x": -34.39999999999998,
+                "y": 864,
+                "width": 447.59999999999997,
+                "height": 18
+              },
+              "viewBox": [
+                932,
+                1083
+              ],
+              "overflowPx": {
+                "left": 34.4
+              },
+              "tolerancePx": 0.5
+            },
+            "supportedFixes": [
+              "shorten the label, reorder participants, or enlarge meta.viewBox"
+            ]
+          },
+          {
+            "code": "composition/label-canvas-containment",
+            "severity": "error",
+            "message": "[composition/label-canvas-containment] showcase sequence label \"19. PUT /screenings/{id}/rating (nota 1..5 pós-sessão RF-13)\" on messages[18] id \"m19\" \"cliente\" -> \"api\" extends past the left edge by 14.6px (label rect [-15, 900, 408, 18]; viewBox 932x1083) — shorten the label, reorder participants, or enlarge meta.viewBox.",
+            "subject": {
+              "diagramType": "sequence",
+              "collection": "messages",
+              "index": 18,
+              "id": "m19",
+              "from": "cliente",
+              "to": "api"
+            },
+            "evidence": {
+              "label": "19. PUT /screenings/{id}/rating (nota 1..5 pós-sessão RF-13)",
+              "labelRect": {
+                "x": -14.599999999999994,
+                "y": 900,
+                "width": 408,
+                "height": 18
+              },
+              "viewBox": [
+                932,
+                1083
+              ],
+              "overflowPx": {
+                "left": 14.6
+              },
+              "tolerancePx": 0.5
+            },
+            "supportedFixes": [
+              "shorten the label, reorder participants, or enlarge meta.viewBox"
+            ]
+          },
+          {
+            "code": "sequence/note-overlap",
+            "severity": "error",
+            "message": "Note on message \"1. POST /reservations (sessaoId, assento F8, meia)\" wraps to 3 lines (down to y=214) and reaches message \"2. [alt Livre] 200 OK (RESERVADO 10m) | [Ocupado] 409 Conflict\" at y=230 — move \"2. [alt Livre] 200 OK (RESERVADO 10m) | [Ocupado] 409 Conflict\" and later messages down so it sits at y=236 or below, or shorten the note.",
+            "subject": {
+              "diagramType": "sequence",
+              "message": "1. POST /reservations (sessaoId, assento F8, meia)",
+              "path": "/messages/0/note",
+              "from": "cliente",
+              "to": "api"
+            },
+            "evidence": {
+              "lines": 3,
+              "note": {
+                "x": 136.5,
+                "y": 179.6,
+                "width": 113.4,
+                "height": 34.4
+              },
+              "blocker": {
+                "message": "2. [alt Livre] 200 OK (RESERVADO 10m) | [Ocupado] 409 Conflict",
+                "path": "/messages/1/y",
+                "y": 230,
+                "kind": "message label",
+                "bounds": {
+                  "x": -21.2,
+                  "y": 210,
+                  "width": 421.2,
+                  "height": 18
+                }
+              },
+              "requiredY": 236
+            },
+            "supportedFixes": [
+              "set /messages/1/y to 236"
+            ]
+          },
+          {
+            "code": "sequence/note-overlap",
+            "severity": "error",
+            "message": "Note on message \"7. [alt Aprovado] POST /webhooks/payments (APROVADO)\" wraps to 2 lines (down to y=483) and reaches message \"8. 200 OK (Ingresso EMITIDO com qrToken único)\" at y=502 — move \"8. 200 OK (Ingresso EMITIDO com qrToken único)\" and later messages down so it sits at y=505 or below, or shorten the note.",
+            "subject": {
+              "diagramType": "sequence",
+              "message": "7. [alt Aprovado] POST /webhooks/payments (APROVADO)",
+              "path": "/messages/6/note",
+              "from": "gateway",
+              "to": "api"
+            },
+            "evidence": {
+              "lines": 2,
+              "note": {
+                "x": 280.3,
+                "y": 459.6,
+                "width": 105,
+                "height": 23.4
+              },
+              "blocker": {
+                "message": "8. 200 OK (Ingresso EMITIDO com qrToken único)",
+                "path": "/messages/7/y",
+                "y": 502,
+                "kind": "message label",
+                "bounds": {
+                  "x": 31.6,
+                  "y": 482,
+                  "width": 315.6,
+                  "height": 18
+                }
+              },
+              "requiredY": 505
+            },
+            "supportedFixes": [
+              "set /messages/7/y to 505"
+            ]
+          },
+          {
+            "code": "sequence/note-overlap",
+            "severity": "error",
+            "message": "Note on message \"11. POST /tickets/validate (qrToken, operadorId)\" wraps to 3 lines (down to y=656) and reaches message \"12. [alt Válido] 200 OK (Poltrona F8) | [Inválido/Usado] 403\" at y=664 — move \"12. [alt Válido] 200 OK (Poltrona F8) | [Inválido/Usado] 403\" and later messages down so it sits at y=678 or below, or shorten the note.",
+            "subject": {
+              "diagramType": "sequence",
+              "message": "11. POST /tickets/validate (qrToken, operadorId)",
+              "path": "/messages/10/note",
+              "from": "portaria",
+              "to": "api"
+            },
+            "evidence": {
+              "lines": 3,
+              "note": {
+                "x": 280.3,
+                "y": 621.6,
+                "width": 109.2,
+                "height": 34.4
+              },
+              "blocker": {
+                "message": "12. [alt Válido] 200 OK (Poltrona F8) | [Inválido/Usado] 403",
+                "path": "/messages/11/y",
+                "y": 664,
+                "kind": "message label",
+                "bounds": {
+                  "x": 201.1,
+                  "y": 644,
+                  "width": 408,
+                  "height": 18
+                }
+              },
+              "requiredY": 678
+            },
+            "supportedFixes": []
+          },
+          {
+            "code": "sequence/note-overlap",
+            "severity": "error",
+            "message": "Note on message \"19. PUT /screenings/{id}/rating (nota 1..5 pós-sessão RF-13)\" wraps to 3 lines (down to y=964) and reaches message \"20. 201 Created (Avaliação registrada com sucesso)\" at y=970 — move \"20. 201 Created (Avaliação registrada com sucesso)\" and later messages down so it sits at y=986 or below, or shorten the note.",
+            "subject": {
+              "diagramType": "sequence",
+              "message": "19. PUT /screenings/{id}/rating (nota 1..5 pós-sessão RF-13)",
+              "path": "/messages/18/note",
+              "from": "cliente",
+              "to": "api"
+            },
+            "evidence": {
+              "lines": 3,
+              "note": {
+                "x": 136.5,
+                "y": 929.6,
+                "width": 109.2,
+                "height": 34.4
+              },
+              "blocker": {
+                "message": "20. 201 Created (Avaliação registrada com sucesso)",
+                "path": "/messages/19/y",
+                "y": 970,
+                "kind": "message label",
+                "bounds": {
+                  "x": 18.4,
+                  "y": 950,
+                  "width": 342,
+                  "height": 18
+                }
+              },
+              "requiredY": 986
+            },
+            "supportedFixes": [
+              "set /messages/19/y to 986"
+            ]
+          },
+          {
+            "code": "sequence/segment-label-overlap",
+            "severity": "error",
+            "message": "Segment \"2. Checkout Idempotente, Webhook e Pedido Opcional da Cantina (ADR-003 / ADR-005)\" label would cover the note of message \"1. POST /reservations (sessaoId, assento F8, meia)\" — move the segment start (from: 308) or that message so they are further apart, or shorten the note.",
+            "subject": {
+              "diagramType": "sequence",
+              "segment": "2. Checkout Idempotente, Webhook e Pedido Opcional da Cantina (ADR-003 / ADR-005)",
+              "path": "/segments/1/from"
+            },
+            "evidence": {
+              "label": {
+                "x": 56,
+                "y": 198,
+                "width": 435.2,
+                "height": 18
+              },
+              "attempts": 4,
+              "covered": {
+                "kind": "note",
+                "message": "1. POST /reservations (sessaoId, assento F8, meia)",
+                "path": "/messages/0/note",
+                "bounds": {
+                  "x": 136.5,
+                  "y": 179.6,
+                  "width": 113.4,
+                  "height": 34.4
+                }
+              }
+            },
+            "supportedFixes": [
+              "set /segments/1/from to 307"
+            ]
+          }
+        ],
+        "provenance": "failed",
+        "update": {
+          "status": "unavailable",
+          "installedVersion": null,
+          "availableVersion": null,
+          "releaseNotes": null,
+          "checkedAt": null,
+          "source": null,
+          "noticeRequired": false,
+          "noticeText": null,
+          "reason": "disabled"
+        }
+      },
+      "execution": "embedded-in-deliver"
+    },
+    "deliver": {
+      "status": "not-run",
+      "execution": "blocked-by-validate"
+    }
+  },
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  },
+  "diagnostics": [
+    {
+      "code": "composition/label-canvas-containment",
+      "severity": "error",
+      "message": "[composition/label-canvas-containment] showcase sequence label \"2. [alt Livre] 200 OK (RESERVADO 10m) | [Ocupado] 409 Conflict\" on messages[1] id \"m2\" \"api\" -> \"cliente\" extends past the left edge by 21.2px (label rect [-21, 210, 421, 18]; viewBox 932x1083) — shorten the label, reorder participants, or enlarge meta.viewBox.",
+      "subject": {
+        "diagramType": "sequence",
+        "collection": "messages",
+        "index": 1,
+        "id": "m2",
+        "from": "api",
+        "to": "cliente"
+      },
+      "evidence": {
+        "label": "2. [alt Livre] 200 OK (RESERVADO 10m) | [Ocupado] 409 Conflict",
+        "labelRect": {
+          "x": -21.19999999999999,
+          "y": 210,
+          "width": 421.2,
+          "height": 18
+        },
+        "viewBox": [
+          932,
+          1083
+        ],
+        "overflowPx": {
+          "left": 21.2
+        },
+        "tolerancePx": 0.5
+      },
+      "supportedFixes": [
+        "shorten the label, reorder participants, or enlarge meta.viewBox"
+      ]
+    },
+    {
+      "code": "composition/label-canvas-containment",
+      "severity": "error",
+      "message": "[composition/label-canvas-containment] showcase sequence label \"3. [opt Desistir/Expirar 10m] AssentoSessao.liberarReserva()\" on messages[2] id \"m3\" \"cliente\" -> \"api\" extends past the left edge by 14.6px (label rect [-15, 250, 408, 18]; viewBox 932x1083) — shorten the label, reorder participants, or enlarge meta.viewBox.",
+      "subject": {
+        "diagramType": "sequence",
+        "collection": "messages",
+        "index": 2,
+        "id": "m3",
+        "from": "cliente",
+        "to": "api"
+      },
+      "evidence": {
+        "label": "3. [opt Desistir/Expirar 10m] AssentoSessao.liberarReserva()",
+        "labelRect": {
+          "x": -14.599999999999994,
+          "y": 250,
+          "width": 408,
+          "height": 18
+        },
+        "viewBox": [
+          932,
+          1083
+        ],
+        "overflowPx": {
+          "left": 14.6
+        },
+        "tolerancePx": 0.5
+      },
+      "supportedFixes": [
+        "shorten the label, reorder participants, or enlarge meta.viewBox"
+      ]
+    },
+    {
+      "code": "composition/label-canvas-containment",
+      "severity": "error",
+      "message": "[composition/label-canvas-containment] showcase sequence label \"9. [opt Comida antes/na sessão] POST /orders (modalidade)\" on messages[8] id \"m9\" \"cliente\" -> \"api\" extends past the left edge by 4.7px (label rect [-5, 514, 388, 18]; viewBox 932x1083) — shorten the label, reorder participants, or enlarge meta.viewBox.",
+      "subject": {
+        "diagramType": "sequence",
+        "collection": "messages",
+        "index": 8,
+        "id": "m9",
+        "from": "cliente",
+        "to": "api"
+      },
+      "evidence": {
+        "label": "9. [opt Comida antes/na sessão] POST /orders (modalidade)",
+        "labelRect": {
+          "x": -4.699999999999989,
+          "y": 514,
+          "width": 388.2,
+          "height": 18
+        },
+        "viewBox": [
+          932,
+          1083
+        ],
+        "overflowPx": {
+          "left": 4.7
+        },
+        "tolerancePx": 0.5
+      },
+      "supportedFixes": [
+        "shorten the label, reorder participants, or enlarge meta.viewBox"
+      ]
+    },
+    {
+      "code": "composition/label-canvas-containment",
+      "severity": "error",
+      "message": "[composition/label-canvas-containment] showcase sequence label \"15. [alt Modalidade BALCAO] Push: Pronto p/ retirada na bancada\" on messages[14] id \"m15\" \"api\" -> \"cliente\" extends past the left edge by 24.5px (label rect [-24, 744, 428, 18]; viewBox 932x1083) — shorten the label, reorder participants, or enlarge meta.viewBox.",
+      "subject": {
+        "diagramType": "sequence",
+        "collection": "messages",
+        "index": 14,
+        "id": "m15",
+        "from": "api",
+        "to": "cliente"
+      },
+      "evidence": {
+        "label": "15. [alt Modalidade BALCAO] Push: Pronto p/ retirada na bancada",
+        "labelRect": {
+          "x": -24.49999999999997,
+          "y": 744,
+          "width": 427.79999999999995,
+          "height": 18
+        },
+        "viewBox": [
+          932,
+          1083
+        ],
+        "overflowPx": {
+          "left": 24.5
+        },
+        "tolerancePx": 0.5
+      },
+      "supportedFixes": [
+        "shorten the label, reorder participants, or enlarge meta.viewBox"
+      ]
+    },
+    {
+      "code": "composition/label-canvas-containment",
+      "severity": "error",
+      "message": "[composition/label-canvas-containment] showcase sequence label \"18. [opt Estorno CDC art. 49] Compra.solicitarEstornoCDC() (RF-12)\" on messages[17] id \"m18\" \"cliente\" -> \"api\" extends past the left edge by 34.4px (label rect [-34, 864, 448, 18]; viewBox 932x1083) — shorten the label, reorder participants, or enlarge meta.viewBox.",
+      "subject": {
+        "diagramType": "sequence",
+        "collection": "messages",
+        "index": 17,
+        "id": "m18",
+        "from": "cliente",
+        "to": "api"
+      },
+      "evidence": {
+        "label": "18. [opt Estorno CDC art. 49] Compra.solicitarEstornoCDC() (RF-12)",
+        "labelRect": {
+          "x": -34.39999999999998,
+          "y": 864,
+          "width": 447.59999999999997,
+          "height": 18
+        },
+        "viewBox": [
+          932,
+          1083
+        ],
+        "overflowPx": {
+          "left": 34.4
+        },
+        "tolerancePx": 0.5
+      },
+      "supportedFixes": [
+        "shorten the label, reorder participants, or enlarge meta.viewBox"
+      ]
+    },
+    {
+      "code": "composition/label-canvas-containment",
+      "severity": "error",
+      "message": "[composition/label-canvas-containment] showcase sequence label \"19. PUT /screenings/{id}/rating (nota 1..5 pós-sessão RF-13)\" on messages[18] id \"m19\" \"cliente\" -> \"api\" extends past the left edge by 14.6px (label rect [-15, 900, 408, 18]; viewBox 932x1083) — shorten the label, reorder participants, or enlarge meta.viewBox.",
+      "subject": {
+        "diagramType": "sequence",
+        "collection": "messages",
+        "index": 18,
+        "id": "m19",
+        "from": "cliente",
+        "to": "api"
+      },
+      "evidence": {
+        "label": "19. PUT /screenings/{id}/rating (nota 1..5 pós-sessão RF-13)",
+        "labelRect": {
+          "x": -14.599999999999994,
+          "y": 900,
+          "width": 408,
+          "height": 18
+        },
+        "viewBox": [
+          932,
+          1083
+        ],
+        "overflowPx": {
+          "left": 14.6
+        },
+        "tolerancePx": 0.5
+      },
+      "supportedFixes": [
+        "shorten the label, reorder participants, or enlarge meta.viewBox"
+      ]
+    },
+    {
+      "code": "sequence/note-overlap",
+      "severity": "error",
+      "message": "Note on message \"1. POST /reservations (sessaoId, assento F8, meia)\" wraps to 3 lines (down to y=214) and reaches message \"2. [alt Livre] 200 OK (RESERVADO 10m) | [Ocupado] 409 Conflict\" at y=230 — move \"2. [alt Livre] 200 OK (RESERVADO 10m) | [Ocupado] 409 Conflict\" and later messages down so it sits at y=236 or below, or shorten the note.",
+      "subject": {
+        "diagramType": "sequence",
+        "message": "1. POST /reservations (sessaoId, assento F8, meia)",
+        "path": "/messages/0/note",
+        "from": "cliente",
+        "to": "api"
+      },
+      "evidence": {
+        "lines": 3,
+        "note": {
+          "x": 136.5,
+          "y": 179.6,
+          "width": 113.4,
+          "height": 34.4
+        },
+        "blocker": {
+          "message": "2. [alt Livre] 200 OK (RESERVADO 10m) | [Ocupado] 409 Conflict",
+          "path": "/messages/1/y",
+          "y": 230,
+          "kind": "message label",
+          "bounds": {
+            "x": -21.2,
+            "y": 210,
+            "width": 421.2,
+            "height": 18
+          }
+        },
+        "requiredY": 236
+      },
+      "supportedFixes": [
+        "set /messages/1/y to 236"
+      ]
+    },
+    {
+      "code": "sequence/note-overlap",
+      "severity": "error",
+      "message": "Note on message \"7. [alt Aprovado] POST /webhooks/payments (APROVADO)\" wraps to 2 lines (down to y=483) and reaches message \"8. 200 OK (Ingresso EMITIDO com qrToken único)\" at y=502 — move \"8. 200 OK (Ingresso EMITIDO com qrToken único)\" and later messages down so it sits at y=505 or below, or shorten the note.",
+      "subject": {
+        "diagramType": "sequence",
+        "message": "7. [alt Aprovado] POST /webhooks/payments (APROVADO)",
+        "path": "/messages/6/note",
+        "from": "gateway",
+        "to": "api"
+      },
+      "evidence": {
+        "lines": 2,
+        "note": {
+          "x": 280.3,
+          "y": 459.6,
+          "width": 105,
+          "height": 23.4
+        },
+        "blocker": {
+          "message": "8. 200 OK (Ingresso EMITIDO com qrToken único)",
+          "path": "/messages/7/y",
+          "y": 502,
+          "kind": "message label",
+          "bounds": {
+            "x": 31.6,
+            "y": 482,
+            "width": 315.6,
+            "height": 18
+          }
+        },
+        "requiredY": 505
+      },
+      "supportedFixes": [
+        "set /messages/7/y to 505"
+      ]
+    },
+    {
+      "code": "sequence/note-overlap",
+      "severity": "error",
+      "message": "Note on message \"11. POST /tickets/validate (qrToken, operadorId)\" wraps to 3 lines (down to y=656) and reaches message \"12. [alt Válido] 200 OK (Poltrona F8) | [Inválido/Usado] 403\" at y=664 — move \"12. [alt Válido] 200 OK (Poltrona F8) | [Inválido/Usado] 403\" and later messages down so it sits at y=678 or below, or shorten the note.",
+      "subject": {
+        "diagramType": "sequence",
+        "message": "11. POST /tickets/validate (qrToken, operadorId)",
+        "path": "/messages/10/note",
+        "from": "portaria",
+        "to": "api"
+      },
+      "evidence": {
+        "lines": 3,
+        "note": {
+          "x": 280.3,
+          "y": 621.6,
+          "width": 109.2,
+          "height": 34.4
+        },
+        "blocker": {
+          "message": "12. [alt Válido] 200 OK (Poltrona F8) | [Inválido/Usado] 403",
+          "path": "/messages/11/y",
+          "y": 664,
+          "kind": "message label",
+          "bounds": {
+            "x": 201.1,
+            "y": 644,
+            "width": 408,
+            "height": 18
+          }
+        },
+        "requiredY": 678
+      },
+      "supportedFixes": []
+    },
+    {
+      "code": "sequence/note-overlap",
+      "severity": "error",
+      "message": "Note on message \"19. PUT /screenings/{id}/rating (nota 1..5 pós-sessão RF-13)\" wraps to 3 lines (down to y=964) and reaches message \"20. 201 Created (Avaliação registrada com sucesso)\" at y=970 — move \"20. 201 Created (Avaliação registrada com sucesso)\" and later messages down so it sits at y=986 or below, or shorten the note.",
+      "subject": {
+        "diagramType": "sequence",
+        "message": "19. PUT /screenings/{id}/rating (nota 1..5 pós-sessão RF-13)",
+        "path": "/messages/18/note",
+        "from": "cliente",
+        "to": "api"
+      },
+      "evidence": {
+        "lines": 3,
+        "note": {
+          "x": 136.5,
+          "y": 929.6,
+          "width": 109.2,
+          "height": 34.4
+        },
+        "blocker": {
+          "message": "20. 201 Created (Avaliação registrada com sucesso)",
+          "path": "/messages/19/y",
+          "y": 970,
+          "kind": "message label",
+          "bounds": {
+            "x": 18.4,
+            "y": 950,
+            "width": 342,
+            "height": 18
+          }
+        },
+        "requiredY": 986
+      },
+      "supportedFixes": [
+        "set /messages/19/y to 986"
+      ]
+    },
+    {
+      "code": "sequence/segment-label-overlap",
+      "severity": "error",
+      "message": "Segment \"2. Checkout Idempotente, Webhook e Pedido Opcional da Cantina (ADR-003 / ADR-005)\" label would cover the note of message \"1. POST /reservations (sessaoId, assento F8, meia)\" — move the segment start (from: 308) or that message so they are further apart, or shorten the note.",
+      "subject": {
+        "diagramType": "sequence",
+        "segment": "2. Checkout Idempotente, Webhook e Pedido Opcional da Cantina (ADR-003 / ADR-005)",
+        "path": "/segments/1/from"
+      },
+      "evidence": {
+        "label": {
+          "x": 56,
+          "y": 198,
+          "width": 435.2,
+          "height": 18
+        },
+        "attempts": 4,
+        "covered": {
+          "kind": "note",
+          "message": "1. POST /reservations (sessaoId, assento F8, meia)",
+          "path": "/messages/0/note",
+          "bounds": {
+            "x": 136.5,
+            "y": 179.6,
+            "width": 113.4,
+            "height": 34.4
+          }
+        }
+      },
+      "supportedFixes": [
+        "set /segments/1/from to 307"
+      ]
+    }
+  ],
+  "evidence": {
+    "receipt": "/home/paulo-cesar/Downloads/cinefood/.archify/sequence-cinefood-20261109-171000/review-3/diagrama-sequencial.finalize.json",
+    "summaryReceipt": "/home/paulo-cesar/Downloads/cinefood/.archify/sequence-cinefood-20261109-171000/review-3/diagrama-sequencial.finalize-summary.json"
+  },
+  "visualReview": "not-requested",
+  "failedStage": "validate",
+  "finishedAt": "2026-11-10T18:35:29.830Z",
+  "durationMs": 896,
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-10T16:40:33.238Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  }
+}

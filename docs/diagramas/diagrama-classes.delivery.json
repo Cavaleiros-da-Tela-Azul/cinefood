@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "e816ff62-744c-409a-972f-e2ee8745d4d5",
+  "status": "current",
+  "command": "deliver",
+  "type": "class",
+  "input": "/home/paulo-cesar/Downloads/cinefood/.archify/class-cinefood-20261109-171000/candidate.json",
+  "output": "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-classes.html",
+  "specification": {
+    "sha256": "5d1e219711e0cacd136f66adb4b4266b296477105e46f161a6b31e55962bafdd",
+    "bytes": 13770
+  },
+  "artifact": {
+    "sha256": "7319c89a9edef8b3077089fc88fb1b92c1641f3af3005f52a58b51c5c1cc62ea",
+    "bytes": 911053
+  }
+}

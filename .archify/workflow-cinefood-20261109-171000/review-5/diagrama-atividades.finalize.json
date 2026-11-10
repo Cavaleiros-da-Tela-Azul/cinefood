@@ -1,0 +1,743 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "fail",
+  "type": "workflow",
+  "quality": "showcase",
+  "startedAt": "2026-11-10T18:18:01.442Z",
+  "specification": {
+    "path": "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/candidate.json",
+    "sha256": "2bc7b3ca6100a8f79627064049a899104b9ed8254ed056ef609d08457d09abb1",
+    "bytes": 9666
+  },
+  "artifact": {
+    "path": "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-atividades.html",
+    "sha256": "fd8097683b35715d02f5456059e0dddf857576a80a2d0d260992e66aca587a70",
+    "bytes": 858894
+  },
+  "stages": {
+    "validate": {
+      "status": "fail",
+      "exitCode": 1,
+      "durationMs": null,
+      "command": [
+        "/usr/bin/node",
+        "/home/paulo-cesar/Downloads/cinefood/.agents/skills/archify/bin/archify.mjs",
+        "deliver",
+        "workflow",
+        "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/candidate.json",
+        "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-atividades.html",
+        "--quality",
+        "showcase",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": false,
+        "command": "deliver",
+        "receiptId": "3de62728-cd14-4efc-b4e4-49e0aee59ca3",
+        "stage": "render",
+        "type": "workflow",
+        "input": "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/candidate.json",
+        "output": "/home/paulo-cesar/Downloads/cinefood/docs/diagramas/diagrama-atividades.html",
+        "error": "Workflow layout validation failed:\n- [composition/proper-crossing] showcase workflow edges[0] id \"a1\" \"escolher_sessao\" -> \"decisao_assento\" crosses edges[7] id \"a8\" \"emitir_qr\" -> \"decisao_comida\" at [104, 170] (segments 0 and 2) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.\n- [composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[6] id \"a7\" \"decisao_pagto\" -> \"emitir_qr\" at [492.8, 446] (segments 3 and 1) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.\n- [composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[9] id \"a10\" \"decisao_comida\" -> \"decisao_qr_portaria\" at [626.4, 223] (segments 1 and 0) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.\n- [composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[10] id \"a11\" \"checkout_cantina\" -> \"retirada_balcao\" at [839.2, 223] (segments 1 and 2) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.\n- [composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[11] id \"a12\" \"decisao_qr_portaria\" -> \"barrar_ou_ausente\" at [602.4, 446] (segments 3 and 0) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.\n- [composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[12] id \"a13\" \"decisao_qr_portaria\" -> \"liberar_kds_sala\" at [670.8, 446] (segments 3 and 2) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.\n- [composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[13] id \"a14\" \"liberar_kds_sala\" -> \"runner_entrega\" at [767.2, 223] (segments 1 and 0) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.\n- [composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[14] id \"a15\" \"runner_entrega\" -> \"converter_balcao\" at [703.2, 446] (segments 3 and 3) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.\n- [composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[15] id \"a16\" \"liberar_kds_sala\" -> \"assistir_e_avaliar\" at [691.2, 446] (segments 3 and 2) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.\n- [composition/ambiguous-corridor] showcase workflow edges[13] id \"a14\" \"liberar_kds_sala\" -> \"runner_entrega\" shares a 180px corridor with edges[14] id \"a15\" \"runner_entrega\" -> \"converter_balcao\" at [835.2, 507] -> [835.2, 687] (segments 2 and 1; minimum 8px) — adjust route/via, bias, or channel coordinates so unrelated edges do not visually merge.",
+        "diagnostics": [
+          {
+            "code": "composition/proper-crossing",
+            "severity": "error",
+            "message": "[composition/proper-crossing] showcase workflow edges[0] id \"a1\" \"escolher_sessao\" -> \"decisao_assento\" crosses edges[7] id \"a8\" \"emitir_qr\" -> \"decisao_comida\" at [104, 170] (segments 0 and 2) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.",
+            "subject": {
+              "diagramType": "workflow",
+              "collection": "edges",
+              "index": 0,
+              "id": "a1",
+              "from": "escolher_sessao",
+              "to": "decisao_assento"
+            },
+            "evidence": {
+              "otherRelationship": {
+                "diagramType": "workflow",
+                "collection": "edges",
+                "index": 7,
+                "id": "a8",
+                "from": "emitir_qr",
+                "to": "decisao_comida"
+              },
+              "point": [
+                104,
+                170
+              ],
+              "segmentIndex": 0,
+              "otherSegmentIndex": 2
+            },
+            "supportedFixes": [
+              "adjust route/via, bias, or channel coordinates so the edges use separate lane corridors"
+            ]
+          },
+          {
+            "code": "composition/proper-crossing",
+            "severity": "error",
+            "message": "[composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[6] id \"a7\" \"decisao_pagto\" -> \"emitir_qr\" at [492.8, 446] (segments 3 and 1) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.",
+            "subject": {
+              "diagramType": "workflow",
+              "collection": "edges",
+              "index": 3,
+              "id": "a4",
+              "from": "bloquear_10m",
+              "to": "desistir_checkout"
+            },
+            "evidence": {
+              "otherRelationship": {
+                "diagramType": "workflow",
+                "collection": "edges",
+                "index": 6,
+                "id": "a7",
+                "from": "decisao_pagto",
+                "to": "emitir_qr"
+              },
+              "point": [
+                492.79999999999995,
+                446
+              ],
+              "segmentIndex": 3,
+              "otherSegmentIndex": 1
+            },
+            "supportedFixes": [
+              "adjust route/via, bias, or channel coordinates so the edges use separate lane corridors"
+            ]
+          },
+          {
+            "code": "composition/proper-crossing",
+            "severity": "error",
+            "message": "[composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[9] id \"a10\" \"decisao_comida\" -> \"decisao_qr_portaria\" at [626.4, 223] (segments 1 and 0) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.",
+            "subject": {
+              "diagramType": "workflow",
+              "collection": "edges",
+              "index": 3,
+              "id": "a4",
+              "from": "bloquear_10m",
+              "to": "desistir_checkout"
+            },
+            "evidence": {
+              "otherRelationship": {
+                "diagramType": "workflow",
+                "collection": "edges",
+                "index": 9,
+                "id": "a10",
+                "from": "decisao_comida",
+                "to": "decisao_qr_portaria"
+              },
+              "point": [
+                626.4000000000001,
+                223.00000000000003
+              ],
+              "segmentIndex": 1,
+              "otherSegmentIndex": 0
+            },
+            "supportedFixes": [
+              "adjust route/via, bias, or channel coordinates so the edges use separate lane corridors"
+            ]
+          },
+          {
+            "code": "composition/proper-crossing",
+            "severity": "error",
+            "message": "[composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[10] id \"a11\" \"checkout_cantina\" -> \"retirada_balcao\" at [839.2, 223] (segments 1 and 2) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.",
+            "subject": {
+              "diagramType": "workflow",
+              "collection": "edges",
+              "index": 3,
+              "id": "a4",
+              "from": "bloquear_10m",
+              "to": "desistir_checkout"
+            },
+            "evidence": {
+              "otherRelationship": {
+                "diagramType": "workflow",
+                "collection": "edges",
+                "index": 10,
+                "id": "a11",
+                "from": "checkout_cantina",
+                "to": "retirada_balcao"
+              },
+              "point": [
+                839.1999999999998,
+                223
+              ],
+              "segmentIndex": 1,
+              "otherSegmentIndex": 2
+            },
+            "supportedFixes": [
+              "adjust route/via, bias, or channel coordinates so the edges use separate lane corridors"
+            ]
+          },
+          {
+            "code": "composition/proper-crossing",
+            "severity": "error",
+            "message": "[composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[11] id \"a12\" \"decisao_qr_portaria\" -> \"barrar_ou_ausente\" at [602.4, 446] (segments 3 and 0) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.",
+            "subject": {
+              "diagramType": "workflow",
+              "collection": "edges",
+              "index": 3,
+              "id": "a4",
+              "from": "bloquear_10m",
+              "to": "desistir_checkout"
+            },
+            "evidence": {
+              "otherRelationship": {
+                "diagramType": "workflow",
+                "collection": "edges",
+                "index": 11,
+                "id": "a12",
+                "from": "decisao_qr_portaria",
+                "to": "barrar_ou_ausente"
+              },
+              "point": [
+                602.4000000000002,
+                446
+              ],
+              "segmentIndex": 3,
+              "otherSegmentIndex": 0
+            },
+            "supportedFixes": [
+              "adjust route/via, bias, or channel coordinates so the edges use separate lane corridors"
+            ]
+          },
+          {
+            "code": "composition/proper-crossing",
+            "severity": "error",
+            "message": "[composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[12] id \"a13\" \"decisao_qr_portaria\" -> \"liberar_kds_sala\" at [670.8, 446] (segments 3 and 2) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.",
+            "subject": {
+              "diagramType": "workflow",
+              "collection": "edges",
+              "index": 3,
+              "id": "a4",
+              "from": "bloquear_10m",
+              "to": "desistir_checkout"
+            },
+            "evidence": {
+              "otherRelationship": {
+                "diagramType": "workflow",
+                "collection": "edges",
+                "index": 12,
+                "id": "a13",
+                "from": "decisao_qr_portaria",
+                "to": "liberar_kds_sala"
+              },
+              "point": [
+                670.8,
+                446
+              ],
+              "segmentIndex": 3,
+              "otherSegmentIndex": 2
+            },
+            "supportedFixes": [
+              "adjust route/via, bias, or channel coordinates so the edges use separate lane corridors"
+            ]
+          },
+          {
+            "code": "composition/proper-crossing",
+            "severity": "error",
+            "message": "[composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[13] id \"a14\" \"liberar_kds_sala\" -> \"runner_entrega\" at [767.2, 223] (segments 1 and 0) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.",
+            "subject": {
+              "diagramType": "workflow",
+              "collection": "edges",
+              "index": 3,
+              "id": "a4",
+              "from": "bloquear_10m",
+              "to": "desistir_checkout"
+            },
+            "evidence": {
+              "otherRelationship": {
+                "diagramType": "workflow",
+                "collection": "edges",
+                "index": 13,
+                "id": "a14",
+                "from": "liberar_kds_sala",
+                "to": "runner_entrega"
+              },
+              "point": [
+                767.1999999999999,
+                223
+              ],
+              "segmentIndex": 1,
+              "otherSegmentIndex": 0
+            },
+            "supportedFixes": [
+              "adjust route/via, bias, or channel coordinates so the edges use separate lane corridors"
+            ]
+          },
+          {
+            "code": "composition/proper-crossing",
+            "severity": "error",
+            "message": "[composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[14] id \"a15\" \"runner_entrega\" -> \"converter_balcao\" at [703.2, 446] (segments 3 and 3) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.",
+            "subject": {
+              "diagramType": "workflow",
+              "collection": "edges",
+              "index": 3,
+              "id": "a4",
+              "from": "bloquear_10m",
+              "to": "desistir_checkout"
+            },
+            "evidence": {
+              "otherRelationship": {
+                "diagramType": "workflow",
+                "collection": "edges",
+                "index": 14,
+                "id": "a15",
+                "from": "runner_entrega",
+                "to": "converter_balcao"
+              },
+              "point": [
+                703.1999999999998,
+                446
+              ],
+              "segmentIndex": 3,
+              "otherSegmentIndex": 3
+            },
+            "supportedFixes": [
+              "adjust route/via, bias, or channel coordinates so the edges use separate lane corridors"
+            ]
+          },
+          {
+            "code": "composition/proper-crossing",
+            "severity": "error",
+            "message": "[composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[15] id \"a16\" \"liberar_kds_sala\" -> \"assistir_e_avaliar\" at [691.2, 446] (segments 3 and 2) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.",
+            "subject": {
+              "diagramType": "workflow",
+              "collection": "edges",
+              "index": 3,
+              "id": "a4",
+              "from": "bloquear_10m",
+              "to": "desistir_checkout"
+            },
+            "evidence": {
+              "otherRelationship": {
+                "diagramType": "workflow",
+                "collection": "edges",
+                "index": 15,
+                "id": "a16",
+                "from": "liberar_kds_sala",
+                "to": "assistir_e_avaliar"
+              },
+              "point": [
+                691.1999999999999,
+                446
+              ],
+              "segmentIndex": 3,
+              "otherSegmentIndex": 2
+            },
+            "supportedFixes": [
+              "adjust route/via, bias, or channel coordinates so the edges use separate lane corridors"
+            ]
+          },
+          {
+            "code": "composition/ambiguous-corridor",
+            "severity": "error",
+            "message": "[composition/ambiguous-corridor] showcase workflow edges[13] id \"a14\" \"liberar_kds_sala\" -> \"runner_entrega\" shares a 180px corridor with edges[14] id \"a15\" \"runner_entrega\" -> \"converter_balcao\" at [835.2, 507] -> [835.2, 687] (segments 2 and 1; minimum 8px) — adjust route/via, bias, or channel coordinates so unrelated edges do not visually merge.",
+            "subject": {
+              "diagramType": "workflow",
+              "collection": "edges",
+              "index": 13,
+              "id": "a14",
+              "from": "liberar_kds_sala",
+              "to": "runner_entrega"
+            },
+            "evidence": {
+              "otherRelationship": {
+                "diagramType": "workflow",
+                "collection": "edges",
+                "index": 14,
+                "id": "a15",
+                "from": "runner_entrega",
+                "to": "converter_balcao"
+              },
+              "overlapLengthPx": 180,
+              "minimumPx": 8,
+              "from": [
+                835.1999999999999,
+                507
+              ],
+              "to": [
+                835.1999999999999,
+                687
+              ],
+              "segmentIndex": 2,
+              "otherSegmentIndex": 1
+            },
+            "supportedFixes": [
+              "adjust route/via, bias, or channel coordinates so unrelated edges do not visually merge"
+            ]
+          }
+        ],
+        "provenance": "failed",
+        "update": {
+          "status": "unavailable",
+          "installedVersion": null,
+          "availableVersion": null,
+          "releaseNotes": null,
+          "checkedAt": null,
+          "source": null,
+          "noticeRequired": false,
+          "noticeText": null,
+          "reason": "disabled"
+        }
+      },
+      "execution": "embedded-in-deliver"
+    },
+    "deliver": {
+      "status": "not-run",
+      "execution": "blocked-by-validate"
+    }
+  },
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  },
+  "diagnostics": [
+    {
+      "code": "composition/proper-crossing",
+      "severity": "error",
+      "message": "[composition/proper-crossing] showcase workflow edges[0] id \"a1\" \"escolher_sessao\" -> \"decisao_assento\" crosses edges[7] id \"a8\" \"emitir_qr\" -> \"decisao_comida\" at [104, 170] (segments 0 and 2) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.",
+      "subject": {
+        "diagramType": "workflow",
+        "collection": "edges",
+        "index": 0,
+        "id": "a1",
+        "from": "escolher_sessao",
+        "to": "decisao_assento"
+      },
+      "evidence": {
+        "otherRelationship": {
+          "diagramType": "workflow",
+          "collection": "edges",
+          "index": 7,
+          "id": "a8",
+          "from": "emitir_qr",
+          "to": "decisao_comida"
+        },
+        "point": [
+          104,
+          170
+        ],
+        "segmentIndex": 0,
+        "otherSegmentIndex": 2
+      },
+      "supportedFixes": [
+        "adjust route/via, bias, or channel coordinates so the edges use separate lane corridors"
+      ]
+    },
+    {
+      "code": "composition/proper-crossing",
+      "severity": "error",
+      "message": "[composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[6] id \"a7\" \"decisao_pagto\" -> \"emitir_qr\" at [492.8, 446] (segments 3 and 1) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.",
+      "subject": {
+        "diagramType": "workflow",
+        "collection": "edges",
+        "index": 3,
+        "id": "a4",
+        "from": "bloquear_10m",
+        "to": "desistir_checkout"
+      },
+      "evidence": {
+        "otherRelationship": {
+          "diagramType": "workflow",
+          "collection": "edges",
+          "index": 6,
+          "id": "a7",
+          "from": "decisao_pagto",
+          "to": "emitir_qr"
+        },
+        "point": [
+          492.79999999999995,
+          446
+        ],
+        "segmentIndex": 3,
+        "otherSegmentIndex": 1
+      },
+      "supportedFixes": [
+        "adjust route/via, bias, or channel coordinates so the edges use separate lane corridors"
+      ]
+    },
+    {
+      "code": "composition/proper-crossing",
+      "severity": "error",
+      "message": "[composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[9] id \"a10\" \"decisao_comida\" -> \"decisao_qr_portaria\" at [626.4, 223] (segments 1 and 0) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.",
+      "subject": {
+        "diagramType": "workflow",
+        "collection": "edges",
+        "index": 3,
+        "id": "a4",
+        "from": "bloquear_10m",
+        "to": "desistir_checkout"
+      },
+      "evidence": {
+        "otherRelationship": {
+          "diagramType": "workflow",
+          "collection": "edges",
+          "index": 9,
+          "id": "a10",
+          "from": "decisao_comida",
+          "to": "decisao_qr_portaria"
+        },
+        "point": [
+          626.4000000000001,
+          223.00000000000003
+        ],
+        "segmentIndex": 1,
+        "otherSegmentIndex": 0
+      },
+      "supportedFixes": [
+        "adjust route/via, bias, or channel coordinates so the edges use separate lane corridors"
+      ]
+    },
+    {
+      "code": "composition/proper-crossing",
+      "severity": "error",
+      "message": "[composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[10] id \"a11\" \"checkout_cantina\" -> \"retirada_balcao\" at [839.2, 223] (segments 1 and 2) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.",
+      "subject": {
+        "diagramType": "workflow",
+        "collection": "edges",
+        "index": 3,
+        "id": "a4",
+        "from": "bloquear_10m",
+        "to": "desistir_checkout"
+      },
+      "evidence": {
+        "otherRelationship": {
+          "diagramType": "workflow",
+          "collection": "edges",
+          "index": 10,
+          "id": "a11",
+          "from": "checkout_cantina",
+          "to": "retirada_balcao"
+        },
+        "point": [
+          839.1999999999998,
+          223
+        ],
+        "segmentIndex": 1,
+        "otherSegmentIndex": 2
+      },
+      "supportedFixes": [
+        "adjust route/via, bias, or channel coordinates so the edges use separate lane corridors"
+      ]
+    },
+    {
+      "code": "composition/proper-crossing",
+      "severity": "error",
+      "message": "[composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[11] id \"a12\" \"decisao_qr_portaria\" -> \"barrar_ou_ausente\" at [602.4, 446] (segments 3 and 0) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.",
+      "subject": {
+        "diagramType": "workflow",
+        "collection": "edges",
+        "index": 3,
+        "id": "a4",
+        "from": "bloquear_10m",
+        "to": "desistir_checkout"
+      },
+      "evidence": {
+        "otherRelationship": {
+          "diagramType": "workflow",
+          "collection": "edges",
+          "index": 11,
+          "id": "a12",
+          "from": "decisao_qr_portaria",
+          "to": "barrar_ou_ausente"
+        },
+        "point": [
+          602.4000000000002,
+          446
+        ],
+        "segmentIndex": 3,
+        "otherSegmentIndex": 0
+      },
+      "supportedFixes": [
+        "adjust route/via, bias, or channel coordinates so the edges use separate lane corridors"
+      ]
+    },
+    {
+      "code": "composition/proper-crossing",
+      "severity": "error",
+      "message": "[composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[12] id \"a13\" \"decisao_qr_portaria\" -> \"liberar_kds_sala\" at [670.8, 446] (segments 3 and 2) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.",
+      "subject": {
+        "diagramType": "workflow",
+        "collection": "edges",
+        "index": 3,
+        "id": "a4",
+        "from": "bloquear_10m",
+        "to": "desistir_checkout"
+      },
+      "evidence": {
+        "otherRelationship": {
+          "diagramType": "workflow",
+          "collection": "edges",
+          "index": 12,
+          "id": "a13",
+          "from": "decisao_qr_portaria",
+          "to": "liberar_kds_sala"
+        },
+        "point": [
+          670.8,
+          446
+        ],
+        "segmentIndex": 3,
+        "otherSegmentIndex": 2
+      },
+      "supportedFixes": [
+        "adjust route/via, bias, or channel coordinates so the edges use separate lane corridors"
+      ]
+    },
+    {
+      "code": "composition/proper-crossing",
+      "severity": "error",
+      "message": "[composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[13] id \"a14\" \"liberar_kds_sala\" -> \"runner_entrega\" at [767.2, 223] (segments 1 and 0) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.",
+      "subject": {
+        "diagramType": "workflow",
+        "collection": "edges",
+        "index": 3,
+        "id": "a4",
+        "from": "bloquear_10m",
+        "to": "desistir_checkout"
+      },
+      "evidence": {
+        "otherRelationship": {
+          "diagramType": "workflow",
+          "collection": "edges",
+          "index": 13,
+          "id": "a14",
+          "from": "liberar_kds_sala",
+          "to": "runner_entrega"
+        },
+        "point": [
+          767.1999999999999,
+          223
+        ],
+        "segmentIndex": 1,
+        "otherSegmentIndex": 0
+      },
+      "supportedFixes": [
+        "adjust route/via, bias, or channel coordinates so the edges use separate lane corridors"
+      ]
+    },
+    {
+      "code": "composition/proper-crossing",
+      "severity": "error",
+      "message": "[composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[14] id \"a15\" \"runner_entrega\" -> \"converter_balcao\" at [703.2, 446] (segments 3 and 3) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.",
+      "subject": {
+        "diagramType": "workflow",
+        "collection": "edges",
+        "index": 3,
+        "id": "a4",
+        "from": "bloquear_10m",
+        "to": "desistir_checkout"
+      },
+      "evidence": {
+        "otherRelationship": {
+          "diagramType": "workflow",
+          "collection": "edges",
+          "index": 14,
+          "id": "a15",
+          "from": "runner_entrega",
+          "to": "converter_balcao"
+        },
+        "point": [
+          703.1999999999998,
+          446
+        ],
+        "segmentIndex": 3,
+        "otherSegmentIndex": 3
+      },
+      "supportedFixes": [
+        "adjust route/via, bias, or channel coordinates so the edges use separate lane corridors"
+      ]
+    },
+    {
+      "code": "composition/proper-crossing",
+      "severity": "error",
+      "message": "[composition/proper-crossing] showcase workflow edges[3] id \"a4\" \"bloquear_10m\" -> \"desistir_checkout\" crosses edges[15] id \"a16\" \"liberar_kds_sala\" -> \"assistir_e_avaliar\" at [691.2, 446] (segments 3 and 2) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.",
+      "subject": {
+        "diagramType": "workflow",
+        "collection": "edges",
+        "index": 3,
+        "id": "a4",
+        "from": "bloquear_10m",
+        "to": "desistir_checkout"
+      },
+      "evidence": {
+        "otherRelationship": {
+          "diagramType": "workflow",
+          "collection": "edges",
+          "index": 15,
+          "id": "a16",
+          "from": "liberar_kds_sala",
+          "to": "assistir_e_avaliar"
+        },
+        "point": [
+          691.1999999999999,
+          446
+        ],
+        "segmentIndex": 3,
+        "otherSegmentIndex": 2
+      },
+      "supportedFixes": [
+        "adjust route/via, bias, or channel coordinates so the edges use separate lane corridors"
+      ]
+    },
+    {
+      "code": "composition/ambiguous-corridor",
+      "severity": "error",
+      "message": "[composition/ambiguous-corridor] showcase workflow edges[13] id \"a14\" \"liberar_kds_sala\" -> \"runner_entrega\" shares a 180px corridor with edges[14] id \"a15\" \"runner_entrega\" -> \"converter_balcao\" at [835.2, 507] -> [835.2, 687] (segments 2 and 1; minimum 8px) — adjust route/via, bias, or channel coordinates so unrelated edges do not visually merge.",
+      "subject": {
+        "diagramType": "workflow",
+        "collection": "edges",
+        "index": 13,
+        "id": "a14",
+        "from": "liberar_kds_sala",
+        "to": "runner_entrega"
+      },
+      "evidence": {
+        "otherRelationship": {
+          "diagramType": "workflow",
+          "collection": "edges",
+          "index": 14,
+          "id": "a15",
+          "from": "runner_entrega",
+          "to": "converter_balcao"
+        },
+        "overlapLengthPx": 180,
+        "minimumPx": 8,
+        "from": [
+          835.1999999999999,
+          507
+        ],
+        "to": [
+          835.1999999999999,
+          687
+        ],
+        "segmentIndex": 2,
+        "otherSegmentIndex": 1
+      },
+      "supportedFixes": [
+        "adjust route/via, bias, or channel coordinates so unrelated edges do not visually merge"
+      ]
+    }
+  ],
+  "evidence": {
+    "receipt": "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/review-5/diagrama-atividades.finalize.json",
+    "summaryReceipt": "/home/paulo-cesar/Downloads/cinefood/.archify/workflow-cinefood-20261109-171000/review-5/diagrama-atividades.finalize-summary.json"
+  },
+  "visualReview": "not-requested",
+  "failedStage": "validate",
+  "finishedAt": "2026-11-10T18:18:11.497Z",
+  "durationMs": 10055,
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-10T16:40:33.238Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  }
+}

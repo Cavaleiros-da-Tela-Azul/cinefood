@@ -1,0 +1,273 @@
+{
+  "schema_version": 1,
+  "diagram_type": "class",
+  "meta": {
+    "title": "CineFood — Diagrama de Classes UML (Papel RBAC Isolado, Entidades de Domínio e Multiplicidade 0..1 na Cantina)",
+    "output": "docs/diagramas/diagrama-classes.html",
+    "quality_profile": "showcase"
+  },
+  "layout": {
+    "mode": "grid"
+  },
+  "types": [
+    {
+      "id": "papel_rbac",
+      "label": "Papel (EnumPapel)",
+      "kind": "enum",
+      "sublabel": "CMP-01 Perfis de Acesso RBAC (RF-01/10)",
+      "row": 0,
+      "col": 0,
+      "attributes": [
+        { "name": "CLIENTE", "type": "Consumidor Web/Android", "visibility": "public" },
+        { "name": "OPERADOR_BILHETERIA", "type": "Venda Assistida (RF-14)", "visibility": "public" },
+        { "name": "OPERADOR_PORTARIA", "type": "Validador QR Code (RF-06)", "visibility": "public" },
+        { "name": "OPERADOR_CANTINA", "type": "Cozinha / Fila KDS (RF-09)", "visibility": "public" },
+        { "name": "RUNNER", "type": "Entregador de Sala (RF-09/20)", "visibility": "public" },
+        { "name": "ADMIN_CINEMA", "type": "Gestão e Relatórios (RF-10/15)", "visibility": "public" }
+      ],
+      "methods": [
+        { "name": "autorizarOperacao", "parameters": "papel, operacaoProtegida", "returns": "Boolean", "visibility": "public", "static": true }
+      ]
+    },
+    {
+      "id": "filme",
+      "label": "Filme",
+      "kind": "class",
+      "sublabel": "CMP-02 Obra em Cartaz (RF-02/10)",
+      "row": 0,
+      "col": 1,
+      "attributes": [
+        { "name": "id", "type": "UUID", "visibility": "private" },
+        { "name": "titulo", "type": "String", "visibility": "private" },
+        { "name": "sinopse", "type": "String", "visibility": "private" },
+        { "name": "duracaoMinutos", "type": "Integer", "visibility": "private" },
+        { "name": "classificacao", "type": "String", "visibility": "private" }
+      ],
+      "methods": [
+        { "name": "cadastrarFilme", "parameters": "adminId: UUID", "returns": "Filme", "visibility": "public" },
+        { "name": "buscarCatalogo", "parameters": "filtroTitulo", "returns": "Filme[]", "visibility": "public" }
+      ]
+    },
+    {
+      "id": "sala_cinema",
+      "label": "SalaCinema",
+      "kind": "class",
+      "sublabel": "CMP-02 Sala da Unidade (RF-02/10/15)",
+      "row": 0,
+      "col": 2,
+      "attributes": [
+        { "name": "id", "type": "UUID", "visibility": "private" },
+        { "name": "nomeSala", "type": "String", "visibility": "private" },
+        { "name": "assentosComercializaveis", "type": "Integer", "visibility": "private" },
+        { "name": "ativa", "type": "Boolean", "visibility": "private" }
+      ],
+      "methods": [
+        { "name": "configurarMapaBase", "parameters": "adminId: UUID", "returns": "Void", "visibility": "public" }
+      ]
+    },
+    {
+      "id": "usuario",
+      "label": "Usuario",
+      "kind": "class",
+      "sublabel": "CMP-01 Conta e LGPD (RF-01/17/18)",
+      "row": 1,
+      "col": 0,
+      "attributes": [
+        { "name": "id", "type": "UUID", "visibility": "private" },
+        { "name": "nome", "type": "String", "visibility": "private" },
+        { "name": "email", "type": "String (único)", "visibility": "private" },
+        { "name": "senhaHash", "type": "String (Argon2)", "visibility": "private" },
+        { "name": "marketingOpcional", "type": "Boolean (RF-17)", "visibility": "private" }
+      ],
+      "methods": [
+        { "name": "autenticar", "parameters": "email, senha", "returns": "TokenJWT", "visibility": "public" },
+        { "name": "solicitarDireitoLGPD", "parameters": "ACESSO | CORRECAO | ELIMINACAO", "returns": "Protocolo", "visibility": "public" }
+      ]
+    },
+    {
+      "id": "sessao",
+      "label": "Sessao",
+      "kind": "class",
+      "sublabel": "CMP-02 Exibição e Ocupação (RF-02/15)",
+      "row": 1,
+      "col": 1,
+      "attributes": [
+        { "name": "id", "type": "UUID", "visibility": "private" },
+        { "name": "horarioInicio", "type": "Timestamp", "visibility": "private" },
+        { "name": "horarioFim", "type": "Timestamp", "visibility": "private" },
+        { "name": "formato", "type": "EnumFormato", "visibility": "private" },
+        { "name": "precoBaseCentavos", "type": "Integer", "visibility": "private" },
+        { "name": "status", "type": "ATIVA | ENCERRADA", "visibility": "private" }
+      ],
+      "methods": [
+        { "name": "programarSessao", "parameters": "adminId: UUID", "returns": "Sessao", "visibility": "public" },
+        { "name": "calcularOcupacao", "parameters": "adminId: UUID", "returns": "Decimal", "visibility": "public" }
+      ]
+    },
+    {
+      "id": "assento_sessao",
+      "label": "AssentoSessao",
+      "kind": "class",
+      "sublabel": "CMP-02 Poltrona e Trava 10m (RF-03)",
+      "row": 1,
+      "col": 2,
+      "attributes": [
+        { "name": "id", "type": "UUID", "visibility": "private" },
+        { "name": "fila", "type": "Char", "visibility": "private" },
+        { "name": "numero", "type": "Integer", "visibility": "private" },
+        { "name": "estado", "type": "DISPONIVEL | RESERVADO | OCUPADO", "visibility": "private" },
+        { "name": "reservadoAte", "type": "Timestamp (10 min)", "visibility": "private" }
+      ],
+      "methods": [
+        { "name": "reservarExclusivo10m", "parameters": "compradorId, canal", "returns": "Boolean", "visibility": "public" },
+        { "name": "liberarReservaExpirada", "returns": "Void", "visibility": "public" }
+      ]
+    },
+    {
+      "id": "compra",
+      "label": "Compra",
+      "kind": "class",
+      "sublabel": "CMP-02/03 Digital e Assistida (RF-12/14)",
+      "row": 2,
+      "col": 0,
+      "attributes": [
+        { "name": "id", "type": "UUID", "visibility": "private" },
+        { "name": "canal", "type": "WEB | ANDROID | BILHETERIA", "visibility": "private" },
+        { "name": "operadorBilheteriaId", "type": "UUID (opcional RF-14)", "visibility": "private" },
+        { "name": "tipoCheckout", "type": "INGRESSO | ALIMENTO (ADR-005)", "visibility": "private" },
+        { "name": "status", "type": "PENDENTE | PAGA | CANCELADA", "visibility": "private" }
+      ],
+      "methods": [
+        { "name": "registrarVendaAssistida", "parameters": "operadorId, clienteId", "returns": "Compra", "visibility": "public" },
+        { "name": "solicitarCancelamentoCDC", "parameters": "titularId", "returns": "Boolean", "visibility": "public" }
+      ]
+    },
+    {
+      "id": "pagamento",
+      "label": "Pagamento",
+      "kind": "class",
+      "sublabel": "CMP-03 Gateway e Estorno (RF-04/12)",
+      "row": 2,
+      "col": 1,
+      "attributes": [
+        { "name": "id", "type": "UUID", "visibility": "private" },
+        { "name": "idempotencyKey", "type": "String", "visibility": "private" },
+        { "name": "valorCentavos", "type": "Integer", "visibility": "private" },
+        { "name": "status", "type": "PENDENTE | APROVADO | ESTORNADO", "visibility": "private" }
+      ],
+      "methods": [
+        { "name": "processarWebhook", "parameters": "eventoAssinado", "returns": "Void", "visibility": "public" },
+        { "name": "executarEstornoIdempotente", "parameters": "motivoCDC_ou_Tardio", "returns": "Boolean", "visibility": "public" }
+      ]
+    },
+    {
+      "id": "ingresso",
+      "label": "Ingresso",
+      "kind": "class",
+      "sublabel": "CMP-04 QR Opaco e Portaria (RF-05/06/16)",
+      "row": 2,
+      "col": 2,
+      "attributes": [
+        { "name": "id", "type": "UUID", "visibility": "private" },
+        { "name": "categoria", "type": "INTEIRA | MEIA_LEI_12933 | PCD", "visibility": "private" },
+        { "name": "qrCodeToken", "type": "String (Hash/HMAC)", "visibility": "private" },
+        { "name": "status", "type": "EMITIDO | UTILIZADO | CANCELADO", "visibility": "private" },
+        { "name": "dataUtilizacao", "type": "Timestamp", "visibility": "private" }
+      ],
+      "methods": [
+        { "name": "calcularMeiaServidor", "parameters": "categoria, comprovante", "returns": "Integer", "visibility": "public" },
+        { "name": "validarQrCodePortaria", "parameters": "operadorPortariaId, qrToken", "returns": "Boolean", "visibility": "public" }
+      ]
+    },
+    {
+      "id": "produto",
+      "label": "Produto",
+      "kind": "class",
+      "sublabel": "CMP-05 Cardápio e Estoque (RF-07/08)",
+      "row": 3,
+      "col": 0,
+      "attributes": [
+        { "name": "id", "type": "UUID", "visibility": "private" },
+        { "name": "nome", "type": "String", "visibility": "private" },
+        { "name": "precoCentavos", "type": "Integer", "visibility": "private" },
+        { "name": "estoqueDisponivel", "type": "Integer", "visibility": "private" }
+      ],
+      "methods": [
+        { "name": "reservarEstoqueCheckout", "parameters": "qtd: Integer", "returns": "Boolean", "visibility": "public" },
+        { "name": "gerenciarProduto", "parameters": "adminId: UUID", "returns": "Void", "visibility": "public" }
+      ]
+    },
+    {
+      "id": "pedido_cantina",
+      "label": "PedidoCantina (Opcional 0..*)",
+      "kind": "class",
+      "sublabel": "CMP-05 KDS e Runner (RF-09/20)",
+      "row": 3,
+      "col": 1,
+      "attributes": [
+        { "name": "id", "type": "UUID", "visibility": "private" },
+        { "name": "ingressoVinculadoId", "type": "UUID (opcional se BALCAO)", "visibility": "private" },
+        { "name": "modalidade", "type": "BALCAO | ENTREGA_ASSENTO", "visibility": "private" },
+        { "name": "status", "type": "PREPARO | PRONTO | SAIU_ENTREGA | ENTREGUE", "visibility": "private" },
+        { "name": "totalServidorCentavos", "type": "Integer", "visibility": "private" }
+      ],
+      "methods": [
+        { "name": "avancarPreparoKDS", "parameters": "operadorCantinaId, novoStatus", "returns": "Void", "visibility": "public" },
+        { "name": "confirmarEntregaAssento", "parameters": "runnerId, exigeIngressoUtilizado", "returns": "Boolean", "visibility": "public" },
+        { "name": "converterParaBalcao", "parameters": "runnerId, motivoOcorrencia", "returns": "Void", "visibility": "public" }
+      ]
+    },
+    {
+      "id": "avaliacao_sessao",
+      "label": "AvaliacaoSessao",
+      "kind": "class",
+      "sublabel": "CMP-06 Nota Privada 1..5 (RF-11/13)",
+      "row": 3,
+      "col": 2,
+      "attributes": [
+        { "name": "id", "type": "UUID", "visibility": "private" },
+        { "name": "notaEstrelas", "type": "Integer (1..5)", "visibility": "private" },
+        { "name": "comentarioPrivado", "type": "String", "visibility": "private" },
+        { "name": "atualizadoEm", "type": "Timestamp", "visibility": "private" }
+      ],
+      "methods": [
+        { "name": "registrarOuEditarAvaliacao", "parameters": "clienteId, nota1a5", "returns": "Void", "visibility": "public" },
+        { "name": "excluirAvaliacao", "parameters": "clienteId", "returns": "Void", "visibility": "public" }
+      ]
+    }
+  ],
+  "relationships": [
+    { "id": "rel_papel_user", "from": "papel_rbac", "to": "usuario", "kind": "association", "label": "1..* define permissões" },
+    { "id": "rel_user_compra", "from": "usuario", "to": "compra", "kind": "association", "label": "1..* cliente ou operador" },
+    { "id": "rel_filme_sessao", "from": "filme", "to": "sessao", "kind": "association", "label": "1..* exibido em" },
+    { "id": "rel_sala_sessao", "from": "sala_cinema", "to": "sessao", "kind": "composition", "label": "1..* sedia sessões" },
+    { "id": "rel_sessao_assento", "from": "sessao", "to": "assento_sessao", "kind": "composition", "label": "1..* mapa poltronas" },
+    { "id": "rel_compra_pagto", "from": "compra", "to": "pagamento", "kind": "composition", "label": "1:1 transação" },
+    { "id": "rel_pagto_ingresso", "from": "pagamento", "to": "ingresso", "kind": "dependency", "label": "1..* emite só ingresso" },
+    { "id": "rel_assento_ingresso", "from": "assento_sessao", "to": "ingresso", "kind": "association", "label": "1:1 vincula poltrona" },
+    { "id": "rel_compra_pedido", "from": "compra", "to": "pedido_cantina", "kind": "composition", "label": "0..* opcional (ADR-005)" },
+    { "id": "rel_pedido_produto", "from": "pedido_cantina", "to": "produto", "kind": "aggregation", "label": "1..* itens/estoque" },
+    { "id": "rel_pedido_ingresso", "from": "pedido_cantina", "to": "ingresso", "kind": "dependency", "label": "0..1 se entrega na sala" },
+    { "id": "rel_ingresso_avaliacao", "from": "ingresso", "to": "avaliacao_sessao", "kind": "composition", "label": "0..1 pós-filme (RF-13)" }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Classe/Enum Papel (RBAC) Isolada como no Manual",
+      "items": [
+        "A caixa Papel (EnumPapel) no canto superior esquerdo lista explicitamente todos os perfis: CLIENTE, OPERADOR_BILHETERIA, OPERADOR_PORTARIA, OPERADOR_CANTINA, RUNNER e ADMIN_CINEMA",
+        "Relaciona-se diretamente com Usuario (1..* define permissões) para autorizar cada operação no servidor"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "E se o cliente comprar SÓ Ingresso (sem comida) ou SÓ Comida?",
+      "items": [
+        "Sim! O Manual (Seção 1.5, 1.6 e ADR-005) prevê 3 cenários independentes:",
+        "1. Só Ingresso (sem comida): A multiplicidade Compra -> PedidoCantina é 0..* (zero ou muitos). O cliente compra o ingresso, pula a cantina, valida o QR na portaria e assiste ao filme normalmente.",
+        "2. Ingresso agora + Comida depois: Como os pagamentos são independentes (ADR-005), ele pode comprar só o ingresso em casa e decidir pedir pipoca mais tarde vinculando seu ingresso já emitido.",
+        "3. Só Comida no Balcão (sem ingresso): Na Seção 1.6 e CA-F09 ('a retirada dispensa ingresso'), alguém pode comprar lanche na modalidade BALCAO mesmo sem ingresso."
+      ]
+    }
+  ]
+}
