@@ -17,3 +17,10 @@ coverage/
 # Sistema operacional
 .DS_Store
 Thumbs.db
+
+# Artefatos de build, testes E2E e config local
+*.tsbuildinfo
+web/test-results/
+web/test-screenshots/
+web/playwright-report/
+.claude/settings.local.json
