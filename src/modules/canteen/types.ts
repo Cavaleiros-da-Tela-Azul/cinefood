@@ -17,6 +17,16 @@ export type CanteenStockStatus = 'RESERVADO' | 'BAIXADO' | 'DEVOLVIDO';
 
 export type CanteenPaymentStatus = 'PENDENTE' | 'APROVADO' | 'EXPIRADO' | 'FALHOU' | 'ESTORNADO';
 
+export type RunnerIncidentReason =
+  | 'CLIENTE_AUSENTE'
+  | 'IMPEDIMENTO_SALA'
+  | 'POLTRONA_NAO_LOCALIZADA';
+
+export interface RunnerIncidentInput {
+  reason: RunnerIncidentReason;
+  notes?: string;
+}
+
 export interface CanteenAddon {
   addonId: string;
   name: string;
@@ -100,7 +110,14 @@ export interface CanteenOrder {
   totalCents: number;
   stockStatus: CanteenStockStatus;
   paymentStatus: CanteenPaymentStatus;
+  kitchenQueuedAt?: string;
+  readyAt?: string;
+  dispatchedAt?: string;
+  deliveredAt?: string;
+  incidentReason?: RunnerIncidentReason;
   incidentNote?: string;
+  incidentReportedAt?: string;
+  incidentReportedByRunnerId?: string;
   createdAt: string;
   updatedAt: string;
   settledAt?: string;

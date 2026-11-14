@@ -7,8 +7,8 @@
 
 ## 2. KDS da Cantina, Entrega Vinculada e Runner (RF-09, RF-20 / AC-3, AC-4)
 
-- [ ] 2.1 Criar suíte de testes em `tests/canteen/entrega.test.ts` cobrindo validação de entrada na portaria antes da entrega e ocorrência do runner convertendo para balcão (`RN-03`).
-- [ ] 2.2 Implementar máquina de estados do KDS e endpoints operacionais da cantina e do runner até aprovação dos testes.
+- [x] 2.1 Criar suíte de testes em `tests/canteen/entrega.test.ts` cobrindo validação de entrada na portaria antes da entrega e ocorrência do runner convertendo para balcão (`RN-03`).
+- [x] 2.2 Implementar máquina de estados do KDS e endpoints operacionais da cantina e do runner até aprovação dos testes.
 
 ## 3. Administração, Ocupação e Cancelamento/Estorno CDC (RF-10, RF-12, RF-15 / AC-5, AC-6)
 
