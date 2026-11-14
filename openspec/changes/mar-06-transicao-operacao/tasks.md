@@ -7,4 +7,4 @@
 
 ## 2. Documentação de Release, Retrospectiva e Aceite (v1.0.0)
 
-- [ ] 2.1 Consolidar relatório de testes de aceitação, checklist de transição e registro da release `v1.0.0` em `docs/releases/`.
+- [x] 2.1 Consolidar relatório de testes de aceitação, checklist de transição e registro da release `v1.0.0` em `docs/releases/`.
