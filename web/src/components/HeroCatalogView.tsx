@@ -5,25 +5,29 @@ import {
   Bookmark,
   ChevronLeft,
   ChevronRight,
+  Clock,
   Film,
   MapPin,
+  MessageSquare,
   RotateCcw,
   Search,
-  Sparkles,
+  Star,
+  Ticket,
   X,
 } from 'lucide-react';
-import { COMPLEX_OPTIONS, DATE_OPTIONS, MovieItem } from '../data/cinemaData';
+import { COMPLEX_OPTIONS, DATE_OPTIONS, MovieItem, SessionSlot } from '../data/cinemaData';
 
-export const CATALOG_FORMATS = ['Todos', 'IMAX 3D', 'Dolby Atmos', '2D Legendado'] as const;
+export const CATALOG_FORMATS = ['Todos', 'IMAX 3D', 'Dolby Atmos', '2D'] as const;
 export type CatalogFormatFilter = (typeof CATALOG_FORMATS)[number];
 
-interface HeroCatalogViewProps {
+export interface HeroCatalogViewProps {
   movies: MovieItem[];
   activeMovieIndex: number;
   onSelectMovieIndex: (index: number) => void;
-  onOpenDetail: (movie: MovieItem) => void;
-  onQuickSeats: (movie: MovieItem) => void;
+  onOpenDetail: (movie: MovieItem, session?: SessionSlot) => void;
+  onQuickSeats: (movie: MovieItem, session?: SessionSlot) => void;
   browseMode: 'filme' | 'complexo';
+  onChangeBrowseMode: (mode: 'filme' | 'complexo') => void;
   selectedComplex: string;
   onSelectComplex: (complex: string) => void;
   selectedDateId: string;
@@ -33,7 +37,56 @@ interface HeroCatalogViewProps {
   formatFilter: CatalogFormatFilter;
   onChangeFormatFilter: (fmt: CatalogFormatFilter) => void;
   onClearFilters: () => void;
+  catalogSource?: 'itunes-api' | 'tmdb-api' | 'fallback' | string;
+  savedMovieIds?: string[];
+  onToggleSaveMovie?: (id: string) => void;
+  onOpenReviews?: (movieId: string) => void;
 }
+
+function getMatchingSessions(
+  movie: MovieItem,
+  selectedDateId: string,
+  formatFilter: CatalogFormatFilter,
+  browseMode: 'filme' | 'complexo',
+  selectedComplex: string,
+): SessionSlot[] {
+  return movie.sessions.filter((session) => {
+    if (selectedDateId && session.dateId !== selectedDateId) return false;
+    if (formatFilter !== 'Todos' && session.format !== formatFilter) return false;
+    if (
+      browseMode === 'complexo' &&
+      selectedComplex &&
+      selectedComplex !== COMPLEX_OPTIONS[0] &&
+      session.complex !== selectedComplex
+    ) {
+      return false;
+    }
+    return true;
+  });
+}
+
+function pickPreferredSession(movie: MovieItem, matchingSessions: SessionSlot[]): SessionSlot | undefined {
+  return (
+    matchingSessions.find((s) => s.status === 'ATIVA') ??
+    matchingSessions[0] ??
+    movie.sessions.find((s) => s.status === 'ATIVA') ??
+    movie.sessions[0]
+  );
+}
+
+function getLowestPrice(movie: MovieItem, matchingSessions: SessionSlot[]): number | null {
+  const pool =
+    matchingSessions.filter((s) => s.status === 'ATIVA').length > 0
+      ? matchingSessions.filter((s) => s.status === 'ATIVA')
+      : matchingSessions.length > 0
+        ? matchingSessions
+        : movie.sessions;
+  if (pool.length === 0) return null;
+  return Math.min(...pool.map((s) => s.basePrice));
+}
+
+const FOCUS_RING_CLASS =
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#60A5FA]';
 
 export function HeroCatalogView({
   movies,
@@ -42,6 +95,7 @@ export function HeroCatalogView({
   onOpenDetail,
   onQuickSeats,
   browseMode,
+  onChangeBrowseMode,
   selectedComplex,
   onSelectComplex,
   selectedDateId,
@@ -51,10 +105,14 @@ export function HeroCatalogView({
   formatFilter,
   onChangeFormatFilter,
   onClearFilters,
+  savedMovieIds,
+  onToggleSaveMovie,
+  onOpenReviews,
 }: HeroCatalogViewProps) {
   const [isPaused, setIsPaused] = useState(false);
-  const [savedIds, setSavedIds] = useState<string[]>([]);
+  const [localSavedIds, setLocalSavedIds] = useState<string[]>([]);
 
+  const effectiveSavedIds = savedMovieIds ?? localSavedIds;
   const safeIndex = movies.length > 0 ? activeMovieIndex % movies.length : 0;
   const activeMovie = movies[safeIndex];
 
@@ -81,14 +139,30 @@ export function HeroCatalogView({
   };
 
   const toggleSave = (id: string) => {
-    setSavedIds((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
+    if (onToggleSaveMovie) {
+      onToggleSaveMovie(id);
+      return;
+    }
+    setLocalSavedIds((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
   };
 
-  const isSaved = activeMovie ? savedIds.includes(activeMovie.id) : false;
+  const isSaved = activeMovie ? effectiveSavedIds.includes(activeMovie.id) : false;
+
+  const activeMatchingSessions = activeMovie
+    ? getMatchingSessions(activeMovie, selectedDateId, formatFilter, browseMode, selectedComplex)
+    : [];
+  const activePreferredSession = activeMovie
+    ? pickPreferredSession(activeMovie, activeMatchingSessions)
+    : undefined;
+  const activeLowestPrice = activeMovie
+    ? getLowestPrice(activeMovie, activeMatchingSessions)
+    : null;
+  const heroQuickSessions =
+    activeMatchingSessions.length > 0 ? activeMatchingSessions.slice(0, 4) : activeMovie?.sessions.slice(0, 4) ?? [];
 
   return (
     <section
-      className="relative flex min-h-[calc(100dvh-68px)] flex-col justify-between overflow-hidden"
+      className="relative flex min-h-[calc(100dvh-68px)] w-full min-w-0 flex-col justify-between overflow-hidden"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       aria-label="Filmes em cartaz"
@@ -106,7 +180,7 @@ export function HeroCatalogView({
         </div>
       )}
 
-      {/* Full-bleed atmospheric backdrop (clean GPU crossfade without incompatible layoutId) */}
+      {/* Full-bleed atmospheric backdrop */}
       <AnimatePresence mode="sync">
         {activeMovie && (
           <motion.div
@@ -122,37 +196,66 @@ export function HeroCatalogView({
               alt=""
               className="h-full w-full object-cover object-center"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0D0E12]/95 via-[#0D0E12]/65 to-[#0D0E12]/35" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-base)] via-transparent to-[#0D0E12]/45" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0D0E12]/95 via-[#0D0E12]/70 to-[#0D0E12]/40" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-base)] via-transparent to-[#0D0E12]/50" />
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Top Catalog Search & Format Filter Bar */}
-      <div className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-wrap items-center justify-between gap-3 px-4 pt-5 sm:px-8">
-        <div className="relative min-w-0 flex-1 sm:max-w-xs">
-          <Search
-            className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]"
-            aria-hidden="true"
-          />
-          <input
-            type="search"
-            value={searchQuery}
-            onChange={(e) => onChangeSearchQuery(e.target.value)}
-            placeholder="Buscar filme, gênero ou diretor..."
-            aria-label="Buscar filme, gênero ou diretor"
-            className="h-10 w-full rounded-full border border-white/15 bg-black/55 pl-10 pr-9 text-xs text-white placeholder:text-[var(--text-muted)] backdrop-blur-md focus:border-[var(--focus-ring)] focus:outline-none"
-          />
-          {searchQuery && (
+      <div className="relative z-10 mx-auto flex w-full min-w-0 max-w-[1440px] flex-wrap items-center justify-between gap-3 px-4 pt-5 sm:px-8">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2.5">
+          <div className="relative min-w-0 w-full sm:w-auto sm:min-w-[220px] sm:flex-1 sm:max-w-xs">
+            <Search
+              className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]"
+              aria-hidden="true"
+            />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => onChangeSearchQuery(e.target.value)}
+              placeholder="Buscar filme, gênero ou diretor..."
+              aria-label="Buscar filme, gênero ou diretor"
+              className={`min-h-[44px] w-full rounded-full border border-white/15 bg-black/55 pl-10 pr-11 text-base text-white placeholder:text-[var(--text-muted)] backdrop-blur-md focus:border-[var(--focus-ring)] focus:outline-none sm:text-xs ${FOCUS_RING_CLASS}`}
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => onChangeSearchQuery('')}
+                aria-label="Limpar busca"
+                className={`absolute right-1.5 top-1/2 inline-flex min-h-[36px] min-w-[36px] -translate-y-1/2 items-center justify-center rounded-full text-[var(--text-muted)] hover:text-white ${FOCUS_RING_CLASS}`}
+              >
+                <X className="h-4 w-4" aria-hidden="true" />
+              </button>
+            )}
+          </div>
+
+          <div
+            role="group"
+            aria-label="Modo de descoberta"
+            className="inline-flex min-h-[44px] items-center rounded-full border border-white/15 bg-black/45 p-1 backdrop-blur-md"
+          >
             <button
               type="button"
-              onClick={() => onChangeSearchQuery('')}
-              aria-label="Limpar busca"
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-[var(--text-muted)] hover:text-white"
+              onClick={() => onChangeBrowseMode('filme')}
+              aria-pressed={browseMode === 'filme'}
+              className={`min-h-[36px] rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${FOCUS_RING_CLASS} ${
+                browseMode === 'filme' ? 'bg-white text-[#0D0E12]' : 'text-[var(--text-secondary)] hover:text-white'
+              }`}
             >
-              <X className="h-3.5 w-3.5" aria-hidden="true" />
+              Por Filme
             </button>
-          )}
+            <button
+              type="button"
+              onClick={() => onChangeBrowseMode('complexo')}
+              aria-pressed={browseMode === 'complexo'}
+              className={`min-h-[36px] rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${FOCUS_RING_CLASS} ${
+                browseMode === 'complexo' ? 'bg-white text-[#0D0E12]' : 'text-[var(--text-secondary)] hover:text-white'
+              }`}
+            >
+              Por Complexo
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Filtrar por formato de sala">
@@ -164,7 +267,7 @@ export function HeroCatalogView({
                 type="button"
                 onClick={() => onChangeFormatFilter(fmt)}
                 aria-pressed={active}
-                className={`min-h-[36px] rounded-full border px-3 py-1 text-xs font-semibold backdrop-blur-md transition-colors ${
+                className={`min-h-[44px] rounded-full border px-3.5 py-2 text-xs font-semibold backdrop-blur-md transition-colors ${FOCUS_RING_CLASS} ${
                   active
                     ? 'border-[var(--brand-red)] bg-[var(--brand-red)] text-white'
                     : 'border-white/15 bg-black/45 text-[var(--text-secondary)] hover:border-white/35 hover:text-white'
@@ -191,7 +294,7 @@ export function HeroCatalogView({
             <button
               type="button"
               onClick={onClearFilters}
-              className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[var(--brand-red)] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-[var(--brand-red-hover)] active:scale-95"
+              className={`mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[var(--brand-red)] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-[var(--brand-red-hover)] active:scale-95 ${FOCUS_RING_CLASS}`}
             >
               <RotateCcw className="h-4 w-4" aria-hidden="true" />
               <span>Limpar Filtros</span>
@@ -199,26 +302,30 @@ export function HeroCatalogView({
           </div>
         </div>
       ) : (
-        <div className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-1 flex-col justify-end gap-10 px-4 pb-8 pt-6 sm:px-8 lg:flex-row lg:items-end lg:justify-between lg:pb-12">
+        <div className="relative z-10 mx-auto flex w-full min-w-0 max-w-[1440px] flex-1 flex-col justify-end gap-8 px-4 pb-8 pt-6 sm:px-8 lg:flex-row lg:items-end lg:justify-between lg:pb-12">
           {/* Left Lead Copy & Controls */}
-          <div className="min-w-0 max-w-xl">
+          <div className="w-full min-w-0 max-w-xl">
             {browseMode === 'complexo' && (
               <div className="mb-4 flex flex-wrap items-center gap-2">
-                {COMPLEX_OPTIONS.map((complex) => (
-                  <button
-                    key={complex}
-                    type="button"
-                    onClick={() => onSelectComplex(complex)}
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-                      selectedComplex === complex
-                        ? 'border-[var(--brand-red)] bg-[var(--brand-red)]/20 text-white'
-                        : 'border-white/15 bg-black/45 text-[var(--text-secondary)] hover:text-white'
-                    }`}
-                  >
-                    <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
-                    {complex}
-                  </button>
-                ))}
+                {COMPLEX_OPTIONS.map((complex) => {
+                  const isSelected = selectedComplex === complex;
+                  return (
+                    <button
+                      key={complex}
+                      type="button"
+                      onClick={() => onSelectComplex(complex)}
+                      aria-pressed={isSelected}
+                      className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-medium transition-colors ${FOCUS_RING_CLASS} ${
+                        isSelected
+                          ? 'border-[var(--brand-red)] bg-[var(--brand-red)]/25 text-white'
+                          : 'border-white/15 bg-black/45 text-[var(--text-secondary)] hover:text-white'
+                      }`}
+                    >
+                      <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                      <span>{complex}</span>
+                    </button>
+                  );
+                })}
               </div>
             )}
 
@@ -230,13 +337,47 @@ export function HeroCatalogView({
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.24, ease: [0.23, 1, 0.32, 1] }}
               >
+                {/* Movie quick facts row: Rating, Duration, Network Avg Rating, Base Price */}
+                <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-white">
+                  <span className="rounded border border-white/25 bg-black/50 px-2.5 py-1 uppercase tracking-wider">
+                    {activeMovie.rating}
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded bg-black/45 px-2.5 py-1 text-[var(--text-secondary)]">
+                    <Clock className="h-3.5 w-3.5 text-[var(--amber-progress)]" aria-hidden="true" />
+                    {activeMovie.duration}
+                  </span>
+                  {typeof activeMovie.ratingAvg === 'number' && (
+                    <button
+                      type="button"
+                      onClick={() => onOpenReviews?.(activeMovie.id)}
+                      disabled={!onOpenReviews}
+                      aria-label={`Nota da rede ${activeMovie.ratingAvg.toFixed(1)} de 5. Ver comentários`}
+                      className={`inline-flex min-h-[32px] items-center gap-1 rounded-full border border-[var(--amber-progress)]/40 bg-[var(--amber-progress)]/15 px-2.5 py-1 text-[#FCD34D] transition-colors hover:bg-[var(--amber-progress)]/25 disabled:cursor-default ${FOCUS_RING_CLASS}`}
+                    >
+                      <Star className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
+                      <span className="font-mono-tabular font-bold">{activeMovie.ratingAvg.toFixed(1)}</span>
+                      <span className="text-[11px] font-medium text-white/80">· Rede</span>
+                    </button>
+                  )}
+                  {activeLowestPrice !== null && (
+                    <span className="font-mono-tabular inline-flex items-center gap-1 rounded-full border border-emerald-400/35 bg-emerald-500/15 px-3 py-1 text-emerald-200">
+                      <Ticket className="h-3.5 w-3.5" aria-hidden="true" />
+                      A partir de R$ {activeLowestPrice}
+                    </span>
+                  )}
+                </div>
+
                 <h1 className="font-display line-clamp-2 break-words text-4xl font-extrabold uppercase leading-[0.94] tracking-[-0.02em] text-white sm:text-6xl lg:text-[4.5rem]">
                   {activeMovie.title}
                 </h1>
 
-                <p className="mt-3 flex items-center gap-2.5 text-xs font-semibold tracking-[0.02em] text-[var(--amber-progress)]">
+                <p className="mt-3 flex min-w-0 items-center gap-2.5 text-xs font-semibold tracking-[0.02em] text-[var(--amber-progress)]">
                   <span className="h-[2px] w-5 shrink-0 bg-[var(--amber-progress)]" />
-                  <span className="truncate">{activeMovie.kickerLocation}</span>
+                  <span className="truncate">
+                    {activePreferredSession
+                      ? `${activePreferredSession.complex} · ${activePreferredSession.dateLabel} · ${activePreferredSession.time} (${activePreferredSession.format})`
+                      : activeMovie.kickerLocation}
+                  </span>
                 </p>
 
                 <p className="mt-3 line-clamp-3 max-w-lg text-sm leading-relaxed text-[var(--text-secondary)] sm:text-base">
@@ -245,13 +386,51 @@ export function HeroCatalogView({
               </motion.div>
             </AnimatePresence>
 
-            <div className="mt-6 flex flex-wrap items-center gap-3">
+            {/* Quick Session Pills for direct time selection */}
+            {heroQuickSessions.length > 0 && (
+              <div className="mt-4">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)]">
+                  Horários rápidos {formatFilter !== 'Todos' ? `· ${formatFilter}` : ''}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {heroQuickSessions.map((session) => {
+                    const unavailable = session.status !== 'ATIVA';
+                    return (
+                      <button
+                        key={session.id}
+                        type="button"
+                        disabled={unavailable}
+                        onClick={() => onQuickSeats(activeMovie, session)}
+                        title={
+                          unavailable
+                            ? 'Sessão indisponível para compra'
+                            : `Selecionar assentos para ${session.time} (${session.format})`
+                        }
+                        className={`inline-flex min-h-[44px] items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold backdrop-blur-md transition-colors active:scale-95 ${FOCUS_RING_CLASS} ${
+                          unavailable
+                            ? 'cursor-not-allowed border-white/10 bg-black/40 text-[var(--text-muted)] opacity-60'
+                            : 'border-white/20 bg-black/55 text-white hover:border-[var(--brand-red)] hover:bg-[var(--brand-red)]/25'
+                        }`}
+                      >
+                        <span className="font-mono-tabular font-bold">{session.time}</span>
+                        <span className="text-[11px] text-[var(--text-secondary)]">{session.format}</span>
+                        <span className="font-mono-tabular rounded bg-white/10 px-1.5 py-0.5 text-[11px] text-emerald-200">
+                          {unavailable ? (session.status === 'ENCERRADA' ? 'Encerrada' : 'Indisp.') : `R$ ${session.basePrice}`}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            <div className="mt-5 flex flex-wrap items-center gap-3">
               <button
                 type="button"
                 onClick={() => toggleSave(activeMovie.id)}
                 aria-pressed={isSaved}
-                aria-label="Salvar filme na minha lista"
-                className={`inline-flex h-11 w-11 items-center justify-center rounded-full border transition-colors active:scale-95 ${
+                aria-label={isSaved ? 'Remover filme da minha lista' : 'Salvar filme na minha lista'}
+                className={`inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border transition-colors active:scale-95 ${FOCUS_RING_CLASS} ${
                   isSaved
                     ? 'border-[var(--amber-progress)] bg-[var(--amber-progress)] text-[#0D0E12]'
                     : 'border-white/25 bg-black/45 text-white hover:border-white/50'
@@ -262,8 +441,8 @@ export function HeroCatalogView({
 
               <button
                 type="button"
-                onClick={() => onOpenDetail(activeMovie)}
-                className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/30 bg-black/45 px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-white backdrop-blur-sm transition-[border-color,background-color] hover:border-white hover:bg-white/10 active:scale-95"
+                onClick={() => onOpenDetail(activeMovie, activePreferredSession)}
+                className={`inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/30 bg-black/45 px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-white backdrop-blur-sm transition-[border-color,background-color] hover:border-white hover:bg-white/10 active:scale-95 ${FOCUS_RING_CLASS}`}
               >
                 <span>Ver Detalhes &amp; Horários</span>
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -271,44 +450,90 @@ export function HeroCatalogView({
 
               <button
                 type="button"
-                onClick={() => onQuickSeats(activeMovie)}
-                className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[var(--brand-red)] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-white shadow-[0_10px_28px_rgba(0,0,0,0.5)] transition-colors hover:bg-[var(--brand-red-hover)] active:scale-95"
+                onClick={() => onQuickSeats(activeMovie, activePreferredSession)}
+                className={`inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[var(--brand-red)] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-white shadow-[0_10px_28px_rgba(0,0,0,0.5)] transition-colors hover:bg-[var(--brand-red-hover)] active:scale-95 ${FOCUS_RING_CLASS}`}
               >
-                <Sparkles className="h-4 w-4" aria-hidden="true" />
                 <span>Escolher Assentos</span>
               </button>
+
+              {onOpenReviews && (
+                <button
+                  type="button"
+                  onClick={() => onOpenReviews(activeMovie.id)}
+                  className={`inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/20 bg-black/45 px-4 py-2.5 text-xs font-semibold text-[var(--text-secondary)] backdrop-blur-sm transition-colors hover:border-white/40 hover:text-white active:scale-95 ${FOCUS_RING_CLASS}`}
+                >
+                  <MessageSquare className="h-4 w-4 text-[var(--amber-progress)]" aria-hidden="true" />
+                  <span>Comentários</span>
+                </button>
+              )}
             </div>
           </div>
 
-          {/* Right Poster Deck (GPU hover-gated lift without Motion layoutId distortion) */}
-          <div className="flex w-full flex-col gap-4 lg:w-auto lg:max-w-[660px]">
+          {/* Right Poster Deck with comparative metadata */}
+          <div className="flex w-full min-w-0 max-w-full flex-col gap-4 lg:w-auto lg:max-w-[680px]">
             {deckMovies.length > 0 && (
-              <div className="flex items-stretch gap-3 overflow-x-auto pb-2 pt-2 sm:gap-4 lg:overflow-visible lg:pb-0">
-                {deckMovies.map(({ movie, idx }) => (
-                  <button
-                    key={movie.id}
-                    type="button"
-                    onClick={() => onSelectMovieIndex(idx)}
-                    className="cine-card-hover relative h-[210px] w-[142px] shrink-0 overflow-hidden rounded-2xl border border-white/15 bg-[var(--bg-elevated)] text-left shadow-[0_18px_38px_rgba(0,0,0,0.55)] hover:border-white/40 focus-visible:outline-none sm:h-[250px] sm:w-[172px]"
-                    aria-label={`Selecionar ${movie.title}`}
-                  >
-                    <img
-                      src={movie.posterSrc}
-                      alt={movie.title}
-                      className="cine-card-media h-full w-full object-cover"
-                    />
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent" />
-                    <div className="pointer-events-none absolute inset-x-0 bottom-0 p-3.5">
-                      <span className="block h-[2px] w-4 bg-white/75" />
-                      <span className="mt-1.5 block truncate text-[11px] font-medium uppercase tracking-wider text-white/80">
-                        {movie.genre.split(',')[0]}
-                      </span>
-                      <span className="font-display mt-0.5 line-clamp-2 block text-lg font-bold uppercase leading-[1.02] text-white sm:text-xl">
-                        {movie.title}
-                      </span>
-                    </div>
-                  </button>
-                ))}
+              <div className="flex min-w-0 max-w-full items-stretch gap-3 overflow-x-auto pb-2 pt-2 sm:gap-4 lg:overflow-visible lg:pb-0">
+                {deckMovies.map(({ movie, idx }) => {
+                  const cardMatching = getMatchingSessions(
+                    movie,
+                    selectedDateId,
+                    formatFilter,
+                    browseMode,
+                    selectedComplex,
+                  );
+                  const cardSession = pickPreferredSession(movie, cardMatching);
+                  const cardPrice = getLowestPrice(movie, cardMatching);
+                  return (
+                    <button
+                      key={movie.id}
+                      type="button"
+                      onClick={() => onSelectMovieIndex(idx)}
+                      className={`cine-card-hover relative h-[236px] w-[156px] shrink-0 overflow-hidden rounded-2xl border border-white/15 bg-[var(--bg-elevated)] text-left shadow-[0_18px_38px_rgba(0,0,0,0.55)] hover:border-white/40 sm:h-[268px] sm:w-[184px] ${FOCUS_RING_CLASS}`}
+                      aria-label={`Selecionar ${movie.title}`}
+                    >
+                      <img
+                        src={movie.posterSrc}
+                        alt={movie.title}
+                        className="cine-card-media h-full w-full object-cover"
+                      />
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-black/25" />
+
+                      {/* Top comparative pills: Classificação & Nota */}
+                      <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between gap-1.5 p-2.5">
+                        <span className="rounded bg-black/75 px-1.5 py-0.5 text-[10px] font-bold uppercase text-white backdrop-blur-sm">
+                          {movie.rating}
+                        </span>
+                        {typeof movie.ratingAvg === 'number' && (
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-black/75 px-2 py-0.5 text-[10px] font-bold text-[#FCD34D] backdrop-blur-sm">
+                            <Star className="h-2.5 w-2.5 fill-current" aria-hidden="true" />
+                            <span className="font-mono-tabular">{movie.ratingAvg.toFixed(1)}</span>
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="pointer-events-none absolute inset-x-0 bottom-0 p-3">
+                        <span className="block truncate text-[10px] font-medium uppercase tracking-wider text-white/75">
+                          {movie.genre.split(',')[0]} · {movie.duration}
+                        </span>
+                        <span className="font-display mt-0.5 line-clamp-2 block text-lg font-bold uppercase leading-[1.02] text-white sm:text-xl">
+                          {movie.title}
+                        </span>
+                        <div className="mt-2 flex flex-wrap items-center justify-between gap-1 border-t border-white/15 pt-1.5 text-[10px]">
+                          {cardPrice !== null && (
+                            <span className="font-mono-tabular font-bold text-emerald-300">
+                              A partir R$ {cardPrice}
+                            </span>
+                          )}
+                          {cardSession && (
+                            <span className="font-mono-tabular rounded bg-white/15 px-1.5 py-0.5 font-semibold text-white">
+                              {cardSession.time}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             )}
 
@@ -320,7 +545,7 @@ export function HeroCatalogView({
                   onClick={handlePrev}
                   disabled={movies.length <= 1}
                   aria-label="Filme anterior"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/25 bg-black/45 text-white transition-colors hover:border-white hover:bg-white/10 active:scale-95 disabled:opacity-35"
+                  className={`inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-white/25 bg-black/45 text-white transition-colors hover:border-white hover:bg-white/10 active:scale-95 disabled:opacity-35 ${FOCUS_RING_CLASS}`}
                 >
                   <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                 </button>
@@ -329,7 +554,7 @@ export function HeroCatalogView({
                   onClick={handleNext}
                   disabled={movies.length <= 1}
                   aria-label="Próximo filme"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/25 bg-black/45 text-white transition-colors hover:border-white hover:bg-white/10 active:scale-95 disabled:opacity-35"
+                  className={`inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-white/25 bg-black/45 text-white transition-colors hover:border-white hover:bg-white/10 active:scale-95 disabled:opacity-35 ${FOCUS_RING_CLASS}`}
                 >
                   <ChevronRight className="h-4 w-4" aria-hidden="true" />
                 </button>
@@ -353,8 +578,8 @@ export function HeroCatalogView({
       )}
 
       {/* Sticky-feel Date Strip */}
-      <div className="relative z-10 border-t border-white/10 bg-[var(--bg-glass)] backdrop-blur-md">
-        <div className="mx-auto flex max-w-[1440px] items-center gap-2 overflow-x-auto px-4 py-3 sm:px-8">
+      <div className="relative z-10 w-full min-w-0 border-t border-white/10 bg-[var(--bg-glass)] backdrop-blur-md">
+        <div className="mx-auto flex w-full min-w-0 max-w-[1440px] items-center gap-2 overflow-x-auto px-4 py-3 sm:px-8">
           <span className="mr-2 shrink-0 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)]">
             Programação:
           </span>
@@ -365,7 +590,8 @@ export function HeroCatalogView({
                 key={d.id}
                 type="button"
                 onClick={() => onSelectDateId(d.id)}
-                className={`inline-flex shrink-0 items-center gap-2 rounded-lg border px-3.5 py-2 text-xs font-semibold transition-colors active:scale-95 ${
+                aria-pressed={active}
+                className={`inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-lg border px-3.5 py-2 text-xs font-semibold transition-colors active:scale-95 ${FOCUS_RING_CLASS} ${
                   active
                     ? 'border-[var(--brand-red)] bg-[var(--brand-red)] text-white'
                     : 'border-white/10 bg-white/5 text-[var(--text-secondary)] hover:border-white/25 hover:text-white'
