@@ -7,5 +7,5 @@
 
 ## 2. Histórico Privado e Avaliação Pós-Sessão (RF-11, RF-13 / AC-3, AC-4)
 
-- [ ] 2.1 Criar suíte de testes em `tests/history/avaliacao.test.ts` validando isolamento de histórico por titular e regras de elegibilidade da avaliação de 1 a 5 estrelas.
-- [ ] 2.2 Implementar endpoints de histórico, avisos internos e CRUD de avaliação privada em `src/modules/history` até aprovação dos testes.
+- [x] 2.1 Criar suíte de testes em `tests/history/avaliacao.test.ts` validando isolamento de histórico por titular e regras de elegibilidade da avaliação de 1 a 5 estrelas.
+- [x] 2.2 Implementar endpoints de histórico, avisos internos e CRUD de avaliação privada em `src/modules/history` até aprovação dos testes.
