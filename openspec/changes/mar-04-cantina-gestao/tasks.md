@@ -2,8 +2,8 @@
 
 ## 1. Cardápio e Reserva Atômica de Estoque (RF-07, RF-08 / AC-1, AC-2)
 
-- [ ] 1.1 Criar suíte de testes em `tests/canteen/estoque.test.ts` validando recálculo server-side de carrinho e disputa simultânea pela última unidade de estoque.
-- [ ] 1.2 Implementar serviço de cardápio, reserva atômica de estoque e baixa pós-pagamento em `src/modules/canteen` até aprovação dos testes.
+- [x] 1.1 Criar suíte de testes em `tests/canteen/estoque.test.ts` validando recálculo server-side de carrinho e disputa simultânea pela última unidade de estoque.
+- [x] 1.2 Implementar serviço de cardápio, reserva atômica de estoque e baixa pós-pagamento em `src/modules/canteen` até aprovação dos testes.
 
 ## 2. KDS da Cantina, Entrega Vinculada e Runner (RF-09, RF-20 / AC-3, AC-4)
 
