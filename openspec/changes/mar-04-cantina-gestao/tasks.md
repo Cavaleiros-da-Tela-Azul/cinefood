@@ -17,5 +17,5 @@
 
 ## 4. Direitos do Titular LGPD (RF-18 / AC-7)
 
-- [ ] 4.1 Criar suíte de testes em `tests/privacy/direitos-titular.test.ts` validando protocolo de acesso, correção e eliminação seletiva com retenção legal.
-- [ ] 4.2 Implementar serviço de direitos do titular em `src/modules/privacy` até aprovação dos testes.
+- [x] 4.1 Criar suíte de testes em `tests/privacy/direitos-titular.test.ts` validando protocolo de acesso, correção e eliminação seletiva com retenção legal.
+- [x] 4.2 Implementar serviço de direitos do titular em `src/modules/privacy` até aprovação dos testes.
