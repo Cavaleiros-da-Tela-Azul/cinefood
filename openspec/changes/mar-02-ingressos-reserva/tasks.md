@@ -12,5 +12,5 @@
 
 ## 3. Venda Assistida e Categorias de Meia-Entrada (RF-14, RF-16 / AC-5, AC-6)
 
-- [ ] 3.1 Criar suíte de testes em `tests/booking/venda-assistida.test.ts` validando operação por atendente, disputa entre canais e recálculo server-side de meia-entrada.
-- [ ] 3.2 Implementar endpoints de venda assistida e motor de cálculo de categorias de ingresso até aprovação dos testes.
+- [x] 3.1 Criar suíte de testes em `tests/booking/venda-assistida.test.ts` validando operação por atendente, disputa entre canais e recálculo server-side de meia-entrada.
+- [x] 3.2 Implementar endpoints de venda assistida e motor de cálculo de categorias de ingresso até aprovação dos testes.
