@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   CheckCircle2,
   QrCode,
@@ -6,6 +6,8 @@ import {
   ShieldAlert,
   Sparkles,
   UtensilsCrossed,
+  Volume2,
+  VolumeX,
   XCircle,
 } from 'lucide-react';
 import {
@@ -14,6 +16,32 @@ import {
   MovieItem,
   SessionSlot,
 } from '../data/cinemaData';
+
+function playGateAudioCue(outcome: GateScanRecord['outcome']) {
+  if (typeof window === 'undefined') return;
+  try {
+    const AudioCtx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = outcome === 'LIBERADO' ? 'sine' : 'square';
+    osc.frequency.setValueAtTime(outcome === 'LIBERADO' ? 880 : 220, ctx.currentTime);
+    gain.gain.setValueAtTime(0.06, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.18);
+    window.setTimeout(() => {
+      ctx.close().catch(() => {});
+    }, 250);
+  } catch {
+    // Silencioso em navegadores sem suporte ou bloqueio de autoplay
+  }
+}
 
 export interface GateScannerViewProps {
   orders: ClientTicketOrder[];
@@ -46,6 +74,7 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
   const [selectedSessionId, setSelectedSessionId] = useState<string>('ALL');
   const [formKey, setFormKey] = useState(0);
   const [cameraActive, setCameraActive] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
   const [lastResult, setLastResult] = useState<{
     outcome: GateScanRecord['outcome'];
     title: string;
@@ -53,6 +82,19 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
     order?: ClientTicketOrder;
     triggeredKitchenPrep: boolean;
   } | null>(null);
+
+  const commitScanResult = (result: {
+    outcome: GateScanRecord['outcome'];
+    title: string;
+    detail: string;
+    order?: ClientTicketOrder;
+    triggeredKitchenPrep: boolean;
+  }) => {
+    setLastResult(result);
+    if (soundEnabled) {
+      playGateAudioCue(result.outcome);
+    }
+  };
 
   const allSessions = useMemo<FlattenedSession[]>(
     () =>
@@ -100,7 +142,7 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
       );
 
       if (matchedSeatToken && matchedSeatToken.status === 'CANCELADO') {
-        setLastResult({
+        commitScanResult({
           outcome: 'CANCELADO',
           title: 'Assento Cancelado (CDC)',
           detail: `O QR individual ${cleaned} (poltrona ${matchedSeatToken.seatId}) foi cancelado e não é válido para entrada.`,
@@ -111,7 +153,7 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
       }
 
       if (matchedSeatToken && matchedSeatToken.status === 'UTILIZADO') {
-        setLastResult({
+        commitScanResult({
           outcome: 'DUPLICADO',
           title: 'QR de Assento Já Utilizado',
           detail: `O QR individual ${cleaned} (poltrona ${matchedSeatToken.seatId}) já realizou check-in atômico nesta portaria.`,
@@ -123,7 +165,7 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
 
       const orderSession = findOrderSession(matchedOrder);
       if (orderSession && orderSession.session.status !== 'ATIVA') {
-        setLastResult({
+        commitScanResult({
           outcome: 'INVALIDO',
           title: `Sessão ${orderSession.session.status}`,
           detail: `A sessão de ${orderSession.movie.title} (${orderSession.session.dateLabel} · ${orderSession.session.time}) está marcada como ${orderSession.session.status}. Entrada bloqueada.`,
@@ -135,7 +177,7 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
 
       if (selectedSessionEntry) {
         if (selectedSessionEntry.session.status !== 'ATIVA') {
-          setLastResult({
+          commitScanResult({
             outcome: 'INVALIDO',
             title: `Portaria em Sessão ${selectedSessionEntry.session.status}`,
             detail: `A sessão selecionada nesta portaria (${selectedSessionEntry.session.time}) está ${selectedSessionEntry.session.status}.`,
@@ -153,7 +195,7 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
             matchedOrder.room === selectedSessionEntry.session.room;
 
         if (!sameSession) {
-          setLastResult({
+          commitScanResult({
             outcome: 'INVALIDO',
             title: 'Ingresso de Outra Sessão',
             detail: `Ingresso ${matchedOrder.id} pertence a ${matchedOrder.movieTitle} (${matchedOrder.dateLabel} · ${matchedOrder.time} · ${matchedOrder.room}), incompatível com a portaria selecionada (${selectedSessionEntry.movie.title} · ${selectedSessionEntry.session.time}).`,
@@ -168,7 +210,7 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
     const expectedSessionId =
       selectedSessionId === 'ALL' ? undefined : selectedSessionId;
     const result = onValidateQr(cleaned, expectedSessionId);
-    setLastResult(result);
+    commitScanResult(result);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -198,19 +240,38 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
                 poltrona, a Cantina KDS inicia o preparo (<span className="font-mono">RN-02</span>).
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => setCameraActive((prev) => !prev)}
-              aria-pressed={cameraActive}
-              className={`min-h-[44px] inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold border transition cursor-pointer ${
-                cameraActive
-                  ? 'bg-emerald-500/20 border-emerald-400/50 text-emerald-200'
-                  : 'bg-[var(--bg-elevated)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              <ScanLine className="w-4 h-4" />
-              {cameraActive ? 'Leitor Óptico Ativo' : 'Simular Câmera'}
-            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSoundEnabled((prev) => !prev)}
+                aria-pressed={soundEnabled}
+                className={`min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border transition cursor-pointer ${
+                  soundEnabled
+                    ? 'bg-[var(--bg-elevated)] border-[var(--border-strong)] text-[var(--text-primary)]'
+                    : 'bg-[var(--bg-elevated)] border-[var(--border-subtle)] text-[var(--text-muted)]'
+                }`}
+              >
+                {soundEnabled ? (
+                  <Volume2 className="w-4 h-4 text-emerald-300" aria-hidden="true" />
+                ) : (
+                  <VolumeX className="w-4 h-4" aria-hidden="true" />
+                )}
+                <span>{soundEnabled ? 'Som Ativo' : 'Som Mudo'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setCameraActive((prev) => !prev)}
+                aria-pressed={cameraActive}
+                className={`min-h-[44px] inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold border transition cursor-pointer ${
+                  cameraActive
+                    ? 'bg-emerald-500/20 border-emerald-400/50 text-emerald-200'
+                    : 'bg-[var(--bg-elevated)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]'
+                }`}
+              >
+                <ScanLine className="w-4 h-4" />
+                {cameraActive ? 'Leitor Óptico Ativo' : 'Simular Câmera'}
+              </button>
+            </div>
           </div>
 
           {cameraActive && (
@@ -350,8 +411,9 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
           {/* Atomic Validation Feedback */}
           {lastResult && (
             <div
-              role="status"
-              aria-live="polite"
+              role={lastResult.outcome === 'LIBERADO' ? 'status' : 'alert'}
+              aria-live={lastResult.outcome === 'LIBERADO' ? 'polite' : 'assertive'}
+              data-audio-feedback={soundEnabled ? lastResult.outcome : 'muted'}
               className={`rounded-xl border p-4 space-y-2.5 ${
                 lastResult.outcome === 'LIBERADO'
                   ? 'bg-emerald-500/12 border-emerald-400/40 text-emerald-100'

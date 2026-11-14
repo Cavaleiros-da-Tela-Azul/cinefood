@@ -245,6 +245,7 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
     await expect(page.getByRole('status')).toContainText(/Status: PENDENTE/i);
 
     await expect(page.getByText(/QR Codes Individuais por Assento \(2\)/i)).toBeVisible();
+    await expect(page.getByText(/Uso único na portaria/i)).toBeVisible();
     await expect(page.getByRole('img', { name: new RegExp(`assento A12 \\(`) })).toBeVisible();
     await expect(page.getByRole('img', { name: new RegExp(`assento ${secondSeatId} \\(`) })).toBeVisible();
 
@@ -542,17 +543,21 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
 
     // C. Portaria QR -> validate session mismatch, then valid RN-02 check-in, then duplicate
     await page.getByRole('tab', { name: /Portaria QR/i }).click();
+    await expect(page.getByRole('button', { name: /Som Ativo/i })).toBeVisible();
     await page.locator('#gate-session-filter').selectOption('cf-imax-2140');
     await page.getByRole('button', { name: /Validar Entrada/i }).click();
     await expect(page.getByRole('heading', { name: /Ingresso de Outra Sessão/i })).toBeVisible();
+    await expect(page.locator('[data-audio-feedback="INVALIDO"]')).toBeVisible();
 
     await page.locator('#gate-session-filter').selectOption('ALL');
     await page.getByRole('button', { name: /Validar Entrada/i }).click();
     await expect(page.getByRole('heading', { name: /Entrada Liberada/i })).toBeVisible();
+    await expect(page.locator('[data-audio-feedback="LIBERADO"]')).toBeVisible();
     await expect(page.getByText(/RN-02: Cantina KDS liberada \(EM_PREPARO\)/i)).toBeVisible();
 
     await page.getByRole('button', { name: /Validar Entrada/i }).click();
     await expect(page.getByRole('heading', { name: /QR Já Utilizado/i })).toBeVisible();
+    await expect(page.locator('[data-audio-feedback="DUPLICADO"]')).toBeVisible();
 
     // D. KDS advance (EM_PREPARO -> PRONTO -> SAIU_PARA_ENTREGA) + Runner OLED RN-03 CLIENTE_AUSENTE
     await page.getByRole('tab', { name: /Cantina KDS & Runner/i }).click();

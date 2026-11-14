@@ -222,12 +222,26 @@ export function TicketPassView({
             </div>
           ) : (
             <div>
-              <p className="mb-3 text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                QR Codes Individuais por Assento ({seatQrTokens.length})
-              </p>
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                  QR Codes Individuais por Assento ({seatQrTokens.length})
+                </p>
+                <span
+                  role="note"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[var(--amber-progress)]/40 bg-[var(--amber-progress)]/10 px-3 py-1 text-[11px] font-semibold text-[#FDE68A]"
+                >
+                  Uso único na portaria · Não compartilhe capturas
+                </span>
+              </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {seatQrTokens.map((seatToken) => {
                   const seatMeta = selectedSeats.find((s) => s.seatId === seatToken.seatId);
+                  const statusTone =
+                    seatToken.status === 'ATIVO'
+                      ? 'bg-[var(--success-emerald)]/20 text-[#6EE7B7]'
+                      : seatToken.status === 'CANCELADO'
+                        ? 'bg-rose-500/20 text-rose-200'
+                        : 'bg-white/15 text-[var(--text-secondary)]';
                   return (
                     <div
                       key={seatToken.qrToken}
@@ -238,7 +252,7 @@ export function TicketPassView({
                           Assento {seatToken.seatId}
                           {seatMeta ? ` · ${seatMeta.tier.toUpperCase()}` : ''}
                         </span>
-                        <span className="rounded bg-[var(--success-emerald)]/20 px-2 py-0.5 text-[11px] font-bold text-[#6EE7B7]">
+                        <span className={`rounded px-2 py-0.5 text-[11px] font-bold ${statusTone}`}>
                           {seatToken.status}
                         </span>
                       </div>
