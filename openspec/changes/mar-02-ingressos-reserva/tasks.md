@@ -7,8 +7,8 @@
 
 ## 2. Pagamento, Idempotência e Estorno de Pix Tardio (RF-04 / AC-3, AC-4)
 
-- [ ] 2.1 Criar suíte de testes em `tests/payments/checkout.test.ts` cobrindo chave de idempotência, assinatura de webhook, timeout e estorno automático de Pix tardio (`RN-01`).
-- [ ] 2.2 Implementar adaptador de gateway sandbox, processador de webhooks e rotina de compensação em `src/modules/payments` até aprovação dos testes.
+- [x] 2.1 Criar suíte de testes em `tests/payments/checkout.test.ts` cobrindo chave de idempotência, assinatura de webhook, timeout e estorno automático de Pix tardio (`RN-01`).
+- [x] 2.2 Implementar adaptador de gateway sandbox, processador de webhooks e rotina de compensação em `src/modules/payments` até aprovação dos testes.
 
 ## 3. Venda Assistida e Categorias de Meia-Entrada (RF-14, RF-16 / AC-5, AC-6)
 
