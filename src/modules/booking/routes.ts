@@ -1,6 +1,8 @@
-import { authenticatedUserId } from '../identity/rbac.ts';
+import { authenticatedUserId, authorize, ForbiddenError } from '../identity/rbac.ts';
 import type { AuthenticatedSession } from '../identity/types.ts';
 import {
+  InvalidAssistedSaleError,
+  InvalidTicketPricingError,
   ReservationNotFoundError,
   ScreeningUnavailableError,
   SeatConflictError,
@@ -8,9 +10,12 @@ import {
   type BookingService,
 } from './service.ts';
 import type {
+  AssistedReserveSeatRequest,
   ConfirmReservationResult,
   ReserveSeatRequest,
   SeatReservation,
+  TicketPricingInput,
+  TicketPricingResult,
 } from './types.ts';
 
 export type HttpResult<T> = { status: number; body: T };
@@ -31,6 +36,16 @@ export async function postReservation(
       buyerUserId: authenticatedUserId(session),
       purchaseId: request.purchaseId,
       channel: request.channel,
+      ...(request.ticketCategory
+        ? {
+            pricing: {
+              category: request.ticketCategory,
+              halfPriceDocumentType: request.halfPriceDocumentType,
+              halfPriceDocumentCode: request.halfPriceDocumentCode,
+              clientUnitPriceCents: request.clientUnitPriceCents,
+            },
+          }
+        : {}),
     });
     return { status: 200, body: reservation };
   } catch (error) {
@@ -39,6 +54,77 @@ export async function postReservation(
     }
     if (error instanceof SeatNotFoundError) {
       return { status: 404, body: { error: error.message } };
+    }
+    if (error instanceof InvalidTicketPricingError) {
+      return { status: 422, body: { error: error.message } };
+    }
+    throw error;
+  }
+}
+
+/**
+ * POST /box-office/reservations — Venda assistida na bilheteria (RF-14 / ADR-004).
+ * Exige papel OPERADOR_BILHETERIA ou ADMIN_CINEMA, registra operador + comprador,
+ * calcula categoria no servidor e compartilha a mesma trava sem emitir bilhete antes do pagamento.
+ */
+export async function postAssistedReservation(
+  service: BookingService,
+  session: AuthenticatedSession,
+  request: AssistedReserveSeatRequest,
+): Promise<HttpResult<SeatReservation | { error: string }>> {
+  try {
+    authorize({ session, operation: 'ASSISTED_BOOKING' });
+    const reservation = await service.reserveAssistedSeat({
+      screeningId: request.screeningId,
+      seatId: request.seatId,
+      purchaseId: request.purchaseId,
+      operatorUserId: authenticatedUserId(session),
+      buyerUserId: request.buyerUserId,
+      buyerDocument: request.buyerDocument,
+      pricing: {
+        category: request.ticketCategory,
+        halfPriceDocumentType: request.halfPriceDocumentType,
+        halfPriceDocumentCode: request.halfPriceDocumentCode,
+        clientUnitPriceCents: request.clientUnitPriceCents,
+      },
+    });
+    return { status: 200, body: reservation };
+  } catch (error) {
+    if (error instanceof ForbiddenError) {
+      return { status: 403, body: { error: error.message } };
+    }
+    if (error instanceof SeatConflictError || error instanceof ScreeningUnavailableError) {
+      return { status: 409, body: { error: error.message } };
+    }
+    if (error instanceof SeatNotFoundError) {
+      return { status: 404, body: { error: error.message } };
+    }
+    if (error instanceof InvalidTicketPricingError || error instanceof InvalidAssistedSaleError) {
+      return { status: 422, body: { error: error.message } };
+    }
+    throw error;
+  }
+}
+
+/**
+ * POST /screenings/:id/quote — Recálculo oficial de categorias de ingresso no servidor (RF-16).
+ */
+export async function postTicketPricingQuote(
+  service: BookingService,
+  screeningId: string,
+  input: TicketPricingInput,
+): Promise<HttpResult<TicketPricingResult | { error: string }>> {
+  try {
+    const pricing = await service.calculateTicketPricing(screeningId, input, {
+      ignoreClientPrice: true,
+    });
+    return { status: 200, body: pricing };
+  } catch (error) {
+    if (error instanceof ScreeningUnavailableError) {
+      return { status: 409, body: { error: error.message } };
+    }
+    if (error instanceof InvalidTicketPricingError) {
+      return { status: 422, body: { error: error.message } };
     }
     throw error;
   }

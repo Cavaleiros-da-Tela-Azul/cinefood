@@ -2,6 +2,7 @@ export type UserRole =
   | 'CLIENTE'
   | 'OPERADOR_PORTARIA'
   | 'OPERADOR_CANTINA'
+  | 'OPERADOR_BILHETERIA'
   | 'RUNNER'
   | 'ADMIN_CINEMA';
 
@@ -18,5 +19,6 @@ export type ProtectedOperation =
   | 'CLIENT_ACCOUNT'
   | 'TICKET_VALIDATION'
   | 'CANTEEN_OPERATION'
+  | 'ASSISTED_BOOKING'
   | 'DELIVERY_OPERATION'
   | 'ADMINISTRATION';

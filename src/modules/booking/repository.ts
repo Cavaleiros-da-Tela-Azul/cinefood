@@ -1,5 +1,5 @@
-import type { Screening } from '../catalog/types.ts';
 import type {
+  BookingScreening,
   ConfirmReservationResult,
   ReservableSeat,
   ReserveSeatCommand,
@@ -18,7 +18,7 @@ export type AcquireSeatHoldOutcome =
   | { status: 'CONFLICT'; currentSeat: ReservableSeat };
 
 export interface BookingRepository {
-  findScreeningById(screeningId: string): Promise<Screening | null>;
+  findScreeningById(screeningId: string): Promise<BookingScreening | null>;
   findSeat(screeningId: string, seatId: string): Promise<ReservableSeat | null>;
   findReservationById(reservationId: string): Promise<SeatReservation | null>;
   listReservationsByScreening(screeningId: string): Promise<SeatReservation[]>;
@@ -34,12 +34,12 @@ export interface BookingRepository {
  * `estado = 'DISPONIVEL' OR (estado = 'RESERVADO' AND reservado_ate <= NOW())`.
  */
 export class InMemoryBookingRepository implements BookingRepository {
-  private readonly screenings = new Map<string, Screening>();
+  private readonly screenings = new Map<string, BookingScreening>();
   private readonly seats = new Map<string, ReservableSeat>();
   private readonly reservations = new Map<string, SeatReservation>();
   private transactionQueue: Promise<unknown> = Promise.resolve();
 
-  constructor(screenings: Screening[] = [], seats: ReservableSeat[] = []) {
+  constructor(screenings: BookingScreening[] = [], seats: ReservableSeat[] = []) {
     for (const screening of screenings) {
       this.screenings.set(screening.id, cloneScreening(screening));
     }
@@ -48,7 +48,7 @@ export class InMemoryBookingRepository implements BookingRepository {
     }
   }
 
-  async findScreeningById(screeningId: string): Promise<Screening | null> {
+  async findScreeningById(screeningId: string): Promise<BookingScreening | null> {
     const screening = this.screenings.get(screeningId);
     return screening ? cloneScreening(screening) : null;
   }
@@ -91,6 +91,17 @@ export class InMemoryBookingRepository implements BookingRepository {
         purchaseId: params.purchaseId,
         channel: params.channel,
         status: 'ATIVA',
+        ...(params.operatorUserId ? { operatorUserId: params.operatorUserId } : {}),
+        ...(params.buyerDocument ? { buyerDocument: params.buyerDocument } : {}),
+        ...(params.ticketCategory ? { ticketCategory: params.ticketCategory } : {}),
+        ...(params.unitPriceCents !== undefined ? { unitPriceCents: params.unitPriceCents } : {}),
+        ...(params.halfPriceDocumentType
+          ? { halfPriceDocumentType: params.halfPriceDocumentType }
+          : {}),
+        ...(params.halfPriceDocumentCode
+          ? { halfPriceDocumentCode: params.halfPriceDocumentCode }
+          : {}),
+        ticketEmitted: params.ticketEmitted ?? false,
         createdAt: new Date(params.now.getTime()),
         expiresAt: new Date(params.expiresAt.getTime()),
       };
@@ -258,7 +269,7 @@ function seatKey(screeningId: string, seatId: string): string {
   return `${screeningId}::${seatId}`;
 }
 
-function cloneScreening(screening: Screening): Screening {
+function cloneScreening(screening: BookingScreening): BookingScreening {
   return {
     ...screening,
     startsAt: new Date(screening.startsAt.getTime()),
