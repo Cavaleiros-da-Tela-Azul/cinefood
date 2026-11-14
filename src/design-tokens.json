@@ -35,18 +35,30 @@
     "text": {
       "primary": { "value": "#FFFFFF", "contrastRatio": "16.1:1", "description": "Texto principal (Extraído do Cinemark e Alamo)" },
       "secondary": { "value": "#A0AEC0", "contrastRatio": "6.2:1", "description": "Texto secundário e metadados (Extraído do Cinemark Brasil)" },
-      "muted": { "value": "#787272", "contrastRatio": "4.2:1", "description": "Texto atenuado e sala escura (Extraído do Cinemark Brasil e Alamo Drafthouse)" },
+      "muted": { "value": "#959DB0", "contrastRatio": "6.1:1", "description": "Texto atenuado WCAG 2.2 AA (>= 4.5:1 sobre #1B1E28 e #0D0E12)" },
       "soft-light": { "value": "#F7F7F7", "description": "Branco suave para contrastes aveludados (Extraído do Everyman Cinemas)" }
     },
     "seat": {
-      "available-bg": { "value": "#1A202C", "description": "Extraído da paleta neutra do Cinemark" },
-      "available-border": { "value": "#3C3C3B", "description": "Extraído do Everyman" },
-      "selected-bg": { "value": "#00E054", "description": "Verde Letterboxd de seleção" },
-      "reserved-bg": { "value": "#2C2013" },
-      "reserved-border": { "value": "#F5B324", "description": "Âmbar Alamo Drafthouse" },
-      "occupied-bg": { "value": "#12100D", "description": "Preto quente do Cinemark" },
-      "accessible-bg": { "value": "#2563EB", "description": "Azul PCD internacional" },
-      "bistro-table": { "value": "#F5B324", "description": "Mesa Bistrô VIP centralizada" }
+      "available-bg": { "value": "#4B5263", "description": "Poltrona disponível (tokens.css)" },
+      "available-border": { "value": "#3C3C3B", "description": "Borda sutil de assento" },
+      "selected-bg": { "value": "#C40A14", "contrastRatio": "6.18:1", "description": "Poltrona selecionada (Vermelho Cinema WCAG 2.2 AA)" },
+      "reserved-bg": { "value": "#581C28", "description": "Poltrona reservada (trava 10m)" },
+      "reserved-border": { "value": "#F59E0B", "description": "Âmbar de progresso/alerta" },
+      "occupied-bg": { "value": "#1F232E", "description": "Poltrona ocupada (desabilitada)" },
+      "accessible-bg": { "value": "#2563EB", "contrastRatio": "5.17:1", "description": "Azul PCD internacional (WCAG 2.2 AA)" },
+      "bistro-table": { "value": "#F59E0B", "description": "Mesa Bistrô VIP centralizada" }
+    },
+    "canonicalWeb": {
+      "bg-base": "#0D0E12",
+      "bg-oled": "#000000",
+      "bg-elevated": "#15171E",
+      "bg-surface": "#1B1E28",
+      "brand-red": "#C40A14",
+      "amber-progress": "#F59E0B",
+      "pcd-blue": "#2563EB",
+      "focus-ring": "#60A5FA",
+      "text-muted-dark": "#959DB0",
+      "text-muted-oled": "#858C9E"
     }
   },
   "typography": {
