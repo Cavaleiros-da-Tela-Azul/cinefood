@@ -23,6 +23,7 @@ export interface TicketPassViewProps {
   oledMode: boolean;
   onToggleOled: () => void;
   onGoToOrders: () => void;
+  onGoToCanteen?: () => void;
   onRestart: () => void;
 }
 
@@ -66,6 +67,7 @@ export function TicketPassView({
   oledMode,
   onToggleOled,
   onGoToOrders,
+  onGoToCanteen,
   onRestart,
 }: TicketPassViewProps) {
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
@@ -277,6 +279,37 @@ export function TicketPassView({
           )}
         </div>
       </div>
+
+      {!isCanteenOnly && !hasCanteenItems && onGoToCanteen && (
+        <aside
+          aria-label="Convite de bomboniere com pré-vínculo de poltrona"
+          className="mt-6 flex flex-col gap-4 rounded-2xl border border-[var(--amber-progress)]/40 bg-[var(--amber-progress)]/10 p-5 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div className="flex items-start gap-3">
+            <Popcorn className="mt-0.5 h-5 w-5 shrink-0 text-[var(--amber-progress)]" aria-hidden="true" />
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-[#FCD34D]">
+                Esteira Guiada (RN-05) · Antecipe sua Bomboniere
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-[var(--text-secondary)]">
+                Deseja pedir pipoca e bebidas com pré-vínculo{' '}
+                {seatQrTokens.length > 0
+                  ? `às poltronas ${seatQrTokens.map((s) => s.seatId).join(', ')}`
+                  : 'ao seu ingresso'}
+                ? O preparo começa automaticamente após a leitura do QR na portaria.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onGoToCanteen}
+            className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-full bg-[var(--amber-progress)] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-[#0D0E12] hover:brightness-110"
+          >
+            <Popcorn className="h-4 w-4" aria-hidden="true" />
+            <span>Antecipar Bomboniere com Pré-Vínculo</span>
+          </button>
+        </aside>
+      )}
 
       <div className="mt-6 flex flex-wrap justify-center gap-3">
         <button

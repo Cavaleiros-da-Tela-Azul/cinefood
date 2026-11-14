@@ -452,9 +452,10 @@ export function CheckoutView({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2" role="group" aria-label="Meio de pagamento sandbox">
             <button
               type="button"
+              aria-pressed={method === 'pix'}
               onClick={() => setMethod('pix')}
               className={`flex min-h-[44px] items-center gap-3 rounded-xl border p-4 text-left transition-colors ${
                 method === 'pix'
@@ -471,6 +472,7 @@ export function CheckoutView({
 
             <button
               type="button"
+              aria-pressed={method === 'card'}
               onClick={() => setMethod('card')}
               className={`flex min-h-[44px] items-center gap-3 rounded-xl border p-4 text-left transition-colors ${
                 method === 'card'
@@ -485,6 +487,76 @@ export function CheckoutView({
               </div>
             </button>
           </div>
+
+          {method === 'pix' ? (
+            <div className="rounded-xl border border-white/10 bg-black/30 p-4">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                <div
+                  className="flex h-24 w-24 shrink-0 items-center justify-center rounded-lg bg-white p-2 text-[#0D0E12]"
+                  role="img"
+                  aria-label="QR Code Pix Sandbox para pagamento simulado"
+                >
+                  <QrCode className="h-16 w-16" aria-hidden="true" />
+                </div>
+                <div className="min-w-0 flex-1 space-y-2">
+                  <p className="text-xs font-bold uppercase tracking-wider text-white">
+                    Pix Copia-e-Cola (Sandbox)
+                  </p>
+                  <code className="font-mono-tabular block w-full truncate rounded border border-white/15 bg-black/50 px-3 py-2 text-xs text-[var(--text-secondary)] select-all">
+                    {`00020126580014BR.GOV.BCB.PIX0136cinefood-sandbox-${grandTotal}005204000053039865802BR`}
+                  </code>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const code = `00020126580014BR.GOV.BCB.PIX0136cinefood-sandbox-${grandTotal}005204000053039865802BR`;
+                      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                        navigator.clipboard.writeText(code).catch(() => {});
+                      }
+                    }}
+                    className="inline-flex min-h-[44px] items-center rounded-lg border border-white/20 px-3.5 py-2 text-xs font-semibold text-white hover:bg-white/10"
+                  >
+                    Copiar código Pix Sandbox
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3 rounded-xl border border-white/10 bg-black/30 p-4">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-white">
+                  Cartão Tokenizado (Sandbox RNF-02)
+                </p>
+                <span className="rounded bg-white/10 px-2 py-0.5 text-[11px] font-semibold text-[var(--text-secondary)]">
+                  Token: tok_sandbox_4242
+                </span>
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="sandbox-card-holder" className="block text-[11px] font-semibold text-[var(--text-secondary)]">
+                    Nome impresso (simulado)
+                  </label>
+                  <input
+                    id="sandbox-card-holder"
+                    type="text"
+                    defaultValue={buyerName || 'TITULAR SANDBOX'}
+                    className="mt-1 min-h-[44px] w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-base text-white sm:text-sm"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="sandbox-card-last4" className="block text-[11px] font-semibold text-[var(--text-secondary)]">
+                    Cartão simulado (apenas final)
+                  </label>
+                  <input
+                    id="sandbox-card-last4"
+                    type="text"
+                    readOnly
+                    value="•••• •••• •••• 4242"
+                    className="font-mono-tabular mt-1 min-h-[44px] w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-base text-[var(--text-secondary)] sm:text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* LGPD Transparency Notice (RF-17) */}
           <div className="rounded-xl border border-white/10 bg-black/30 p-4">
