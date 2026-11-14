@@ -1,6 +1,11 @@
 import { ForbiddenError } from '../identity/rbac.ts';
 import type { AuthenticatedSession } from '../identity/types.ts';
 import {
+  CancellationNotEligibleError,
+  type CdcCancellationResult,
+  type CdcCancellationService,
+} from './cdc-cancellation.ts';
+import {
   InvalidManagementInputError,
   ManagementEntityNotFoundError,
   type ManagementService,
@@ -163,6 +168,24 @@ export async function getPublicScreeningQuote(
   try {
     return { status: 200, body: await service.quoteCurrentScreeningPrice(screeningId) };
   } catch (error) {
+    return handleManagementError(error);
+  }
+}
+
+/**
+ * POST /tickets/:ticketId/cancel-cdc — Arrependimento CDC e janela de corte de 2h (RF-12 / RN-04).
+ */
+export async function postCancelTicketCdc(
+  service: CdcCancellationService,
+  session: AuthenticatedSession,
+  ticketId: string,
+): Promise<HttpResult<CdcCancellationResult | { error: string }>> {
+  try {
+    return { status: 200, body: await service.cancelTicketWithCdcRefund(session, ticketId) };
+  } catch (error) {
+    if (error instanceof CancellationNotEligibleError) {
+      return { status: 422, body: { error: error.message } };
+    }
     return handleManagementError(error);
   }
 }

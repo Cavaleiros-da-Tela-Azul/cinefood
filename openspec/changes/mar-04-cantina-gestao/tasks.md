@@ -12,8 +12,8 @@
 
 ## 3. Administração, Ocupação e Cancelamento/Estorno CDC (RF-10, RF-12, RF-15 / AC-5, AC-6)
 
-- [ ] 3.1 Criar suíte de testes em `tests/management/ocupacao-estorno.test.ts` validando preservação de compras passadas, cálculo de 30% de ocupação e janela de corte de estorno CDC (`RN-04`). (AC-5 concluído em #18; AC-6 na #19)
-- [ ] 3.2 Implementar endpoints de administração, relatório de ocupação e fluxo de estorno idempotente até aprovação dos testes. (Administração e ocupação concluídos em `src/modules/management` na #18)
+- [x] 3.1 Criar suíte de testes em `tests/management/ocupacao-estorno.test.ts` validando preservação de compras passadas, cálculo de 30% de ocupação e janela de corte de estorno CDC (`RN-04`).
+- [x] 3.2 Implementar endpoints de administração, relatório de ocupação e fluxo de estorno idempotente até aprovação dos testes.
 
 ## 4. Direitos do Titular LGPD (RF-18 / AC-7)
 

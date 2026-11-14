@@ -2,6 +2,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { InMemoryManagementRepository } from '../../src/modules/management/repository.ts';
 import { ManagementService } from '../../src/modules/management/service.ts';
+import { CdcCancellationService } from '../../src/modules/management/cdc-cancellation.ts';
 import {
   getAdminOccupancyReport,
   getAdminSalesDashboard,
@@ -9,10 +10,12 @@ import {
   patchAdminCanteenItemPrice,
   patchAdminScreening,
   postAdminScreening,
+  postCancelTicketCdc,
   putAdminCanteenItem,
   putAdminMovie,
   putAdminRoom,
 } from '../../src/modules/management/routes.ts';
+import { SandboxPaymentGatewayAdapter } from '../../src/modules/payments/gateway.ts';
 import type { AuthenticatedSession } from '../../src/modules/identity/types.ts';
 
 function sessionFor(userId: string, role: AuthenticatedSession['role']): AuthenticatedSession {
@@ -192,7 +195,177 @@ describe('Administração, Ocupação e Cancelamento CDC (RF-10, RF-12, RF-15 / 
     assert.equal(dashboardRes.body.totalRevenueCents, 12000);
   });
 
-  it('AC-6: cancelamento elegível até 2h antes da sessão realiza estorno idempotente sem duplicação', () => {
-    assert.ok(true, 'Implementação completa de AC-6 será entregue na issue #19');
+  it('AC-6: cancelamento elegível até 2h antes da sessão realiza estorno idempotente sem duplicação', async () => {
+    let clockMs = Date.parse('2026-11-20T18:00:00.000Z');
+    const now = () => new Date(clockMs);
+
+    const repo = new InMemoryManagementRepository();
+    const adminService = new ManagementService(repo, { now });
+    const gateway = new SandboxPaymentGatewayAdapter();
+    const releasedSeats: Array<{ screeningId: string; seatId: string }> = [];
+
+    const cdcService = new CdcCancellationService(repo, {
+      now,
+      gateway,
+      onSeatReleased: async (screeningId, seatId) => {
+        releasedSeats.push({ screeningId, seatId });
+      },
+    });
+
+    const admin = sessionFor('adm_1', 'ADMIN_CINEMA');
+    const alice = sessionFor('usr_alice', 'CLIENTE');
+    const bob = sessionFor('usr_bob', 'CLIENTE');
+
+    await putAdminMovie(adminService, admin, {
+      movieId: 'mov_cdc',
+      title: 'Interestelar',
+      synopsis: 'Ficção científica',
+      durationMinutes: 169,
+      ageRating: '10',
+      active: true,
+    });
+    await putAdminRoom(adminService, admin, {
+      roomId: 'room_cdc',
+      cinemaName: 'CineFood Paulista',
+      name: 'Sala 1',
+      sellableSeats: 10,
+      active: true,
+    });
+    // Sessão inicia exatamente às 20:00 -> corte de 2h às 18:00
+    await postAdminScreening(adminService, admin, {
+      screeningId: 'scr_cdc',
+      movieId: 'mov_cdc',
+      roomId: 'room_cdc',
+      startsAt: '2026-11-20T20:00:00.000Z',
+      endsAt: '2026-11-20T22:50:00.000Z',
+      format: '2D',
+      basePriceCents: 4000,
+    });
+
+    // Compra 1 (Alice): elegível no limite exato das 2h antes (18:00) com cantina em AGUARDANDO_CHEGADA
+    await repo.saveHold({
+      holdId: 'hold_c1',
+      screeningId: 'scr_cdc',
+      seatId: 'C-1',
+      expiresAt: '2026-11-18T12:10:00.000Z',
+      status: 'CONFIRMADA',
+    });
+    await repo.saveTicketPurchase({
+      ticketId: 'tkt_eligivel',
+      purchaseId: 'pur_eligivel',
+      ownerUserId: 'usr_alice',
+      screeningId: 'scr_cdc',
+      seatId: 'C-1',
+      paidUnitPriceCents: 4000,
+      paymentStatus: 'APROVADO',
+      ticketStatus: 'EMITIDO',
+      purchasedAt: '2026-11-18T12:00:00.000Z',
+      gatewayChargeId: 'sbx_chg_eligivel',
+      linkedCanteenOrder: {
+        orderId: 'cnt_eligivel',
+        status: 'AGUARDANDO_CHEGADA',
+        totalCents: 2800,
+      },
+    });
+
+    // Terceiro (Bob) não pode cancelar ingresso de Alice -> HTTP 403
+    assert.equal((await postCancelTicketCdc(cdcService, bob, 'tkt_eligivel')).status, 403);
+
+    // Alice cancela no limite exato (2h antes da sessão) -> sucesso + estorno total (4000 + 2800 = 6800) + assento liberado
+    const cancelOk = await postCancelTicketCdc(cdcService, alice, 'tkt_eligivel');
+    assert.equal(cancelOk.status, 200);
+    assert.ok('refundId' in cancelOk.body);
+    assert.equal(cancelOk.body.idempotentReplay, false);
+    assert.equal(cancelOk.body.seatReleased, true);
+    assert.equal(cancelOk.body.refundAmountCents, 6800);
+    assert.equal(cancelOk.body.cancelledCanteenOrderId, 'cnt_eligivel');
+    assert.equal(cancelOk.body.ticket.ticketStatus, 'CANCELADO');
+    assert.equal(cancelOk.body.ticket.paymentStatus, 'ESTORNADO');
+    assert.equal(cancelOk.body.ticket.linkedCanteenOrder?.status, 'CANCELADO');
+    assert.equal(gateway.refundCalls, 1);
+    assert.deepEqual(releasedSeats, [{ screeningId: 'scr_cdc', seatId: 'C-1' }]);
+
+    const holdsAfterCancel = await repo.listHoldsByScreening('scr_cdc');
+    assert.equal(holdsAfterCancel[0].status, 'CANCELADA');
+
+    // Chamada repetida (idempotência): mesmo refundId e nenhum segundo estorno no gateway
+    const replay = await postCancelTicketCdc(cdcService, alice, 'tkt_eligivel');
+    assert.equal(replay.status, 200);
+    assert.ok('refundId' in replay.body);
+    assert.equal(replay.body.idempotentReplay, true);
+    assert.equal(replay.body.refundId, cancelOk.body.refundId);
+    assert.equal(gateway.refundCalls, 1);
+
+    // Ingresso com cantina já em EM_PREPARO é bloqueado com HTTP 422
+    await repo.saveTicketPurchase({
+      ticketId: 'tkt_em_preparo',
+      purchaseId: 'pur_prep',
+      ownerUserId: 'usr_alice',
+      screeningId: 'scr_cdc',
+      seatId: 'C-2',
+      paidUnitPriceCents: 4000,
+      paymentStatus: 'APROVADO',
+      ticketStatus: 'EMITIDO',
+      purchasedAt: '2026-11-18T12:00:00.000Z',
+      linkedCanteenOrder: {
+        orderId: 'cnt_prep',
+        status: 'EM_PREPARO',
+        totalCents: 2500,
+      },
+    });
+    assert.equal((await postCancelTicketCdc(cdcService, alice, 'tkt_em_preparo')).status, 422);
+
+    // Ingresso já utilizado na portaria (UTILIZADO) -> rejeitado com HTTP 422
+    await repo.saveTicketPurchase({
+      ticketId: 'tkt_usado',
+      purchaseId: 'pur_usado',
+      ownerUserId: 'usr_alice',
+      screeningId: 'scr_cdc',
+      seatId: 'C-3',
+      paidUnitPriceCents: 4000,
+      paymentStatus: 'APROVADO',
+      ticketStatus: 'UTILIZADO',
+      purchasedAt: '2026-11-18T12:00:00.000Z',
+    });
+    assert.equal((await postCancelTicketCdc(cdcService, alice, 'tkt_usado')).status, 422);
+
+    // Ingresso fora da janela de 2h antes da sessão (18:01 para sessão das 20:00) -> HTTP 422
+    await repo.saveTicketPurchase({
+      ticketId: 'tkt_tardio_2h',
+      purchaseId: 'pur_tardio',
+      ownerUserId: 'usr_alice',
+      screeningId: 'scr_cdc',
+      seatId: 'C-4',
+      paidUnitPriceCents: 4000,
+      paymentStatus: 'APROVADO',
+      ticketStatus: 'EMITIDO',
+      purchasedAt: '2026-11-19T12:00:00.000Z',
+    });
+    clockMs = Date.parse('2026-11-20T18:00:01.000Z');
+    assert.equal((await postCancelTicketCdc(cdcService, alice, 'tkt_tardio_2h')).status, 422);
+
+    // Ingresso comprado há mais de 7 dias corridos em sessão futura distante -> HTTP 422
+    await postAdminScreening(adminService, admin, {
+      screeningId: 'scr_futura',
+      movieId: 'mov_cdc',
+      roomId: 'room_cdc',
+      startsAt: '2026-11-29T20:00:00.000Z',
+      endsAt: '2026-11-29T22:50:00.000Z',
+      format: '2D',
+      basePriceCents: 4000,
+    });
+    await repo.saveTicketPurchase({
+      ticketId: 'tkt_acima_7d',
+      purchaseId: 'pur_7d',
+      ownerUserId: 'usr_alice',
+      screeningId: 'scr_futura',
+      seatId: 'C-5',
+      paidUnitPriceCents: 4000,
+      paymentStatus: 'APROVADO',
+      ticketStatus: 'EMITIDO',
+      purchasedAt: '2026-11-10T12:00:00.000Z',
+    });
+    assert.equal((await postCancelTicketCdc(cdcService, alice, 'tkt_acima_7d')).status, 422);
+    assert.equal(gateway.refundCalls, 1);
   });
 });
