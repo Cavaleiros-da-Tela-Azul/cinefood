@@ -6,6 +6,10 @@ import type {
   IssuedTicket,
   IssueTicketsInput,
   IssueTicketsResult,
+  LinkedCanteenOrderRef,
+  TicketValidatedEvent,
+  ValidateQrInput,
+  ValidateQrResult,
 } from './types.ts';
 
 export class PaymentNotConfirmedForTicketError extends Error {
@@ -29,6 +33,41 @@ export class TicketPurchaseNotFoundError extends Error {
   }
 }
 
+export class TicketNotFoundError extends Error {
+  constructor() {
+    super('QR Code de ingresso não encontrado.');
+    this.name = 'TicketNotFoundError';
+  }
+}
+
+export class TicketAlreadyUsedError extends Error {
+  constructor(seatId: string) {
+    super(`Ingresso já utilizado na portaria (poltrona ${seatId}).`);
+    this.name = 'TicketAlreadyUsedError';
+  }
+}
+
+export class TicketCancelledError extends Error {
+  constructor() {
+    super('Ingresso cancelado e inválido para acesso na portaria.');
+    this.name = 'TicketCancelledError';
+  }
+}
+
+export class TicketWrongScreeningError extends Error {
+  constructor() {
+    super('Ingresso pertence a outra sala ou sessão distinta desta portaria.');
+    this.name = 'TicketWrongScreeningError';
+  }
+}
+
+export class TicketSessionExpiredError extends Error {
+  constructor() {
+    super('Sessão já encerrada: leitura do ingresso bloqueada na portaria.');
+    this.name = 'TicketSessionExpiredError';
+  }
+}
+
 const DEFAULT_TOKEN_SECRET = 'cinefood-qr-opaque-hmac-secret-v1';
 
 /**
@@ -46,15 +85,21 @@ export function generateOpaqueQrToken(
   return `cf_qr_${digest.slice(0, 32)}`;
 }
 
+export type TicketValidatedListener = (
+  event: TicketValidatedEvent,
+) => Promise<LinkedCanteenOrderRef[]>;
+
 export interface TicketsServiceOptions {
   tokenSecret?: string;
   now?: () => Date;
+  onTicketValidated?: TicketValidatedListener;
 }
 
 export class TicketsService {
   private readonly repository: TicketRepository;
   private readonly tokenSecret: string;
   private readonly now: () => Date;
+  private readonly onTicketValidated?: TicketValidatedListener;
 
   constructor(
     repository: TicketRepository,
@@ -63,6 +108,7 @@ export class TicketsService {
     this.repository = repository;
     this.tokenSecret = options.tokenSecret ?? DEFAULT_TOKEN_SECRET;
     this.now = options.now ?? (() => new Date());
+    this.onTicketValidated = options.onTicketValidated;
   }
 
   /**
@@ -141,5 +187,59 @@ export class TicketsService {
     });
 
     return tickets;
+  }
+
+  /**
+   * Validação e consumo atômico único na portaria (RF-06 / RNF-03 / RN-02).
+   * Exige OPERADOR_PORTARIA ou ADMIN_CINEMA e dispara TicketValidatedEvent
+   * somente na primeira leitura bem-sucedida.
+   */
+  async validateTicketAtGate(
+    session: AuthenticatedSession,
+    input: ValidateQrInput,
+  ): Promise<ValidateQrResult> {
+    authorize({ session, operation: 'TICKET_VALIDATION' });
+
+    const usedAt = this.now().toISOString();
+    const consumeResult = await this.repository.consumeTokenAtomically({
+      qrToken: input.qrToken.trim(),
+      operatorId: session.userId,
+      usedAt,
+      expectedScreeningId: input.expectedScreeningId,
+      expectedRoomName: input.expectedRoomName,
+    });
+
+    switch (consumeResult.kind) {
+      case 'NOT_FOUND':
+        throw new TicketNotFoundError();
+      case 'CANCELLED':
+        throw new TicketCancelledError();
+      case 'ALREADY_USED':
+        throw new TicketAlreadyUsedError(consumeResult.ticket.seatId);
+      case 'WRONG_SCREENING':
+        throw new TicketWrongScreeningError();
+      case 'EXPIRED_SESSION':
+        throw new TicketSessionExpiredError();
+      case 'CONSUMED': {
+        const event: TicketValidatedEvent = {
+          eventName: 'TicketValidatedEvent',
+          ticketId: consumeResult.ticket.ticketId,
+          purchaseId: consumeResult.ticket.purchaseId,
+          screeningId: consumeResult.ticket.screeningId,
+          seatId: consumeResult.ticket.seatId,
+          operatorId: session.userId,
+          validatedAt: usedAt,
+        };
+        const triggeredCanteenOrders = this.onTicketValidated
+          ? await this.onTicketValidated(event)
+          : [];
+        return {
+          outcome: 'LIBERADO',
+          ticket: consumeResult.ticket,
+          triggeredCanteenOrders,
+          event,
+        };
+      }
+    }
   }
 }

@@ -3,10 +3,21 @@ import type { AuthenticatedSession } from '../identity/types.ts';
 import {
   EmptyTicketSeatsError,
   PaymentNotConfirmedForTicketError,
+  TicketAlreadyUsedError,
+  TicketCancelledError,
+  TicketNotFoundError,
   TicketPurchaseNotFoundError,
+  TicketSessionExpiredError,
+  TicketWrongScreeningError,
   type TicketsService,
 } from './service.ts';
-import type { IssuedTicket, IssueTicketsInput, IssueTicketsResult } from './types.ts';
+import type {
+  IssuedTicket,
+  IssueTicketsInput,
+  IssueTicketsResult,
+  ValidateQrInput,
+  ValidateQrResult,
+} from './types.ts';
 
 export type HttpResult<T> = { status: number; body: T };
 
@@ -48,6 +59,38 @@ export async function getTicketsForPurchase(
     }
     if (error instanceof TicketPurchaseNotFoundError) {
       return { status: 404, body: { error: error.message } };
+    }
+    throw error;
+  }
+}
+
+/**
+ * POST /gate/validate — Consumo atômico único de QR Code na portaria e gatilho RN-02.
+ */
+export async function postGateValidateTicket(
+  service: TicketsService,
+  session: AuthenticatedSession,
+  input: ValidateQrInput,
+): Promise<HttpResult<ValidateQrResult | { error: string }>> {
+  try {
+    const result = await service.validateTicketAtGate(session, input);
+    return { status: 200, body: result };
+  } catch (error) {
+    if (error instanceof ForbiddenError) {
+      return { status: 403, body: { error: error.message } };
+    }
+    if (error instanceof TicketNotFoundError) {
+      return { status: 404, body: { error: error.message } };
+    }
+    if (error instanceof TicketAlreadyUsedError) {
+      return { status: 409, body: { error: error.message } };
+    }
+    if (
+      error instanceof TicketCancelledError ||
+      error instanceof TicketWrongScreeningError ||
+      error instanceof TicketSessionExpiredError
+    ) {
+      return { status: 422, body: { error: error.message } };
     }
     throw error;
   }
