@@ -15,10 +15,16 @@ export interface CatalogService {
 }
 
 export class DefaultCatalogService implements CatalogService {
+  private readonly repository: CatalogRepository;
+  private readonly now: () => Date;
+
   constructor(
-    private readonly repository: CatalogRepository,
-    private readonly now: () => Date = () => new Date(),
-  ) {}
+    repository: CatalogRepository,
+    now: () => Date = () => new Date(),
+  ) {
+    this.repository = repository;
+    this.now = now;
+  }
 
   async getSeatMap(screeningId: string): Promise<SeatMapSeat[]> {
     const now = this.now();
@@ -55,5 +61,6 @@ function toCurrentSeatState(seat: StoredSeat, now: Date): SeatMapSeat {
     row: seat.row,
     number: seat.number,
     state: expiredTemporaryHold ? 'DISPONIVEL' : seat.state,
+    category: seat.category ?? 'standard',
   };
 }

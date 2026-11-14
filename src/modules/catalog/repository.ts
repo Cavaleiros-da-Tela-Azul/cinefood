@@ -12,13 +12,31 @@ export class InMemoryCatalogRepository implements CatalogRepository {
   private readonly seats: StoredSeat[];
 
   constructor(screenings: Array<Screening | ProgrammedScreening> = [], seats: StoredSeat[] = []) {
-    for (const screening of screenings) this.screenings.set(screening.id, { ...screening });
+    for (const screening of screenings) {
+      this.screenings.set(
+        screening.id,
+        isProgrammedScreening(screening)
+          ? {
+              ...screening,
+              startsAt: new Date(screening.startsAt.getTime()),
+              movie: {
+                ...screening.movie,
+                genre: screening.movie.genre ?? '',
+                director: screening.movie.director ?? '',
+              },
+            }
+          : {
+              ...screening,
+              startsAt: new Date(screening.startsAt.getTime()),
+            },
+      );
+    }
     this.seats = seats.map((seat) => ({ ...seat }));
   }
 
   async findScreeningById(screeningId: string): Promise<Screening | null> {
     const screening = this.screenings.get(screeningId);
-    return screening ? { ...screening } : null;
+    return screening ? { ...screening, startsAt: new Date(screening.startsAt.getTime()) } : null;
   }
 
   async findSeatsByScreening(screeningId: string): Promise<StoredSeat[]> {
@@ -31,7 +49,15 @@ export class InMemoryCatalogRepository implements CatalogRepository {
     return [...this.screenings.values()]
       .filter(isProgrammedScreening)
       .filter((screening) => matchesFilters(screening, filters))
-      .map((screening) => ({ ...screening, movie: { ...screening.movie } }));
+      .map((screening) => ({
+        ...screening,
+        startsAt: new Date(screening.startsAt.getTime()),
+        movie: {
+          ...screening.movie,
+          genre: screening.movie.genre ?? '',
+          director: screening.movie.director ?? '',
+        },
+      }));
   }
 }
 
@@ -39,11 +65,41 @@ function isProgrammedScreening(screening: Screening | ProgrammedScreening): scre
   return 'movie' in screening && 'cinemaName' in screening && 'roomName' in screening;
 }
 
+function formatLocalDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function formatLocalTime(date: Date): string {
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
+
 function matchesFilters(screening: ProgrammedScreening, filters: ScreeningFilters): boolean {
   const movieQuery = filters.movieQuery?.trim().toLocaleLowerCase();
+  const genreFilter = filters.genre?.trim().toLocaleLowerCase();
+  const directorFilter = filters.director?.trim().toLocaleLowerCase();
+  const cinemaFilter = filters.cinemaName?.trim().toLocaleLowerCase();
+  const complexFilter = filters.complex?.trim().toLocaleLowerCase();
+  const dateFilter = filters.date?.trim();
+  const formatFilter = filters.format?.trim().toLocaleLowerCase();
+  const startTimeFilter = filters.startTime?.trim();
+
+  const title = screening.movie.title.toLocaleLowerCase();
+  const genre = (screening.movie.genre ?? '').toLocaleLowerCase();
+  const director = (screening.movie.director ?? '').toLocaleLowerCase();
+  const cinemaName = screening.cinemaName.toLocaleLowerCase();
+
   return (!filters.movieId || screening.movie.id === filters.movieId)
-    && (!movieQuery || screening.movie.title.toLocaleLowerCase().includes(movieQuery))
-    && (!filters.date || screening.startsAt.toISOString().slice(0, 10) === filters.date)
-    && (!filters.format || screening.format === filters.format)
-    && (!filters.startTime || screening.startsAt.toISOString().slice(11, 16) === filters.startTime);
+    && (!movieQuery || title.includes(movieQuery) || genre.includes(movieQuery) || director.includes(movieQuery))
+    && (!genreFilter || genre.includes(genreFilter))
+    && (!directorFilter || director.includes(directorFilter))
+    && (!cinemaFilter || cinemaName.includes(cinemaFilter))
+    && (!complexFilter || cinemaName.includes(complexFilter))
+    && (!dateFilter || formatLocalDate(screening.startsAt) === dateFilter)
+    && (!formatFilter || screening.format.toLocaleLowerCase() === formatFilter)
+    && (!startTimeFilter || formatLocalTime(screening.startsAt) === startTimeFilter);
 }

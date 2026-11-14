@@ -1,4 +1,5 @@
 export type SeatState = 'DISPONIVEL' | 'RESERVADO' | 'OCUPADO';
+export type SeatCategory = 'standard' | 'pcd-wheelchair' | 'pcd-plus';
 export type ScreeningStatus = 'ATIVA' | 'INATIVA';
 
 export interface Screening {
@@ -14,6 +15,8 @@ export interface Movie {
   synopsis: string;
   durationMinutes: number;
   ageRating: string;
+  genre?: string;
+  director?: string;
 }
 
 export interface ProgrammedScreening extends Screening {
@@ -27,6 +30,10 @@ export interface ProgrammedScreening extends Screening {
 export interface ScreeningFilters {
   movieId?: string;
   movieQuery?: string;
+  genre?: string;
+  director?: string;
+  cinemaName?: string;
+  complex?: string;
   date?: string;
   format?: string;
   startTime?: string;
@@ -39,6 +46,7 @@ export interface StoredSeat {
   row: string;
   number: number;
   state: SeatState;
+  category?: SeatCategory;
   temporaryHoldExpiresAt?: Date;
 }
 
@@ -48,4 +56,5 @@ export interface SeatMapSeat {
   row: string;
   number: number;
   state: SeatState;
+  category: SeatCategory;
 }

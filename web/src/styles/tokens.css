@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
-:root {
+:root,
+[data-theme="dark"] {
   --bg-base: #0d0e12;
   --bg-elevated: #15171e;
   --bg-surface: #1b1e28;
@@ -19,7 +20,7 @@
   --amber-progress: #f59e0b;
   --pcd-blue: #2563eb;
   --pcd-blue-soft: rgba(37, 99, 235, 0.2);
-  --focus-ring: #60a5fa;
+  --focus-ring: #60A5FA;
   --success-emerald: #10b981;
 
   --seat-available: #4b5263;
@@ -42,10 +43,26 @@
   --bg-surface: #0b0b0f;
   --bg-glass: rgba(0, 0, 0, 0.88);
   --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.18);
+
   --text-primary: #d4d7e0;
   --text-secondary: #8d94a5;
   --text-muted: #5d6474;
+
+  --brand-red: #c40a14;
+  --brand-red-hover: #dc111d;
   --brand-red-glow: rgba(229, 9, 20, 0.18);
+
+  --amber-progress: #f59e0b;
+  --pcd-blue: #2563eb;
+  --pcd-blue-soft: rgba(37, 99, 235, 0.2);
+  --focus-ring: #60A5FA;
+  --success-emerald: #10b981;
+
+  --seat-available: #3a404f;
+  --seat-available-hover: #677087;
+  --seat-occupied: #141720;
+  --seat-reserved: #4b1722;
 }
 
 html {
@@ -203,7 +220,7 @@ dialog::backdrop {
   position: sticky;
   top: 0;
   z-index: 2;
-  background: #14161e;
+  background: var(--bg-elevated);
   color: rgba(255, 255, 255, 0.65);
   font-size: 11px;
   font-weight: 700;
@@ -218,7 +235,7 @@ dialog::backdrop {
   position: sticky;
   left: 0;
   z-index: 1;
-  background: #14161e;
+  background: var(--bg-elevated);
   font-weight: 600;
   color: #ffffff;
   padding: 12px 14px;

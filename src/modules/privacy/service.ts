@@ -10,10 +10,16 @@ export interface PrivacyService {
 }
 
 export class DefaultPrivacyService implements PrivacyService {
+  private readonly repository: PrivacyRepository;
+  private readonly now: () => Date;
+
   constructor(
-    private readonly repository: PrivacyRepository,
-    private readonly now: () => Date = () => new Date(),
-  ) {}
+    repository: PrivacyRepository,
+    now: () => Date = () => new Date(),
+  ) {
+    this.repository = repository;
+    this.now = now;
+  }
 
   async getCurrentNotice(): Promise<PrivacyNotice> {
     return this.repository.getCurrentNotice();

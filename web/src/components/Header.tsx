@@ -1,11 +1,13 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { ArrowUpRight, Bug, Film, Menu, Moon, Shield, Sun, Ticket, User, X } from 'lucide-react';
+import { Film, Menu, Moon, Sun, Ticket, User, X } from 'lucide-react';
 import { CustomerUser } from '../data/cinemaData';
 
 export type AppStep =
   | 'home'
   | 'detail'
   | 'seats'
+  | 'canteen'
+  | 'reviews'
   | 'checkout'
   | 'ticket'
   | 'orders'
@@ -16,11 +18,7 @@ interface HeaderProps {
   currentStep: AppStep;
   oledMode: boolean;
   onToggleOled: () => void;
-  worstCaseMode: boolean;
-  onToggleWorstCase: () => void;
   onNavigate: (step: AppStep) => void;
-  browseMode: 'filme' | 'complexo';
-  onChangeBrowseMode: (mode: 'filme' | 'complexo') => void;
   selectedSeatsCount: number;
   currentUser: CustomerUser | null;
 }
@@ -28,19 +26,19 @@ interface HeaderProps {
 const NAV_ITEMS: { step: AppStep; label: string }[] = [
   { step: 'home', label: 'Em Cartaz' },
   { step: 'detail', label: 'Sessões' },
-  { step: 'seats', label: 'Assentos' },
+  { step: 'canteen', label: 'Cantina' },
+  { step: 'reviews', label: 'Catálogo' },
   { step: 'orders', label: 'Meus Ingressos' },
 ];
+
+const FOCUS_RING_CLASS =
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#60A5FA]';
 
 export function Header({
   currentStep,
   oledMode,
   onToggleOled,
-  worstCaseMode,
-  onToggleWorstCase,
   onNavigate,
-  browseMode,
-  onChangeBrowseMode,
   selectedSeatsCount,
   currentUser,
 }: HeaderProps) {
@@ -66,15 +64,15 @@ export function Header({
 
   return (
     <header className="relative z-30 w-full border-b border-white/10 bg-[var(--bg-glass)] backdrop-blur-md">
-      <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-2 px-4 py-3 sm:px-8">
-        <div className="flex items-center gap-2.5">
+      <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-1.5 px-3 py-2.5 sm:gap-3 sm:px-8">
+        <div className="flex min-w-0 items-center gap-1.5 sm:gap-2.5">
           <button
             type="button"
             onClick={() => setDrawerOpen(true)}
             aria-label="Abrir menu de navegação"
             aria-expanded={drawerOpen}
             aria-controls={drawerId}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white transition-colors hover:border-white/30 md:hidden"
+            className={`inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white transition-colors hover:border-white/30 lg:hidden ${FOCUS_RING_CLASS}`}
           >
             <Menu className="h-5 w-5" aria-hidden="true" />
           </button>
@@ -82,120 +80,66 @@ export function Header({
           <button
             type="button"
             onClick={() => onNavigate('home')}
-            className="group flex items-center gap-2.5 text-left focus-visible:outline-none"
+            className={`group flex min-h-[44px] min-w-0 items-center gap-1.5 rounded-lg px-0.5 text-left sm:gap-2.5 sm:px-1 ${FOCUS_RING_CLASS}`}
             aria-label="Voltar ao início do CineFood"
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--brand-red)] text-white shadow-[0_8px_20px_rgba(0,0,0,0.45)] transition-transform duration-150 group-active:scale-95">
-              <Film className="h-5 w-5" aria-hidden="true" />
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-red)] text-white shadow-[0_8px_20px_rgba(0,0,0,0.45)] transition-transform duration-150 group-active:scale-95 sm:h-9 sm:w-9">
+              <Film className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden="true" />
             </span>
-            <span className="flex flex-col leading-none">
-              <span className="font-display text-2xl font-extrabold tracking-wide text-white">CINEFOOD</span>
-              <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--text-secondary)]">
+            <span className="flex min-w-0 flex-col leading-none">
+              <span className="font-display truncate text-lg font-extrabold tracking-wide text-white sm:text-2xl">
+                CINEFOOD
+              </span>
+              <span className="truncate whitespace-nowrap text-[9px] font-medium uppercase tracking-[0.12em] text-[var(--text-secondary)] sm:text-[11px] sm:tracking-[0.2em]">
                 Cinema &amp; Cantina
               </span>
             </span>
           </button>
         </div>
 
-        <nav aria-label="Navegação principal" className="hidden items-center gap-6 md:flex">
+        <nav aria-label="Navegação principal" className="hidden items-center gap-3 xl:gap-5 lg:flex">
           {NAV_ITEMS.map(({ step, label }) => {
             const active = currentStep === step;
-            const displayLabel =
-              step === 'seats' && selectedSeatsCount > 0 ? `${label} (${selectedSeatsCount})` : label;
             return (
               <button
                 key={step}
                 type="button"
                 onClick={() => onNavigate(step)}
-                className={`relative py-1 text-sm font-medium transition-colors ${
+                aria-current={active ? 'page' : undefined}
+                className={`relative inline-flex min-h-[44px] items-center whitespace-nowrap rounded-md px-1.5 py-2 text-sm font-medium transition-colors ${FOCUS_RING_CLASS} ${
                   active ? 'text-white' : 'text-[var(--text-secondary)] hover:text-white'
                 }`}
               >
-                {displayLabel}
+                {label}
                 {active && (
-                  <span className="absolute -bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-[var(--brand-red)]" />
+                  <span className="absolute bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-[var(--brand-red)]" />
                 )}
               </button>
             );
           })}
         </nav>
 
-        <div className="flex items-center gap-2 sm:gap-2.5">
-          {currentStep === 'home' && (
-            <div
-              role="group"
-              aria-label="Modo de descoberta"
-              className="hidden items-center rounded-full border border-white/15 bg-black/40 p-0.5 lg:inline-flex"
-            >
-              <button
-                type="button"
-                onClick={() => onChangeBrowseMode('filme')}
-                className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
-                  browseMode === 'filme' ? 'bg-white text-[#0D0E12]' : 'text-[var(--text-secondary)] hover:text-white'
-                }`}
-              >
-                Por Filme
-              </button>
-              <button
-                type="button"
-                onClick={() => onChangeBrowseMode('complexo')}
-                className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
-                  browseMode === 'complexo' ? 'bg-white text-[#0D0E12]' : 'text-[var(--text-secondary)] hover:text-white'
-                }`}
-              >
-                Por Complexo
-              </button>
-            </div>
-          )}
-
-          <button
-            type="button"
-            onClick={() => onNavigate('ops')}
-            title="Abrir CineFood Backstage — CRM Operacional separado por grupo de usuário (#/ops)"
-            aria-label="Abrir CineFood Backstage"
-            className="hidden min-h-[40px] items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-200 transition-colors hover:border-amber-400/60 hover:bg-amber-500/20 active:scale-95 lg:inline-flex"
-          >
-            <Shield className="h-3.5 w-3.5 text-amber-400" aria-hidden="true" />
-            <span>Backstage</span>
-            <ArrowUpRight className="h-3 w-3 opacity-75" aria-hidden="true" />
-          </button>
-
-          <button
-            type="button"
-            onClick={onToggleWorstCase}
-            aria-pressed={worstCaseMode}
-            title="Alternar dataset de estresse visual (break-ui: Demo / Pior Caso)"
-            className={`hidden min-h-[40px] items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors active:scale-95 sm:inline-flex ${
-              worstCaseMode
-                ? 'border-rose-400/70 bg-rose-500/20 text-rose-200'
-                : 'border-white/15 bg-white/5 text-[var(--text-secondary)] hover:border-white/30 hover:text-white'
-            }`}
-          >
-            <Bug className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>{worstCaseMode ? 'Pior Caso' : 'Dados Demo'}</span>
-          </button>
-
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2.5">
           <button
             type="button"
             onClick={onToggleOled}
             aria-pressed={oledMode}
+            aria-label={oledMode ? 'Desativar Modo Sala Escura OLED' : 'Ativar Modo Sala Escura OLED'}
             title="Modo Sala Escura OLED — reduz emissão luminosa dentro da sala"
-            className={`inline-flex min-h-[40px] items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors active:scale-95 ${
+            className={`inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border transition-colors active:scale-95 ${FOCUS_RING_CLASS} ${
               oledMode
                 ? 'border-[var(--amber-progress)]/60 bg-[var(--amber-progress)]/15 text-[#FCD34D]'
                 : 'border-white/15 bg-white/5 text-[var(--text-secondary)] hover:border-white/30 hover:text-white'
             }`}
           >
-            {oledMode ? <Moon className="h-3.5 w-3.5" aria-hidden="true" /> : <Sun className="h-3.5 w-3.5" aria-hidden="true" />}
-            <span className="hidden sm:inline">{oledMode ? 'Sala Escura OLED' : 'Modo Sala Escura'}</span>
-            <span className="sm:hidden">OLED</span>
+            {oledMode ? <Moon className="h-4 w-4" aria-hidden="true" /> : <Sun className="h-4 w-4" aria-hidden="true" />}
           </button>
 
           <button
             type="button"
             onClick={() => onNavigate('auth')}
             aria-label={currentUser ? `Conta de ${currentUser.name}` : 'Entrar ou criar conta'}
-            className={`hidden min-h-[40px] items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors active:scale-95 sm:inline-flex ${
+            className={`hidden min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors active:scale-95 sm:inline-flex ${FOCUS_RING_CLASS} ${
               currentStep === 'auth'
                 ? 'border-white bg-white text-[#0D0E12]'
                 : 'border-white/15 bg-white/5 text-[var(--text-secondary)] hover:border-white/30 hover:text-white'
@@ -209,11 +153,11 @@ export function Header({
 
           <button
             type="button"
-            onClick={() => onNavigate('seats')}
-            className="inline-flex min-h-[40px] items-center gap-1.5 rounded-md bg-[var(--brand-red)] px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-white transition-colors hover:bg-[var(--brand-red-hover)] active:scale-95"
+            onClick={() => onNavigate(selectedSeatsCount > 0 ? 'seats' : 'detail')}
+            className={`inline-flex min-h-[44px] items-center gap-1 whitespace-nowrap rounded-md bg-[var(--brand-red)] px-2.5 py-2 text-[11px] font-bold uppercase tracking-wider text-white transition-colors hover:bg-[var(--brand-red-hover)] active:scale-95 sm:gap-1.5 sm:px-3.5 sm:text-xs ${FOCUS_RING_CLASS}`}
           >
             <Ticket className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>Comprar</span>
+            <span>{selectedSeatsCount > 0 ? `Comprar (${selectedSeatsCount})` : 'Comprar'}</span>
           </button>
         </div>
       </div>
@@ -249,7 +193,7 @@ export function Header({
                 autoFocus
                 onClick={() => setDrawerOpen(false)}
                 aria-label="Fechar menu de navegação"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-[var(--text-secondary)] hover:text-white"
+                className={`inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-white/15 text-[var(--text-secondary)] hover:text-white ${FOCUS_RING_CLASS}`}
               >
                 <X className="h-4 w-4" aria-hidden="true" />
               </button>
@@ -263,103 +207,32 @@ export function Header({
                     <button
                       type="button"
                       onClick={() => handleNavigateFromDrawer(step)}
-                      className={`flex min-h-[44px] w-full items-center justify-between rounded-xl px-4 py-2.5 text-left text-sm font-semibold transition-colors ${
+                      aria-current={active ? 'page' : undefined}
+                      className={`flex min-h-[44px] w-full items-center justify-between rounded-xl px-4 py-2.5 text-left text-sm font-semibold transition-colors ${FOCUS_RING_CLASS} ${
                         active
                           ? 'bg-[var(--brand-red)] text-white'
                           : 'bg-white/5 text-[var(--text-secondary)] hover:bg-white/10 hover:text-white'
                       }`}
                     >
                       <span>{label}</span>
-                      {step === 'seats' && selectedSeatsCount > 0 && (
-                        <span className="font-mono-tabular rounded-full bg-black/30 px-2 py-0.5 text-xs">
-                          {selectedSeatsCount}
-                        </span>
-                      )}
                     </button>
                   </li>
                 );
               })}
             </ul>
-
-            {currentStep === 'home' && (
-              <div className="mt-6 border-t border-white/10 pt-4">
-                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
-                  Modo de Descoberta
-                </p>
-                <div className="mt-2 grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onChangeBrowseMode('filme');
-                      setDrawerOpen(false);
-                    }}
-                    className={`min-h-[40px] rounded-lg border px-3 text-xs font-semibold ${
-                      browseMode === 'filme'
-                        ? 'border-white bg-white text-[#0D0E12]'
-                        : 'border-white/15 text-[var(--text-secondary)]'
-                    }`}
-                  >
-                    Por Filme
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onChangeBrowseMode('complexo');
-                      setDrawerOpen(false);
-                    }}
-                    className={`min-h-[40px] rounded-lg border px-3 text-xs font-semibold ${
-                      browseMode === 'complexo'
-                        ? 'border-white bg-white text-[#0D0E12]'
-                        : 'border-white/15 text-[var(--text-secondary)]'
-                    }`}
-                  >
-                    Por Complexo
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
 
           <div className="space-y-2.5 border-t border-white/10 pt-4">
             <button
               type="button"
               onClick={() => handleNavigateFromDrawer('auth')}
-              className="flex min-h-[44px] w-full items-center justify-between rounded-xl border border-white/15 bg-white/5 px-4 text-xs font-semibold text-white"
+              className={`flex min-h-[44px] w-full items-center justify-between rounded-xl border border-white/15 bg-white/5 px-4 text-xs font-semibold text-white ${FOCUS_RING_CLASS}`}
             >
               <span className="inline-flex items-center gap-2 truncate">
                 <User className="h-4 w-4 shrink-0" aria-hidden="true" />
                 <span className="truncate">{currentUser ? currentUser.name : 'Entrar / Criar Conta'}</span>
               </span>
               <span className="text-[11px] text-[var(--amber-progress)]">Conta</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleNavigateFromDrawer('ops')}
-              className="flex min-h-[44px] w-full items-center justify-between rounded-xl border border-amber-400/35 bg-amber-500/10 px-4 text-xs font-semibold text-amber-200"
-            >
-              <span className="inline-flex items-center gap-2">
-                <Shield className="h-4 w-4 text-amber-400" aria-hidden="true" />
-                CineFood Backstage (CRM Equipe)
-              </span>
-              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-            </button>
-
-            <button
-              type="button"
-              onClick={onToggleWorstCase}
-              aria-pressed={worstCaseMode}
-              className={`flex min-h-[44px] w-full items-center justify-between rounded-xl border px-4 text-xs font-semibold ${
-                worstCaseMode
-                  ? 'border-rose-400/70 bg-rose-500/20 text-rose-200'
-                  : 'border-white/15 bg-black/30 text-[var(--text-secondary)]'
-              }`}
-            >
-              <span className="inline-flex items-center gap-2">
-                <Bug className="h-4 w-4" aria-hidden="true" />
-                Modo Pior Caso (break-ui)
-              </span>
-              <span>{worstCaseMode ? 'ATIVO' : 'OFF'}</span>
             </button>
           </div>
         </nav>
