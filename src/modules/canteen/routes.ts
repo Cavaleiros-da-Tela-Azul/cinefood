@@ -6,7 +6,9 @@ import {
   CanteenInsufficientStockError,
   CanteenOrderNotFoundError,
   CanteenOrderStateError,
+  CanteenSeatDeliveryBlockedError,
   type CanteenService,
+  type RunnerIncidentResult,
 } from './service.ts';
 import type {
   CanteenCartItemInput,
@@ -14,6 +16,7 @@ import type {
   CanteenMenuItemView,
   CanteenOrder,
   CanteenQuoteResult,
+  RunnerIncidentInput,
 } from './types.ts';
 
 export type HttpResult<T> = { status: number; body: T };
@@ -69,7 +72,8 @@ export async function postCanteenCheckout(
     }
     if (
       error instanceof CanteenEmptyCartError ||
-      error instanceof CanteenCatalogItemUnavailableError
+      error instanceof CanteenCatalogItemUnavailableError ||
+      error instanceof CanteenSeatDeliveryBlockedError
     ) {
       return { status: 422, body: { error: error.message } };
     }
@@ -110,6 +114,138 @@ export async function postCompensateCanteenPayment(
     const order = await service.compensateOrderPaymentFailure(orderId, reason);
     return { status: 200, body: order };
   } catch (error) {
+    if (error instanceof CanteenOrderNotFoundError) {
+      return { status: 404, body: { error: error.message } };
+    }
+    if (error instanceof CanteenOrderStateError) {
+      return { status: 422, body: { error: error.message } };
+    }
+    throw error;
+  }
+}
+
+/**
+ * POST /kds/orders/:orderId/start — Inicia preparo no KDS (respeitando RST-04 para assento).
+ */
+export async function postKdsStartPreparation(
+  service: CanteenService,
+  session: AuthenticatedSession,
+  orderId: string,
+): Promise<HttpResult<CanteenOrder | { error: string }>> {
+  try {
+    const order = await service.startPreparation(session, orderId);
+    return { status: 200, body: order };
+  } catch (error) {
+    if (error instanceof ForbiddenError) {
+      return { status: 403, body: { error: error.message } };
+    }
+    if (error instanceof CanteenOrderNotFoundError) {
+      return { status: 404, body: { error: error.message } };
+    }
+    if (
+      error instanceof CanteenSeatDeliveryBlockedError ||
+      error instanceof CanteenOrderStateError
+    ) {
+      return { status: 422, body: { error: error.message } };
+    }
+    throw error;
+  }
+}
+
+/**
+ * POST /kds/orders/:orderId/ready — Marca pedido pronto para retirada ou runner (RF-09).
+ */
+export async function postKdsMarkReady(
+  service: CanteenService,
+  session: AuthenticatedSession,
+  orderId: string,
+): Promise<HttpResult<CanteenOrder | { error: string }>> {
+  try {
+    const order = await service.markOrderReady(session, orderId);
+    return { status: 200, body: order };
+  } catch (error) {
+    if (error instanceof ForbiddenError) {
+      return { status: 403, body: { error: error.message } };
+    }
+    if (error instanceof CanteenOrderNotFoundError) {
+      return { status: 404, body: { error: error.message } };
+    }
+    if (error instanceof CanteenOrderStateError) {
+      return { status: 422, body: { error: error.message } };
+    }
+    throw error;
+  }
+}
+
+/**
+ * POST /kds/orders/:orderId/dispatch — Despacha para entrega no assento com trava RST-04 (HTTP 422).
+ */
+export async function postDispatchSeatDelivery(
+  service: CanteenService,
+  session: AuthenticatedSession,
+  orderId: string,
+): Promise<HttpResult<CanteenOrder | { error: string }>> {
+  try {
+    const order = await service.dispatchForSeatDelivery(session, orderId);
+    return { status: 200, body: order };
+  } catch (error) {
+    if (error instanceof ForbiddenError) {
+      return { status: 403, body: { error: error.message } };
+    }
+    if (error instanceof CanteenOrderNotFoundError) {
+      return { status: 404, body: { error: error.message } };
+    }
+    if (
+      error instanceof CanteenSeatDeliveryBlockedError ||
+      error instanceof CanteenOrderStateError
+    ) {
+      return { status: 422, body: { error: error.message } };
+    }
+    throw error;
+  }
+}
+
+/**
+ * POST /canteen/orders/:orderId/deliver — Finaliza entrega no balcão ou no assento.
+ */
+export async function postCompleteCanteenDelivery(
+  service: CanteenService,
+  session: AuthenticatedSession,
+  orderId: string,
+): Promise<HttpResult<CanteenOrder | { error: string }>> {
+  try {
+    const order = await service.completeDelivery(session, orderId);
+    return { status: 200, body: order };
+  } catch (error) {
+    if (error instanceof ForbiddenError) {
+      return { status: 403, body: { error: error.message } };
+    }
+    if (error instanceof CanteenOrderNotFoundError) {
+      return { status: 404, body: { error: error.message } };
+    }
+    if (error instanceof CanteenOrderStateError) {
+      return { status: 422, body: { error: error.message } };
+    }
+    throw error;
+  }
+}
+
+/**
+ * POST /runner/orders/:orderId/incident — Registra ocorrência na sala escura e converte para balcão (RF-20 / RN-03).
+ */
+export async function postRunnerDeliveryIncident(
+  service: CanteenService,
+  session: AuthenticatedSession,
+  orderId: string,
+  input: RunnerIncidentInput,
+): Promise<HttpResult<RunnerIncidentResult | { error: string }>> {
+  try {
+    const result = await service.reportRunnerIncident(session, orderId, input);
+    return { status: 200, body: result };
+  } catch (error) {
+    if (error instanceof ForbiddenError) {
+      return { status: 403, body: { error: error.message } };
+    }
     if (error instanceof CanteenOrderNotFoundError) {
       return { status: 404, body: { error: error.message } };
     }
