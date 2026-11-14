@@ -1334,17 +1334,35 @@ export function App() {
               items={canteenCatalog}
               cart={canteenCatalogCart}
               deliveryMode={deliveryMode}
-              hasActiveTicket={selectedSeats.length > 0}
+              hasActiveTicket={
+                selectedSeats.length > 0 ||
+                Boolean(
+                  latestCreatedOrder &&
+                    latestCreatedOrder.orderKind !== 'canteen-only' &&
+                    latestCreatedOrder.status === 'ATIVO' &&
+                    latestCreatedOrder.seatsLabel.length > 0,
+                )
+              }
               activeTicketLabel={
                 selectedSeats.length > 0
                   ? `${activeMovie.title} · ${selectedSession.time} (${selectedSeats.map((s) => s.seatId).join(', ')})`
-                  : undefined
+                  : latestCreatedOrder &&
+                      latestCreatedOrder.orderKind !== 'canteen-only' &&
+                      latestCreatedOrder.status === 'ATIVO' &&
+                      latestCreatedOrder.seatsLabel.length > 0
+                    ? `${latestCreatedOrder.movieTitle} · ${latestCreatedOrder.time} (${latestCreatedOrder.seatsLabel.join(', ')})`
+                    : undefined
               }
               onUpdateQty={handleUpdateComboQtyById}
               onToggleAddon={handleToggleAddon}
               onChangeDeliveryMode={setDeliveryMode}
               onCheckoutCanteenOnly={() => {
-                if (selectedSeats.length === 0 || deliveryMode === 'counter') {
+                const hasLinkedOrder =
+                  latestCreatedOrder &&
+                  latestCreatedOrder.orderKind !== 'canteen-only' &&
+                  latestCreatedOrder.status === 'ATIVO' &&
+                  latestCreatedOrder.seatsLabel.length > 0;
+                if ((selectedSeats.length === 0 && !hasLinkedOrder) || deliveryMode === 'counter') {
                   setCanteenOnlyMode(true);
                   setDeliveryMode('counter');
                 } else {
@@ -1413,9 +1431,11 @@ export function App() {
               oledMode={oledMode}
               onToggleOled={() => setOledMode((v) => !v)}
               onGoToOrders={() => navigateStep('orders')}
+              onGoToCanteen={() => navigateStep('canteen')}
               onRestart={() => {
                 setCart([]);
                 setSelectedSeats([]);
+                setLastOrderId(null);
                 setCanteenOnlyMode(false);
                 setSecondsLeft(600);
                 setOverrideMovieId(null);

@@ -182,9 +182,10 @@ export function SeatSelectionView({
                       </div>
 
                       {/* Inteira / Meia-entrada (RF-16) */}
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5" role="group" aria-label={`Modalidade do assento ${sel.seatId}`}>
                         <button
                           type="button"
+                          aria-pressed={sel.tier === 'inteira'}
                           onClick={() => onChangeTier(sel.seatId, 'inteira')}
                           className={`min-h-[44px] flex-1 rounded px-2.5 py-2 text-xs font-semibold transition-colors ${
                             sel.tier === 'inteira'
@@ -196,6 +197,7 @@ export function SeatSelectionView({
                         </button>
                         <button
                           type="button"
+                          aria-pressed={sel.tier === 'meia'}
                           onClick={() => onChangeTier(sel.seatId, 'meia')}
                           className={`min-h-[44px] flex-1 rounded px-2.5 py-2 text-xs font-semibold transition-colors ${
                             sel.tier === 'meia'
@@ -525,12 +527,19 @@ export function SeatSelectionView({
                 Trava de Reserva
               </div>
               <p
+                role="timer"
+                aria-label={`Tempo restante da trava de reserva: ${formatTimer(secondsLeft)}`}
                 className={`font-mono-tabular mt-1 text-2xl font-extrabold ${
                   isCriticalTime ? 'text-[#FCA5A5]' : 'text-[#FCD34D]'
                 }`}
               >
                 {formatTimer(secondsLeft)}
               </p>
+              {isCriticalTime && secondsLeft > 0 && (
+                <p role="status" aria-live="polite" className="mt-1 text-[11px] font-semibold text-[#FCA5A5]">
+                  Aviso: restam menos de 2 minutos antes da liberação da poltrona.
+                </p>
+              )}
               <p className="mt-1 text-[11px] leading-snug text-[var(--text-secondary)]">
                 Tempo restante para concluir ingressos e cantina.
               </p>

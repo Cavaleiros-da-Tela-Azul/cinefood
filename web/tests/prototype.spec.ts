@@ -647,4 +647,30 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
 
     expect(errors).toEqual([]);
   });
+
+  test('8. Post-ticket RN-05 guided canteen invitation links active ticket seats', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (err) => errors.push(String(err)));
+
+    await stubOfflineCatalog(page);
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/', { waitUntil: 'networkidle' });
+
+    await page.getByRole('button', { name: /Escolher Assentos/i }).click();
+    const firstSeat = page.locator('button[aria-label^="Poltrona "][aria-label$="— Disponível"]').first();
+    await firstSeat.click();
+    await page.getByRole('button', { name: 'Avançar' }).click();
+
+    await expect(page.getByRole('dialog', { name: /Bomboniere e Cantina CineFood/i })).toBeVisible();
+    await page.getByRole('button', { name: /Ir para Pagamento/i }).click();
+    await page.getByRole('button', { name: /Confirmar Pagamento Simulado/i }).click();
+
+    await expect(page.getByText(/Esteira Guiada \(RN-05\)/i)).toBeVisible();
+    await page.getByRole('button', { name: /Antecipar Bomboniere com Pré-Vínculo/i }).click();
+
+    await expect(page.getByRole('heading', { name: /Cardápio da Bomboniere/i })).toBeVisible();
+    await expect(page.getByRole('radio', { name: /Entregar no meu assento/i })).toBeEnabled();
+
+    expect(errors).toEqual([]);
+  });
 });
