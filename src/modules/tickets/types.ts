@@ -9,6 +9,15 @@ export type PaymentSettlementStatus =
   | 'ESTORNADO'
   | 'CANCELADO';
 
+export type CanteenKdsStatus =
+  | 'AGUARDANDO_CHEGADA'
+  | 'EM_PREPARO'
+  | 'PRONTO'
+  | 'SAIU_PARA_ENTREGA'
+  | 'ENTREGUE'
+  | 'RETIRADA_NO_BALCAO'
+  | 'CANCELADO';
+
 export interface TicketScreeningMetadata {
   screeningId: string;
   movieTitle: string;
@@ -63,4 +72,37 @@ export interface IssueTicketsResult {
   purchaseId: string;
   tickets: IssuedTicket[];
   canteenPreLinkAvailable: boolean;
+}
+
+export interface LinkedCanteenOrderRef {
+  orderId: string;
+  ticketId: string;
+  purchaseId: string;
+  seatId: string;
+  deliveryChannel: 'ENTREGA_ASSENTO' | 'RETIRADA_BALCAO';
+  status: CanteenKdsStatus;
+  kitchenQueuedAt?: string;
+}
+
+export interface TicketValidatedEvent {
+  eventName: 'TicketValidatedEvent';
+  ticketId: string;
+  purchaseId: string;
+  screeningId: string;
+  seatId: string;
+  operatorId: string;
+  validatedAt: string;
+}
+
+export interface ValidateQrInput {
+  qrToken: string;
+  expectedScreeningId?: string;
+  expectedRoomName?: string;
+}
+
+export interface ValidateQrResult {
+  outcome: 'LIBERADO';
+  ticket: IssuedTicket;
+  triggeredCanteenOrders: LinkedCanteenOrderRef[];
+  event: TicketValidatedEvent;
 }

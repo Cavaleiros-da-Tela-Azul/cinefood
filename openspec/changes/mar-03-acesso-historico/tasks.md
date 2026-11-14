@@ -2,8 +2,8 @@
 
 ## 1. Emissão e Consumo Atômico de QR Code (RF-05, RF-06 / AC-1, AC-2)
 
-- [ ] 1.1 Criar suíte de testes em `tests/tickets/qrcode.test.ts` cobrindo emissão por poltrona (`#12`), bloqueio de segunda leitura concorrente e gatilho `AGUARDANDO_CHEGADA -> EM_PREPARO` (`RN-02`, `#13`).
-- [ ] 1.2 Implementar geração de token opaco (`#12` concluído), serviço de validação atômica de portaria e esteira guiada pós-ingresso (`RN-05`) em `src/modules/tickets` até aprovação dos testes (`#13`).
+- [x] 1.1 Criar suíte de testes em `tests/tickets/qrcode.test.ts` cobrindo emissão por poltrona, bloqueio de segunda leitura concorrente e gatilho `AGUARDANDO_CHEGADA -> EM_PREPARO` (`RN-02`).
+- [x] 1.2 Implementar geração de token opaco, serviço de validação atômica de portaria e esteira guiada pós-ingresso (`RN-05`) em `src/modules/tickets` até aprovação dos testes.
 
 ## 2. Histórico Privado e Avaliação Pós-Sessão (RF-11, RF-13 / AC-3, AC-4)
 

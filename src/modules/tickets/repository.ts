@@ -1,4 +1,24 @@
-import type { IssuedTicket } from './types.ts';
+import type {
+  IssuedTicket,
+  LinkedCanteenOrderRef,
+  TicketValidatedEvent,
+} from './types.ts';
+
+export interface AtomicConsumeInput {
+  qrToken: string;
+  operatorId: string;
+  usedAt: string;
+  expectedScreeningId?: string;
+  expectedRoomName?: string;
+}
+
+export type AtomicConsumeResult =
+  | { kind: 'CONSUMED'; ticket: IssuedTicket }
+  | { kind: 'NOT_FOUND' }
+  | { kind: 'ALREADY_USED'; ticket: IssuedTicket }
+  | { kind: 'CANCELLED'; ticket: IssuedTicket }
+  | { kind: 'WRONG_SCREENING'; ticket: IssuedTicket }
+  | { kind: 'EXPIRED_SESSION'; ticket: IssuedTicket };
 
 export interface TicketRepository {
   saveBatch(tickets: IssuedTicket[]): Promise<IssuedTicket[]>;
@@ -7,6 +27,7 @@ export interface TicketRepository {
   findById(ticketId: string): Promise<IssuedTicket | undefined>;
   listByBuyer(buyerUserId: string): Promise<IssuedTicket[]>;
   markCancelledByPurchase(purchaseId: string, cancelledAt: string): Promise<IssuedTicket[]>;
+  consumeTokenAtomically(input: AtomicConsumeInput): Promise<AtomicConsumeResult>;
 }
 
 export class InMemoryTicketRepository implements TicketRepository {
@@ -80,5 +101,95 @@ export class InMemoryTicketRepository implements TicketRepository {
       updated.push({ ...next });
     }
     return updated;
+  }
+
+  /**
+   * Simula exatamente o UPDATE atômico SQL:
+   * UPDATE ingressos SET status = 'UTILIZADO', data_utilizacao = :usedAt, operador_id = :operatorId
+   * WHERE qr_token = :qrToken AND status = 'EMITIDO'
+   * Executado de forma síncrona antes de qualquer yield assíncrono para imunidade a race conditions.
+   */
+  async consumeTokenAtomically(input: AtomicConsumeInput): Promise<AtomicConsumeResult> {
+    const id = this.idByToken.get(input.qrToken);
+    if (!id) {
+      return { kind: 'NOT_FOUND' };
+    }
+    const current = this.byId.get(id);
+    if (!current) {
+      return { kind: 'NOT_FOUND' };
+    }
+
+    if (current.status === 'CANCELADO') {
+      return { kind: 'CANCELLED', ticket: { ...current } };
+    }
+
+    if (current.status === 'UTILIZADO') {
+      return { kind: 'ALREADY_USED', ticket: { ...current } };
+    }
+
+    if (
+      (input.expectedScreeningId && current.screeningId !== input.expectedScreeningId) ||
+      (input.expectedRoomName && current.roomName !== input.expectedRoomName)
+    ) {
+      return { kind: 'WRONG_SCREENING', ticket: { ...current } };
+    }
+
+    if (Date.parse(input.usedAt) > Date.parse(current.endsAt)) {
+      return { kind: 'EXPIRED_SESSION', ticket: { ...current } };
+    }
+
+    const updated: IssuedTicket = {
+      ...current,
+      status: 'UTILIZADO',
+      usedAt: input.usedAt,
+      validatedByOperatorId: input.operatorId,
+    };
+    this.byId.set(id, updated);
+    return { kind: 'CONSUMED', ticket: { ...updated } };
+  }
+}
+
+/**
+ * Ponte in-memory de eventos de domínio entre CMP-04 (Portaria) e CMP-05 (Cantina KDS)
+ * para execução automática da regra RN-02.
+ */
+export class InMemoryCanteenKdsTrigger {
+  private readonly orders = new Map<string, LinkedCanteenOrderRef>();
+  private readonly events: TicketValidatedEvent[] = [];
+
+  registerOrder(order: LinkedCanteenOrderRef): void {
+    this.orders.set(order.orderId, { ...order });
+  }
+
+  async handleTicketValidated(event: TicketValidatedEvent): Promise<LinkedCanteenOrderRef[]> {
+    this.events.push({ ...event });
+    const transitioned: LinkedCanteenOrderRef[] = [];
+
+    for (const [orderId, order] of this.orders.entries()) {
+      if (
+        order.ticketId === event.ticketId &&
+        order.deliveryChannel === 'ENTREGA_ASSENTO' &&
+        order.status === 'AGUARDANDO_CHEGADA'
+      ) {
+        const next: LinkedCanteenOrderRef = {
+          ...order,
+          status: 'EM_PREPARO',
+          kitchenQueuedAt: event.validatedAt,
+        };
+        this.orders.set(orderId, next);
+        transitioned.push({ ...next });
+      }
+    }
+
+    return transitioned;
+  }
+
+  getOrder(orderId: string): LinkedCanteenOrderRef | undefined {
+    const order = this.orders.get(orderId);
+    return order ? { ...order } : undefined;
+  }
+
+  listEvents(): TicketValidatedEvent[] {
+    return this.events.map((e) => ({ ...e }));
   }
 }
