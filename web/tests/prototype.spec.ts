@@ -678,4 +678,102 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
 
     expect(errors).toEqual([]);
   });
+
+  test('9. WCAG 2.2 AA audit: contrast tokens, keyboard navigation, ARIA roles & non-color seat status (RNF-04)', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (err) => errors.push(String(err)));
+
+    await stubOfflineCatalog(page);
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/', { waitUntil: 'networkidle' });
+
+    // Verify html lang and semantic main landmark + heading hierarchy
+    await expect(page.locator('html')).toHaveAttribute('lang', /pt-BR/i);
+    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+
+    // Verify dark-first & OLED design tokens achieve WCAG 2.2 AA contrast >= 4.5:1
+    const contrastReport = await page.evaluate(() => {
+      const hexToRgb = (hex: string): [number, number, number] => {
+        const clean = hex.replace('#', '').trim();
+        const full = clean.length === 3 ? clean.split('').map((c) => c + c).join('') : clean;
+        return [
+          parseInt(full.slice(0, 2), 16),
+          parseInt(full.slice(2, 4), 16),
+          parseInt(full.slice(4, 6), 16),
+        ];
+      };
+      const luminance = ([r, g, b]: [number, number, number]) => {
+        const ch = [r, g, b].map((v) => {
+          const s = v / 255;
+          return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+        });
+        return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+      };
+      const ratio = (hexA: string, hexB: string) => {
+        const l1 = luminance(hexToRgb(hexA));
+        const l2 = luminance(hexToRgb(hexB));
+        return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+      };
+      const styles = getComputedStyle(document.documentElement);
+      const bgSurface = styles.getPropertyValue('--bg-surface').trim();
+      const textPrimary = styles.getPropertyValue('--text-primary').trim();
+      const textSecondary = styles.getPropertyValue('--text-secondary').trim();
+      const textMuted = styles.getPropertyValue('--text-muted').trim();
+      const brandRed = styles.getPropertyValue('--brand-red').trim();
+      const pcdBlue = styles.getPropertyValue('--pcd-blue').trim();
+      const focusRing = styles.getPropertyValue('--focus-ring').trim();
+
+      return {
+        primaryOnSurface: ratio(textPrimary, bgSurface),
+        secondaryOnSurface: ratio(textSecondary, bgSurface),
+        mutedOnSurface: ratio(textMuted, bgSurface),
+        whiteOnBrandRed: ratio('#ffffff', brandRed),
+        whiteOnPcdBlue: ratio('#ffffff', pcdBlue),
+        focusRingDefined: Boolean(focusRing),
+      };
+    });
+
+    expect(contrastReport.primaryOnSurface).toBeGreaterThanOrEqual(4.5);
+    expect(contrastReport.secondaryOnSurface).toBeGreaterThanOrEqual(4.5);
+    expect(contrastReport.mutedOnSurface).toBeGreaterThanOrEqual(4.5);
+    expect(contrastReport.whiteOnBrandRed).toBeGreaterThanOrEqual(4.5);
+    expect(contrastReport.whiteOnPcdBlue).toBeGreaterThanOrEqual(4.5);
+    expect(contrastReport.focusRingDefined).toBe(true);
+
+    // Keyboard navigation and non-color indicators in SeatSelectionView
+    await page.getByRole('button', { name: /Escolher Assentos/i }).click();
+    const firstAvailable = page.locator('button[aria-label^="Poltrona "][aria-label$="— Disponível"]').first();
+    const firstLabel = (await firstAvailable.getAttribute('aria-label')) ?? '';
+    const firstId = firstLabel.match(/Poltrona ([A-H]\d+)/)?.[1] ?? 'A2';
+    const targetSeat = page.locator(`button[aria-label^="Poltrona ${firstId} "]`).first();
+    await targetSeat.focus();
+    await expect(targetSeat).toBeFocused();
+    await expect(targetSeat).toHaveAttribute('aria-pressed', 'false');
+    await page.keyboard.press('Space');
+    await expect(targetSeat).toHaveAttribute('aria-pressed', 'true');
+    // Selected seat contains non-color Check SVG indicator
+    await expect(targetSeat.locator('svg')).toBeVisible();
+
+    // Verify timer live-region and PCD non-color indicator
+    await expect(page.getByRole('timer')).toBeVisible();
+    const pcdSeat = page.getByRole('button', { name: /Poltrona A12 PCD Obeso 1\.5x — Disponível/i });
+    await expect(pcdSeat.locator('svg')).toBeVisible();
+
+    // Verify OpsWorkspace min touch target height (>= 44px) and tablist ARIA semantics
+    await page.goto('/#/ops', { waitUntil: 'networkidle' });
+    await page.getByRole('button', { name: /ADMIN_CINEMA/i }).click();
+    await page.locator('#ops-pin-input').fill('1234');
+    await page.getByRole('button', { name: /Confirmar e Entrar na Estação/i }).click();
+    await expect(page.getByRole('tablist', { name: /Módulos do CineFood Backstage/i })).toBeVisible();
+
+    const minTabHeight = await page.evaluate(() => {
+      const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+      return Math.min(...tabs.map((el) => el.getBoundingClientRect().height));
+    });
+    expect(minTabHeight).toBeGreaterThanOrEqual(44);
+
+    expect(errors).toEqual([]);
+  });
 });
+

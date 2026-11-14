@@ -7,5 +7,5 @@
 
 ## 2. Usabilidade, Acessibilidade e Recuperação (RNF-04, RNF-05)
 
-- [ ] 2.1 Documentar checklist de acessibilidade WCAG 2.2 AA e roteiro de avaliação de jornada com `>= 5` participantes (`docs/testes/`).
-- [ ] 2.2 Validar rotina de backup e restauração de dados antes da liberação da candidata `v1.0.0-rc.1`.
+- [x] 2.1 Documentar checklist de acessibilidade WCAG 2.2 AA e roteiro de avaliação de jornada com `>= 5` participantes (`docs/testes/`).
+- [x] 2.2 Validar rotina de backup e restauração de dados antes da liberação da candidata `v1.0.0-rc.1`.
