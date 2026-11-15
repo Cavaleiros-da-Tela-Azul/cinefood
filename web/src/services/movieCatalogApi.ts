@@ -26,6 +26,16 @@ export interface CatalogExternalRatings {
   source: 'omdb-api' | 'curated-fallback' | 'unavailable';
 }
 
+export interface ClassificationSymbolInfo {
+  code: 'L' | '6' | '10' | '12' | '14' | '16' | '18';
+  displayCode: string;
+  label: string;
+  fullDescription: string;
+  isAutoClassification: boolean;
+  iconSrc: string;
+  boxSrc: string;
+}
+
 export interface ExtendedCatalogEntry {
   id: string;
   tmdbId?: number;
@@ -132,6 +142,25 @@ interface TmdbExternalIdsResponse {
   imdb_id?: string | null;
 }
 
+interface TmdbMovieDetailsResponse {
+  id?: number;
+  runtime?: number | null;
+  release_dates?: {
+    results?: Array<{
+      iso_3166_1?: string;
+      release_dates?: Array<{
+        certification?: string;
+      }>;
+    }>;
+  };
+  credits?: {
+    crew?: Array<{
+      job?: string;
+      name?: string;
+    }>;
+  };
+}
+
 interface OmdbMovieResponse {
   Response?: string;
   imdbRating?: string;
@@ -139,15 +168,16 @@ interface OmdbMovieResponse {
   Ratings?: Array<{ Source?: string; Value?: string }>;
 }
 
-const DEFAULT_TIMEOUT_MS = 4000;
-const EXTENDED_PAGE_SIZE = 20;
-const ITUNES_TOP_MOVIES_URL = 'https://itunes.apple.com/br/rss/topmovies/limit=8/json';
+const DEFAULT_TIMEOUT_MS = 8000;
+const EXTENDED_PAGE_SIZE = 10;
+const ITUNES_TOP_MOVIES_URL = 'https://itunes.apple.com/br/rss/topmovies/limit=25/json';
 const ITUNES_LOOKUP_BASE_URL = 'https://itunes.apple.com/lookup';
 const ITUNES_SEARCH_URL =
-  'https://itunes.apple.com/search?term=cinema&media=movie&entity=movie&country=BR&limit=8';
+  'https://itunes.apple.com/search?term=cinema&media=movie&entity=movie&country=BR&limit=25';
 const ITUNES_BROAD_QUERIES = ['cinema', 'action', 'drama', 'comedy', 'sci-fi'] as const;
 const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3';
 const TMDB_NOW_PLAYING_URL = `${TMDB_API_BASE_URL}/movie/now_playing`;
+const TMDB_POPULAR_URL = `${TMDB_API_BASE_URL}/movie/popular`;
 const OMDB_API_BASE_URL = 'https://www.omdbapi.com/';
 
 const TMDB_GENRES_PT_BR: Record<number, string> = {
@@ -286,15 +316,29 @@ export function upgradeItunesArtwork(
   size: '600x600bb' | '1000x1000bb' = '600x600bb',
 ): string {
   if (!url) return '';
+  const targetSize = size === '1000x1000bb' ? '2000x3000bb' : '1200x1200bb';
   if (/\/\d+x\d+bb[^/]*$/i.test(url)) {
-    return url.replace(/\/\d+x\d+bb[^/]*$/i, `/${size}.jpg`);
+    return url.replace(/\/\d+x\d+bb[^/]*$/i, `/${targetSize}.jpg`);
   }
   return url;
 }
 
+declare global {
+  interface ImportMeta {
+    readonly env?: Record<string, string | undefined>;
+  }
+}
+
 function getViteEnvValue(key: string): string | undefined {
-  const meta = import.meta as unknown as { env?: Record<string, string | undefined> };
-  const value = meta.env?.[key];
+  const staticTmdb = import.meta.env?.VITE_TMDB_API_KEY;
+  const staticOmdb = import.meta.env?.VITE_OMDB_API_KEY;
+  const envBag = import.meta.env;
+  const value =
+    key === 'VITE_TMDB_API_KEY'
+      ? staticTmdb ?? envBag?.[key]
+      : key === 'VITE_OMDB_API_KEY'
+        ? staticOmdb ?? envBag?.[key]
+        : envBag?.[key];
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : undefined;
 }
 
@@ -344,6 +388,81 @@ function formatAdvisoryRating(rawRating: string | undefined, fallback: string): 
   return cleaned;
 }
 
+export function inferAutoClassificationFromGenres(genres: string[], adult?: boolean): string {
+  if (adult) return 'A18 · 18 anos';
+  const joined = genres.map((g) => g.toLowerCase()).join(' ');
+  if (joined.includes('terror') || joined.includes('crime') || joined.includes('guerra')) {
+    return 'A16 · 16 anos';
+  }
+  if (joined.includes('suspense') || joined.includes('misterio') || joined.includes('mistério')) {
+    return 'A14 · 14 anos';
+  }
+  if (
+    joined.includes('acao') ||
+    joined.includes('ação') ||
+    joined.includes('ficcao') ||
+    joined.includes('ficção') ||
+    joined.includes('drama') ||
+    joined.includes('faroeste')
+  ) {
+    return 'A12 · 12 anos';
+  }
+  if (joined.includes('aventura') || joined.includes('fantasia') || joined.includes('comedia') || joined.includes('comédia')) {
+    return 'A10 · 10 anos';
+  }
+  if (joined.includes('animacao') || joined.includes('animação') || joined.includes('familia') || joined.includes('família')) {
+    return 'AL · Livre';
+  }
+  return 'A12 · 12 anos';
+}
+
+export function resolveClassificationSymbol(
+  rawRating?: string,
+  genres: string[] = [],
+): ClassificationSymbolInfo {
+  const effective = (rawRating?.trim() || inferAutoClassificationFromGenres(genres)).toUpperCase();
+  const isAuto =
+    effective.startsWith('AL') ||
+    effective.startsWith('A6') ||
+    effective.startsWith('A10') ||
+    effective.startsWith('A12') ||
+    effective.startsWith('A14') ||
+    effective.startsWith('A16') ||
+    effective.startsWith('A18') ||
+    effective.includes('AUTOCLASSIFICA');
+
+  let code: ClassificationSymbolInfo['code'] = '12';
+  if (effective.includes('18')) code = '18';
+  else if (effective.includes('16')) code = '16';
+  else if (effective.includes('14')) code = '14';
+  else if (effective.includes('12')) code = '12';
+  else if (effective.includes('10')) code = '10';
+  else if (/\bA?6\b/.test(effective)) code = '6';
+  else if (effective.includes('LIVRE') || effective === 'L' || effective.startsWith('AL')) code = 'L';
+
+  const displayCode = isAuto ? `A${code}` : code;
+  const ageText = code === 'L' ? 'Livre' : `${code} anos`;
+  const label = isAuto ? `${displayCode} · ${ageText}` : ageText;
+  const fullDescription =
+    code === 'L'
+      ? isAuto
+        ? 'Autoclassificação Livre para todos os públicos'
+        : 'Classificação Livre para todos os públicos'
+      : isAuto
+        ? `Autoclassificação: Não recomendado para menores de ${code} anos`
+        : `Não recomendado para menores de ${code} anos`;
+
+  return {
+    code,
+    displayCode,
+    label,
+    fullDescription,
+    isAutoClassification: isAuto,
+    iconSrc: `/assets/classificacao/${isAuto ? `A${code}` : code}_Borda.png`,
+    boxSrc: `/assets/classificacao/${code}_Box_Borda.png`,
+  };
+}
+
 function formatReleaseDatePtBr(rawDate: string | undefined, fallback: string): string {
   if (!rawDate) return fallback;
   const brMatch = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(rawDate.trim());
@@ -376,15 +495,96 @@ function buildTaglineFromSynopsis(synopsis: string, fallback: string): string {
   return `${firstSentence.slice(0, 127).replace(/\s+\S*$/, '')}...`;
 }
 
-function cloneSessionsForSlot(
+const GENERATED_DATES = [
+  { dateId: '14-dez', dateLabel: '14 DEZ', dayNumber: '14', monthLabel: 'DEZ', isoDay: '2026-12-14' },
+  { dateId: '15-dez', dateLabel: '15 DEZ', dayNumber: '15', monthLabel: 'DEZ', isoDay: '2026-12-15' },
+  { dateId: '16-dez', dateLabel: '16 DEZ', dayNumber: '16', monthLabel: 'DEZ', isoDay: '2026-12-16' },
+  { dateId: '17-dez', dateLabel: '17 DEZ', dayNumber: '17', monthLabel: 'DEZ', isoDay: '2026-12-17' },
+  { dateId: '18-dez', dateLabel: '18 DEZ', dayNumber: '18', monthLabel: 'DEZ', isoDay: '2026-12-18' },
+] as const;
+
+const GENERATED_VENUES = [
+  { complex: 'CineFood Paulista IMAX', room: 'Sala 01 · IMAX', format: 'IMAX 3D' as const, basePrice: 42 },
+  { complex: 'CineFood Jardins Atmos', room: 'Sala 02 · Atmos', format: 'Dolby Atmos' as const, basePrice: 40 },
+  { complex: 'CineFood Paulista IMAX', room: 'Sala 03 · Atmos', format: 'Dolby Atmos' as const, basePrice: 40 },
+  { complex: 'CineFood Jardins Atmos', room: 'Sala 04', format: '2D' as const, basePrice: 36 },
+  { complex: 'CineFood Paulista IMAX', room: 'Sala 05 · VIP', format: 'IMAX 3D' as const, basePrice: 44 },
+  { complex: 'CineFood Jardins Atmos', room: 'Sala 06', format: '2D' as const, basePrice: 36 },
+] as const;
+
+const GENERATED_SHOWTIMES = [
+  '14:20',
+  '15:45',
+  '16:30',
+  '17:50',
+  '18:45',
+  '19:15',
+  '20:00',
+  '20:30',
+  '21:15',
+  '21:40',
+  '22:00',
+  '22:30',
+] as const;
+
+function buildRichSessionsForMovie(
   templateSessions: SessionSlot[],
   movieKey: string,
+  index: number,
   reuseOriginalIds: boolean,
 ): SessionSlot[] {
-  return templateSessions.map((session, index) => ({
+  const baseCloned = templateSessions.map((session, sIdx) => ({
     ...session,
-    id: reuseOriginalIds ? session.id : `${movieKey}-sess-${index + 1}`,
+    id: reuseOriginalIds ? session.id : `${movieKey}-sess-${sIdx + 1}`,
   }));
+
+  // Stagger dates per movie so each date has ~14 movies and different movies lead each date/session
+  const dateIndices: number[] = [];
+  if (index < 12) {
+    dateIndices.push(0); // 14-dez (Hoje): 12 movies in carousel
+  }
+  // Rotate 3 additional dates per movie across 15-dez..18-dez (and 14-dez for higher indices)
+  for (let offset = 0; offset < 3; offset++) {
+    const dIdx = (index + offset + 1) % GENERATED_DATES.length;
+    if (!dateIndices.includes(dIdx)) {
+      dateIndices.push(dIdx);
+    }
+  }
+  dateIndices.sort((a, b) => a - b);
+
+  const generated: SessionSlot[] = reuseOriginalIds ? [...baseCloned] : [];
+  const existingKeys = new Set(generated.map((s) => `${s.dateId}-${s.time}-${s.room}`));
+
+  let seq = generated.length + 1;
+  for (const dIdx of dateIndices) {
+    const dateMeta = GENERATED_DATES[dIdx];
+    // Generate 2 sessions per scheduled date across different complexes & formats
+    for (let slot = 0; slot < 2; slot++) {
+      const venue = GENERATED_VENUES[(index * 2 + dIdx + slot) % GENERATED_VENUES.length];
+      const time = GENERATED_SHOWTIMES[(index * 3 + dIdx * 2 + slot * 5) % GENERATED_SHOWTIMES.length];
+      const dedupKey = `${dateMeta.dateId}-${time}-${venue.room}`;
+      if (existingKeys.has(dedupKey)) continue;
+      existingKeys.add(dedupKey);
+
+      generated.push({
+        id: `${movieKey}-gen-${seq++}`,
+        complex: venue.complex,
+        room: venue.room,
+        format: venue.format,
+        dateId: dateMeta.dateId,
+        dateLabel: dateMeta.dateLabel,
+        dayNumber: dateMeta.dayNumber,
+        monthLabel: dateMeta.monthLabel,
+        time,
+        startsAt: `${dateMeta.isoDay}T${time}:00-03:00`,
+        status: 'ATIVA',
+        occupancyPct: 22 + ((index * 13 + dIdx * 9 + slot * 17) % 58),
+        basePrice: venue.basePrice,
+      });
+    }
+  }
+
+  return generated.length > 0 ? generated : baseCloned;
 }
 
 function buildKickerLocation(sessions: SessionSlot[], fallbackKicker: string): string {
@@ -421,9 +621,15 @@ function mapTrackToMovieItem(
   fallbackMovies: MovieItem[],
 ): MovieItem {
   const template = fallbackMovies[index % fallbackMovies.length];
-  const reuseTemplateIdentity = index < fallbackMovies.length;
+  const reuseTemplateIdentity = index < 4;
   const movieId = reuseTemplateIdentity ? template.id : `api-${item.idSuffix}-${index + 1}`;
-  const sessions = cloneSessionsForSlot(template.sessions, movieId, reuseTemplateIdentity);
+  const sessions = buildRichSessionsForMovie(
+    template.sessions,
+    movieId,
+    index,
+    reuseTemplateIdentity,
+  );
+  const complexes = Array.from(new Set(sessions.map((s) => s.complex)));
   const synopsis = item.synopsis.trim() || template.synopsis;
 
   return {
@@ -440,14 +646,30 @@ function mapTrackToMovieItem(
     duration: item.duration || template.duration,
     rating: item.rating || template.rating,
     ratingAvg: item.ratingAvg ?? template.ratingAvg,
+    complexes: complexes.length > 0 ? complexes : template.complexes,
     posterSrc: item.posterSrc || template.posterSrc,
     backdropSrc: item.backdropSrc || item.posterSrc || template.backdropSrc,
     previewUrl: item.previewUrl || template.previewUrl,
     trailerHighlight: item.previewUrl
-      ? `Trailer oficial em vídeo disponível para reprodução instantânea (${template.sessions[0]?.format ?? 'Cinema'}).`
+      ? `Trailer oficial em vídeo disponível para reprodução instantânea (${sessions[0]?.format ?? 'Cinema'}).`
       : template.trailerHighlight,
     sessions,
   };
+}
+
+function extractBrCertificationFromDetails(details: TmdbMovieDetailsResponse | undefined): string | null {
+  const brEntry = (details?.release_dates?.results ?? []).find(
+    (entry) => entry.iso_3166_1?.toUpperCase() === 'BR',
+  );
+  if (!brEntry) return null;
+  const cert = (brEntry.release_dates ?? [])
+    .map((rd) => rd.certification?.trim())
+    .find((c): c is string => Boolean(c && c.length > 0));
+  if (!cert) return null;
+  const normalized = cert.toUpperCase();
+  if (normalized === 'L' || normalized === 'LIVRE') return 'Livre';
+  if (/^\d{1,2}$/.test(normalized)) return `${normalized} anos`;
+  return null;
 }
 
 async function fetchFromTmdbApi(
@@ -455,36 +677,89 @@ async function fetchFromTmdbApi(
   fallbackMovies: MovieItem[],
   timeoutMs: number,
 ): Promise<MovieItem[]> {
-  const url = `${TMDB_NOW_PLAYING_URL}?language=pt-BR&region=BR&page=1&api_key=${encodeURIComponent(apiKey)}`;
-  const payload = await fetchJsonWithTimeout<TmdbNowPlayingResponse>(url, timeoutMs);
-  const results = (payload.results ?? []).filter((m) => Boolean(m.title && (m.poster_path || m.backdrop_path)));
+  const effectiveTimeout = Math.max(timeoutMs, 8000);
+  const encodedKey = encodeURIComponent(apiKey);
+  const pageUrls = [
+    `${TMDB_NOW_PLAYING_URL}?language=pt-BR&region=BR&page=1&api_key=${encodedKey}`,
+    `${TMDB_NOW_PLAYING_URL}?language=pt-BR&region=BR&page=2&api_key=${encodedKey}`,
+    `${TMDB_POPULAR_URL}?language=pt-BR&region=BR&page=1&api_key=${encodedKey}`,
+  ];
 
-  if (results.length === 0) {
+  const pageResponses = await Promise.allSettled(
+    pageUrls.map((u) => fetchJsonWithTimeout<TmdbNowPlayingResponse>(u, effectiveTimeout)),
+  );
+
+  const seenIds = new Set<number>();
+  const combinedResults: TmdbMovieResult[] = [];
+  for (const res of pageResponses) {
+    if (res.status !== 'fulfilled') continue;
+    for (const movie of res.value.results ?? []) {
+      if (!movie.id || seenIds.has(movie.id)) continue;
+      if (!movie.title || (!movie.poster_path && !movie.backdrop_path)) continue;
+      seenIds.add(movie.id);
+      combinedResults.push(movie);
+    }
+  }
+
+  if (combinedResults.length === 0) {
     return [];
   }
 
-  const targetCount = Math.max(4, fallbackMovies.length);
-  return results.slice(0, targetCount).map((movie, index) => {
+  const targetCount = Math.max(24, fallbackMovies.length);
+  const withWidescreenBackdrop = combinedResults.filter(
+    (m) => Boolean(m.poster_path && m.backdrop_path),
+  );
+  const pool =
+    withWidescreenBackdrop.length >= 12 ? withWidescreenBackdrop : combinedResults;
+  const selectedMovies = pool.slice(0, targetCount);
+
+  const detailSettled = await Promise.allSettled(
+    selectedMovies.map((movie) =>
+      fetchJsonWithTimeout<TmdbMovieDetailsResponse>(
+        `${TMDB_API_BASE_URL}/movie/${movie.id}?language=pt-BR&append_to_response=release_dates,credits&api_key=${encodedKey}`,
+        3500,
+      ),
+    ),
+  );
+
+  return selectedMovies.map((movie, index) => {
     const template = fallbackMovies[index % fallbackMovies.length];
+    const detailRes = detailSettled[index];
+    const details = detailRes?.status === 'fulfilled' ? detailRes.value : undefined;
+
     const genres = (movie.genre_ids ?? [])
       .map((gid) => TMDB_GENRES_PT_BR[gid])
       .filter((g): g is string => Boolean(g));
     const posterSrc = movie.poster_path
-      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+      ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
       : template.posterSrc;
     const backdropSrc = movie.backdrop_path
-      ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`
-      : posterSrc;
+      ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
+      : template.backdropSrc;
+
+    const brCertification = extractBrCertificationFromDetails(details);
+    const resolvedRating = brCertification ?? inferAutoClassificationFromGenres(genres);
+    const resolvedDirector =
+      details?.credits?.crew?.find((member) => member.job === 'Director')?.name?.trim() ||
+      template.director;
+    const resolvedDuration =
+      typeof details?.runtime === 'number' && details.runtime > 0
+        ? formatDurationFromMillis(details.runtime * 60000, template.duration)
+        : template.duration;
+
+    if (typeof movie.vote_average === 'number' && movie.vote_average > 0) {
+      tmdbScoreById.set(movie.id, movie.vote_average.toFixed(1));
+    }
 
     return mapTrackToMovieItem(
       {
         idSuffix: String(movie.id),
         title: movie.title ?? template.title,
-        director: template.director,
+        director: resolvedDirector,
         synopsis: movie.overview ?? template.synopsis,
         genre: genres.length > 0 ? genres.slice(0, 2).join(', ') : template.genre,
-        duration: template.duration,
-        rating: template.rating,
+        duration: resolvedDuration,
+        rating: resolvedRating,
         premiere: formatReleaseDatePtBr(movie.release_date, template.premiere),
         posterSrc,
         backdropSrc,
@@ -503,7 +778,7 @@ async function fetchFromItunesApi(
   fallbackMovies: MovieItem[],
   timeoutMs: number,
 ): Promise<MovieItem[]> {
-  const targetCount = Math.max(4, Math.min(6, fallbackMovies.length + 2));
+  const targetCount = Math.max(20, fallbackMovies.length);
 
   // Primary free public feed: Brazil Top Movies RSS (zero API key required, pt-BR metadata)
   try {
@@ -819,23 +1094,51 @@ async function fetchTmdbGenres(tmdbKey: string, timeoutMs: number): Promise<Cata
 async function fetchExtendedTmdbPage(options: {
   tmdbKey: string;
   page: number;
+  pageSize: number;
   query: string;
   genreId: string;
   fallbackMovies: MovieItem[];
   timeoutMs: number;
 }): Promise<ExtendedCatalogPageResult> {
-  const { tmdbKey, page, query, genreId, fallbackMovies, timeoutMs } = options;
+  const { tmdbKey, page, pageSize, query, genreId, fallbackMovies, timeoutMs } = options;
   const genres = await fetchTmdbGenres(tmdbKey, timeoutMs);
   const genreNameById = new Map<string, string>(genres.map((g) => [g.id, g.name]));
 
-  const endpoint = query
-    ? `${TMDB_API_BASE_URL}/search/movie?language=pt-BR&include_adult=false&query=${encodeURIComponent(query)}&page=${page}&api_key=${encodeURIComponent(tmdbKey)}`
-    : `${TMDB_API_BASE_URL}/discover/movie?language=pt-BR&region=BR&sort_by=popularity.desc&include_adult=false&page=${page}${
-        genreId && genreId !== 'all' ? `&with_genres=${encodeURIComponent(genreId)}` : ''
-      }&api_key=${encodeURIComponent(tmdbKey)}`;
+  const TMDB_NATIVE_PAGE_SIZE = 20;
+  const startGlobalIndex = (page - 1) * pageSize;
+  const tmdbPage = Math.max(1, Math.floor(startGlobalIndex / TMDB_NATIVE_PAGE_SIZE) + 1);
+  const offsetWithinTmdbPage = startGlobalIndex % TMDB_NATIVE_PAGE_SIZE;
 
-  const payload = await fetchJsonWithTimeout<TmdbNowPlayingResponse>(endpoint, timeoutMs);
-  let results = (payload.results ?? []).filter((m) =>
+  const buildTmdbEndpoint = (targetTmdbPage: number) =>
+    query
+      ? `${TMDB_API_BASE_URL}/search/movie?language=pt-BR&include_adult=false&query=${encodeURIComponent(query)}&page=${targetTmdbPage}&api_key=${encodeURIComponent(tmdbKey)}`
+      : `${TMDB_API_BASE_URL}/discover/movie?language=pt-BR&region=BR&sort_by=popularity.desc&include_adult=false&page=${targetTmdbPage}${
+          genreId && genreId !== 'all' ? `&with_genres=${encodeURIComponent(genreId)}` : ''
+        }&api_key=${encodeURIComponent(tmdbKey)}`;
+
+  const payload = await fetchJsonWithTimeout<TmdbNowPlayingResponse>(
+    buildTmdbEndpoint(tmdbPage),
+    timeoutMs,
+  );
+  let rawPool = [...(payload.results ?? [])];
+
+  // If the slice crosses a 20-item TMDB page boundary, fetch the next TMDB page as well
+  if (
+    offsetWithinTmdbPage + pageSize > TMDB_NATIVE_PAGE_SIZE &&
+    tmdbPage < (payload.total_pages ?? 1)
+  ) {
+    try {
+      const nextPayload = await fetchJsonWithTimeout<TmdbNowPlayingResponse>(
+        buildTmdbEndpoint(tmdbPage + 1),
+        timeoutMs,
+      );
+      rawPool.push(...(nextPayload.results ?? []));
+    } catch {
+      // Best-effort second page fetch
+    }
+  }
+
+  let results = rawPool.filter((m) =>
     Boolean(m.title && (m.poster_path || m.backdrop_path)),
   );
 
@@ -856,16 +1159,18 @@ async function fetchExtendedTmdbPage(options: {
     });
   }
 
-  const items: ExtendedCatalogEntry[] = results.slice(0, EXTENDED_PAGE_SIZE).map((movie, index) => {
+  const slicedResults = results.slice(offsetWithinTmdbPage, offsetWithinTmdbPage + pageSize);
+
+  const items: ExtendedCatalogEntry[] = slicedResults.map((movie, index) => {
     const template = fallbackMovies.length > 0 ? fallbackMovies[index % fallbackMovies.length] : undefined;
     const posterSrc = movie.poster_path
-      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+      ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
       : movie.backdrop_path
-        ? `https://image.tmdb.org/t/p/w500${movie.backdrop_path}`
+        ? `https://image.tmdb.org/t/p/w780${movie.backdrop_path}`
         : (template?.posterSrc ?? '');
     const backdropSrc = movie.backdrop_path
-      ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`
-      : posterSrc;
+      ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
+      : (template?.backdropSrc ?? posterSrc);
     const mappedGenres = (movie.genre_ids ?? [])
       .map((gid) => genreNameById.get(String(gid)) ?? TMDB_GENRES_PT_BR[gid])
       .filter((g): g is string => Boolean(g));
@@ -887,6 +1192,7 @@ async function fetchExtendedTmdbPage(options: {
       posterSrc,
       backdropSrc,
       releaseDate: formatReleaseDatePtBr(movie.release_date, movie.release_date ?? 'Em breve'),
+      advisoryRating: inferAutoClassificationFromGenres(mappedGenres),
       initialRatings: tmdbScore ? { tmdbScore } : undefined,
     };
   });
@@ -895,11 +1201,15 @@ async function fetchExtendedTmdbPage(options: {
     throw new Error('TMDB returned empty catalog');
   }
 
+  const rawTotalPages = Math.ceil(
+    ((payload.total_pages ?? 1) * TMDB_NATIVE_PAGE_SIZE) / pageSize,
+  );
+
   return {
     items,
     genres,
     page,
-    totalPages: Math.min(500, Math.max(1, payload.total_pages ?? 1)),
+    totalPages: Math.min(500, Math.max(1, rawTotalPages)),
     source: 'tmdb-api',
   };
 }
@@ -971,18 +1281,20 @@ async function fetchExtendedItunesPool(
  */
 export async function fetchExtendedCatalogPage(options: {
   page?: number;
+  pageSize?: number;
   query?: string;
   genreId?: string;
   fallbackMovies: MovieItem[];
   timeoutMs?: number;
 }): Promise<ExtendedCatalogPageResult> {
   const page = Math.max(1, Math.floor(options.page ?? 1));
+  const pageSize = Math.max(4, Math.min(40, Math.floor(options.pageSize ?? EXTENDED_PAGE_SIZE)));
   const query = options.query?.trim() ?? '';
   const genreId = options.genreId?.trim() ?? '';
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const fallbackMovies = options.fallbackMovies ?? [];
 
-  const cacheKey = `${page}|${normalizeCatalogText(query)}|${normalizeCatalogText(genreId)}|${fallbackMovies.length}`;
+  const cacheKey = `${page}|${pageSize}|${normalizeCatalogText(query)}|${normalizeCatalogText(genreId)}|${fallbackMovies.length}`;
   const cachedPage = sessionExtendedPageCache.get(cacheKey);
   if (cachedPage) {
     return cachedPage;
@@ -994,6 +1306,7 @@ export async function fetchExtendedCatalogPage(options: {
       const tmdbResult = await fetchExtendedTmdbPage({
         tmdbKey,
         page,
+        pageSize,
         query,
         genreId,
         fallbackMovies,
@@ -1025,10 +1338,10 @@ export async function fetchExtendedCatalogPage(options: {
     const combinedPool = [...fallbackEntries, ...dedupedItunes];
     const genres = collectGenreOptions(combinedPool);
     const filtered = combinedPool.filter((entry) => matchesExtendedFilters(entry, query, genreId));
-    const totalPages = Math.max(1, Math.ceil(filtered.length / EXTENDED_PAGE_SIZE));
-    const start = (page - 1) * EXTENDED_PAGE_SIZE;
+    const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+    const start = (page - 1) * pageSize;
     const result: ExtendedCatalogPageResult = {
-      items: filtered.slice(start, start + EXTENDED_PAGE_SIZE),
+      items: filtered.slice(start, start + pageSize),
       genres,
       page,
       totalPages,
@@ -1044,11 +1357,11 @@ export async function fetchExtendedCatalogPage(options: {
   const filteredFallback = fallbackEntries.filter((entry) =>
     matchesExtendedFilters(entry, query, genreId),
   );
-  const totalPages = Math.max(1, Math.ceil(filteredFallback.length / EXTENDED_PAGE_SIZE));
-  const start = (page - 1) * EXTENDED_PAGE_SIZE;
+  const totalPages = Math.max(1, Math.ceil(filteredFallback.length / pageSize));
+  const start = (page - 1) * pageSize;
 
   const offlineResult: ExtendedCatalogPageResult = {
-    items: filteredFallback.slice(start, start + EXTENDED_PAGE_SIZE),
+    items: filteredFallback.slice(start, start + pageSize),
     genres,
     page,
     totalPages,
@@ -1077,8 +1390,18 @@ export async function fetchMovieExternalRatings(
     return cached;
   }
 
+  const extractedTmdbMatch = /^(?:tmdb|api)-(\d+)/.exec(entry.id);
+  const resolvedTmdbId =
+    typeof entry.tmdbId === 'number'
+      ? entry.tmdbId
+      : extractedTmdbMatch
+        ? Number(extractedTmdbMatch[1])
+        : undefined;
+
   const knownTmdbScore =
-    typeof entry.tmdbId === 'number' ? (tmdbScoreById.get(entry.tmdbId) ?? null) : null;
+    typeof resolvedTmdbId === 'number' && Number.isFinite(resolvedTmdbId)
+      ? (tmdbScoreById.get(resolvedTmdbId) ?? null)
+      : null;
 
   const unavailableResult: CatalogExternalRatings = {
     imdbScore: null,
@@ -1098,9 +1421,9 @@ export async function fetchMovieExternalRatings(
     let resolvedImdbId = entry.imdbId?.trim();
     const tmdbKey = getViteEnvValue('VITE_TMDB_API_KEY');
 
-    if (!resolvedImdbId && typeof entry.tmdbId === 'number' && tmdbKey) {
+    if (!resolvedImdbId && typeof resolvedTmdbId === 'number' && tmdbKey) {
       try {
-        const externalUrl = `${TMDB_API_BASE_URL}/movie/${entry.tmdbId}/external_ids?api_key=${encodeURIComponent(tmdbKey)}`;
+        const externalUrl = `${TMDB_API_BASE_URL}/movie/${resolvedTmdbId}/external_ids?api_key=${encodeURIComponent(tmdbKey)}`;
         const externalIds = await fetchJsonWithTimeout<TmdbExternalIdsResponse>(externalUrl, timeoutMs);
         if (externalIds.imdb_id && externalIds.imdb_id.trim().length > 0) {
           resolvedImdbId = externalIds.imdb_id.trim();

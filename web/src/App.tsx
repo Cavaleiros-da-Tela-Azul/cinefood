@@ -104,7 +104,7 @@ export function App() {
 
   useEffect(() => {
     let cancelled = false;
-    fetchRealMovieCatalog(MOVIES)
+    fetchRealMovieCatalog(MOVIES, { forceRefresh: true })
       .then((result) => {
         if (cancelled) return;
         if (result.movies.length > 0) {
@@ -118,13 +118,13 @@ export function App() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [MOVIES]);
 
   const [activeMovieIndex, setActiveMovieIndex] = useState(0);
   const [overrideMovieId, setOverrideMovieId] = useState<string | null>(null);
   const filteredMovies = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    return moviesCatalog.filter((movie) => {
+    const matched = moviesCatalog.filter((movie) => {
       const complexFilterActive =
         browseMode === 'complexo' && selectedComplex !== COMPLEX_OPTIONS[0];
       if (complexFilterActive && !movie.complexes.includes(selectedComplex)) {
@@ -151,6 +151,20 @@ export function App() {
 
       return true;
     });
+
+    if (matched.length <= 1) return matched;
+
+    const dateIndex = Math.max(0, DATE_OPTIONS.findIndex((d) => d.id === selectedDateId));
+    const formatIndex =
+      formatFilter === 'IMAX 3D' ? 2 : formatFilter === 'Dolby Atmos' ? 4 : formatFilter === '2D' ? 6 : 0;
+    const complexIndex =
+      browseMode === 'complexo' && selectedComplex !== COMPLEX_OPTIONS[0]
+        ? COMPLEX_OPTIONS.indexOf(selectedComplex) * 3
+        : 0;
+    const rotationOffset = (dateIndex * 3 + formatIndex + complexIndex) % matched.length;
+
+    if (rotationOffset === 0) return matched;
+    return [...matched.slice(rotationOffset), ...matched.slice(0, rotationOffset)];
   }, [moviesCatalog, browseMode, selectedComplex, selectedDateId, formatFilter, searchQuery]);
 
   const activeMovie = useMemo(() => {

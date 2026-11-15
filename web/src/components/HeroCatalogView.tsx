@@ -16,6 +16,7 @@ import {
   X,
 } from 'lucide-react';
 import { COMPLEX_OPTIONS, DATE_OPTIONS, MovieItem, SessionSlot } from '../data/cinemaData';
+import { resolveClassificationSymbol } from '../services/movieCatalogApi';
 
 export const CATALOG_FORMATS = ['Todos', 'IMAX 3D', 'Dolby Atmos', '2D'] as const;
 export type CatalogFormatFilter = (typeof CATALOG_FORMATS)[number];
@@ -116,9 +117,10 @@ export function HeroCatalogView({
   const safeIndex = movies.length > 0 ? activeMovieIndex % movies.length : 0;
   const activeMovie = movies[safeIndex];
 
-  const deckMovies = movies
-    .map((m, idx) => ({ movie: m, idx }))
-    .filter(({ idx }) => idx !== safeIndex);
+  const deckMovies = Array.from({ length: Math.max(0, movies.length - 1) }, (_, offset) => {
+    const idx = (safeIndex + 1 + offset) % movies.length;
+    return { movie: movies[idx], idx };
+  });
 
   useEffect(() => {
     if (isPaused || movies.length <= 1) return undefined;
@@ -185,15 +187,16 @@ export function HeroCatalogView({
         {activeMovie && (
           <motion.div
             key={activeMovie.id}
-            className="pointer-events-none absolute inset-0 z-0"
-            initial={{ opacity: 0, scale: 1.03 }}
-            animate={{ opacity: 1, scale: 1 }}
+            className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
           >
             <img
               src={activeMovie.backdropSrc}
               alt=""
+              decoding="async"
               className="h-full w-full object-cover object-center"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-[#0D0E12]/95 via-[#0D0E12]/70 to-[#0D0E12]/40" />
@@ -338,34 +341,50 @@ export function HeroCatalogView({
                 transition={{ duration: 0.24, ease: [0.23, 1, 0.32, 1] }}
               >
                 {/* Movie quick facts row: Rating, Duration, Network Avg Rating, Base Price */}
-                <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-white">
-                  <span className="rounded border border-white/25 bg-black/50 px-2.5 py-1 uppercase tracking-wider">
-                    {activeMovie.rating}
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded bg-black/45 px-2.5 py-1 text-[var(--text-secondary)]">
-                    <Clock className="h-3.5 w-3.5 text-[var(--amber-progress)]" aria-hidden="true" />
-                    {activeMovie.duration}
-                  </span>
-                  {typeof activeMovie.ratingAvg === 'number' && (
-                    <button
-                      type="button"
-                      onClick={() => onOpenReviews?.(activeMovie.id)}
-                      disabled={!onOpenReviews}
-                      aria-label={`Nota da rede ${activeMovie.ratingAvg.toFixed(1)} de 5. Ver comentários`}
-                      className={`inline-flex min-h-[32px] items-center gap-1 rounded-full border border-[var(--amber-progress)]/40 bg-[var(--amber-progress)]/15 px-2.5 py-1 text-[#FCD34D] transition-colors hover:bg-[var(--amber-progress)]/25 disabled:cursor-default ${FOCUS_RING_CLASS}`}
-                    >
-                      <Star className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
-                      <span className="font-mono-tabular font-bold">{activeMovie.ratingAvg.toFixed(1)}</span>
-                      <span className="text-[11px] font-medium text-white/80">· Rede</span>
-                    </button>
-                  )}
-                  {activeLowestPrice !== null && (
-                    <span className="font-mono-tabular inline-flex items-center gap-1 rounded-full border border-emerald-400/35 bg-emerald-500/15 px-3 py-1 text-emerald-200">
-                      <Ticket className="h-3.5 w-3.5" aria-hidden="true" />
-                      A partir de R$ {activeLowestPrice}
-                    </span>
-                  )}
-                </div>
+                {(() => {
+                  const activeClassInfo = resolveClassificationSymbol(
+                    activeMovie.rating,
+                    activeMovie.genre.split(','),
+                  );
+                  return (
+                    <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-white">
+                      <span
+                        title={activeClassInfo.fullDescription}
+                        className="inline-flex items-center gap-1.5 rounded border border-white/25 bg-black/50 px-2 py-0.5 uppercase tracking-wider"
+                      >
+                        <img
+                          src={activeClassInfo.iconSrc}
+                          alt={activeClassInfo.fullDescription}
+                          className="h-5 w-5 shrink-0 rounded-sm object-contain"
+                        />
+                        <span>{activeMovie.rating}</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded bg-black/45 px-2.5 py-1 text-[var(--text-secondary)]">
+                        <Clock className="h-3.5 w-3.5 text-[var(--amber-progress)]" aria-hidden="true" />
+                        {activeMovie.duration}
+                      </span>
+                      {typeof activeMovie.ratingAvg === 'number' && (
+                        <button
+                          type="button"
+                          onClick={() => onOpenReviews?.(activeMovie.id)}
+                          disabled={!onOpenReviews}
+                          aria-label={`Nota da rede ${activeMovie.ratingAvg.toFixed(1)} de 5. Ver comentários`}
+                          className={`inline-flex min-h-[32px] items-center gap-1 rounded-full border border-[var(--amber-progress)]/40 bg-[var(--amber-progress)]/15 px-2.5 py-1 text-[#FCD34D] transition-colors hover:bg-[var(--amber-progress)]/25 disabled:cursor-default ${FOCUS_RING_CLASS}`}
+                        >
+                          <Star className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
+                          <span className="font-mono-tabular font-bold">{activeMovie.ratingAvg.toFixed(1)}</span>
+                          <span className="text-[11px] font-medium text-white/80">· Rede</span>
+                        </button>
+                      )}
+                      {activeLowestPrice !== null && (
+                        <span className="font-mono-tabular inline-flex items-center gap-1 rounded-full border border-emerald-400/35 bg-emerald-500/15 px-3 py-1 text-emerald-200">
+                          <Ticket className="h-3.5 w-3.5" aria-hidden="true" />
+                          A partir de R$ {activeLowestPrice}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })()}
 
                 <h1 className="font-display line-clamp-2 break-words text-4xl font-extrabold uppercase leading-[0.94] tracking-[-0.02em] text-white sm:text-6xl lg:text-[4.5rem]">
                   {activeMovie.title}
@@ -470,9 +489,9 @@ export function HeroCatalogView({
           </div>
 
           {/* Right Poster Deck with comparative metadata */}
-          <div className="flex w-full min-w-0 max-w-full flex-col gap-4 lg:w-auto lg:max-w-[680px]">
+          <div className="flex w-full min-w-0 max-w-full flex-col gap-4 lg:w-auto lg:max-w-[760px]">
             {deckMovies.length > 0 && (
-              <div className="flex min-w-0 max-w-full items-stretch gap-3 overflow-x-auto pb-2 pt-2 sm:gap-4 lg:overflow-visible lg:pb-0">
+              <div className="flex min-w-0 max-w-full items-stretch gap-3 overflow-x-auto pb-2 pt-2 sm:gap-4 [scrollbar-width:thin]">
                 {deckMovies.map(({ movie, idx }) => {
                   const cardMatching = getMatchingSessions(
                     movie,
@@ -483,6 +502,10 @@ export function HeroCatalogView({
                   );
                   const cardSession = pickPreferredSession(movie, cardMatching);
                   const cardPrice = getLowestPrice(movie, cardMatching);
+                  const cardClassInfo = resolveClassificationSymbol(
+                    movie.rating,
+                    movie.genre.split(','),
+                  );
                   return (
                     <button
                       key={movie.id}
@@ -500,8 +523,13 @@ export function HeroCatalogView({
 
                       {/* Top comparative pills: Classificação & Nota */}
                       <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between gap-1.5 p-2.5">
-                        <span className="rounded bg-black/75 px-1.5 py-0.5 text-[10px] font-bold uppercase text-white backdrop-blur-sm">
-                          {movie.rating}
+                        <span className="inline-flex items-center gap-1 rounded bg-black/75 px-1.5 py-0.5 text-[10px] font-bold uppercase text-white backdrop-blur-sm">
+                          <img
+                            src={cardClassInfo.iconSrc}
+                            alt=""
+                            className="h-4 w-4 shrink-0 rounded-sm object-contain"
+                          />
+                          <span>{movie.rating}</span>
                         </span>
                         {typeof movie.ratingAvg === 'number' && (
                           <span className="inline-flex items-center gap-0.5 rounded-full bg-black/75 px-2 py-0.5 text-[10px] font-bold text-[#FCD34D] backdrop-blur-sm">

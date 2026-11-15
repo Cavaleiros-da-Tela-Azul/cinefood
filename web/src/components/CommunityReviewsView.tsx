@@ -1,4 +1,4 @@
-import { FormEvent, KeyboardEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
   ArrowUpDown,
@@ -6,6 +6,11 @@ import {
   Building2,
   Calendar,
   CheckCircle2,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   Clock,
   Film,
   Loader2,
@@ -14,6 +19,7 @@ import {
   Pencil,
   Search,
   ShieldCheck,
+  SlidersHorizontal,
   Sparkles,
   Star,
   Ticket,
@@ -34,6 +40,7 @@ import {
   ExtendedCatalogEntry,
   fetchExtendedCatalogPage,
   fetchMovieExternalRatings,
+  resolveClassificationSymbol,
 } from '../services/movieCatalogApi';
 
 export interface CommunityReviewsViewProps {
@@ -156,19 +163,24 @@ export function CommunityReviewsView({
   const [searchInput, setSearchInput] = useState<string>('');
   const [debouncedQuery, setDebouncedQuery] = useState<string>('');
   const [selectedGenreId, setSelectedGenreId] = useState<string>('ALL');
+  const [onlyInTheaters, setOnlyInTheaters] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [catalogItems, setCatalogItems] = useState<ExtendedCatalogEntry[]>(() =>
-    movies.map(movieToCatalogEntry),
+    movies.slice(0, 10).map(movieToCatalogEntry),
   );
   const [genreOptions, setGenreOptions] = useState<CatalogGenreOption[]>([]);
   const [catalogSource, setCatalogSource] = useState<'tmdb-api' | 'itunes-api' | 'fallback'>(
     'fallback',
   );
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true);
-  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const [catalogError, setCatalogError] = useState<string | null>(null);
   const [brokenPosters, setBrokenPosters] = useState<Record<string, boolean>>({});
+  const [genreDropdownOpen, setGenreDropdownOpen] = useState<boolean>(false);
+  const [pageSizeDropdownOpen, setPageSizeDropdownOpen] = useState<boolean>(false);
+  const catalogTopRef = useRef<HTMLDivElement>(null);
+  const filterToolbarRef = useRef<HTMLDivElement>(null);
 
   // Level 2: Selected movie sheet & sub-tab state
   const [selectedEntry, setSelectedEntry] = useState<ExtendedCatalogEntry | null>(() => {
@@ -207,25 +219,72 @@ export function CommunityReviewsView({
     return () => window.clearTimeout(timer);
   }, [searchInput]);
 
-  // Reset pagination when query or genre changes
+  // Close dropdown menus when clicking outside the filter toolbar
+  useEffect(() => {
+    const handlePointerDown = (event: MouseEvent) => {
+      if (
+        filterToolbarRef.current &&
+        !filterToolbarRef.current.contains(event.target as Node)
+      ) {
+        setGenreDropdownOpen(false);
+        setPageSizeDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handlePointerDown);
+    return () => document.removeEventListener('mousedown', handlePointerDown);
+  }, []);
+
+  // Reset pagination when query, genre, pageSize, or in-theaters filter changes
   useEffect(() => {
     setPage(1);
-  }, [debouncedQuery, selectedGenreId]);
+  }, [debouncedQuery, selectedGenreId, pageSize, onlyInTheaters]);
 
-  // Fetch paginated extended catalog
+  // Fetch paginated extended catalog (true page-by-page replacement, limited to pageSize)
   useEffect(() => {
     let cancelled = false;
-    const loadingFirstPage = page === 1;
-
-    if (loadingFirstPage) {
-      setIsLoadingPage(true);
-    } else {
-      setIsLoadingMore(true);
-    }
+    setIsLoadingPage(true);
     setCatalogError(null);
+
+    if (onlyInTheaters) {
+      const normalizedQ = debouncedQuery.toLowerCase();
+      const selectedGenreLabel = genreOptions
+        .find((g) => g.id === selectedGenreId)
+        ?.name.toLowerCase();
+
+      const filteredInTheaters = movies
+        .map(movieToCatalogEntry)
+        .filter((entry) => {
+          const matchesQuery =
+            !normalizedQ ||
+            entry.title.toLowerCase().includes(normalizedQ) ||
+            Boolean(entry.originalTitle?.toLowerCase().includes(normalizedQ));
+          const matchesGenre =
+            selectedGenreId === 'ALL' ||
+            entry.genres.some((g) => {
+              const lowerG = g.toLowerCase();
+              return (
+                lowerG === selectedGenreId.toLowerCase() ||
+                (selectedGenreLabel ? lowerG === selectedGenreLabel : false)
+              );
+            });
+          return matchesQuery && matchesGenre;
+        });
+
+      const totalTheaterPages = Math.max(
+        1,
+        Math.ceil(filteredInTheaters.length / pageSize),
+      );
+      const safePage = Math.min(page, totalTheaterPages);
+      const startIdx = (safePage - 1) * pageSize;
+      setCatalogItems(filteredInTheaters.slice(startIdx, startIdx + pageSize));
+      setTotalPages(totalTheaterPages);
+      setIsLoadingPage(false);
+      return;
+    }
 
     fetchExtendedCatalogPage({
       page,
+      pageSize,
       query: debouncedQuery || undefined,
       genreId: selectedGenreId !== 'ALL' ? selectedGenreId : undefined,
       fallbackMovies: movies,
@@ -237,51 +296,50 @@ export function CommunityReviewsView({
         if (result.genres.length > 0) {
           setGenreOptions(result.genres);
         }
-        setCatalogItems((prev) => {
-          if (loadingFirstPage) return result.items;
-          const seen = new Set(prev.map((item) => item.id));
-          const merged = [...prev];
-          for (const item of result.items) {
-            if (!seen.has(item.id)) {
-              seen.add(item.id);
-              merged.push(item);
-            }
-          }
-          return merged;
-        });
+        setCatalogItems(result.items.slice(0, pageSize));
       })
       .catch(() => {
         if (cancelled) return;
         setCatalogError('Catálogo externo indisponível no momento; exibindo acervo local.');
         setCatalogSource('fallback');
-        if (loadingFirstPage) {
-          const normalizedQ = debouncedQuery.toLowerCase();
-          const localFallback = movies
-            .map(movieToCatalogEntry)
-            .filter((entry) => {
-              const matchesQuery =
-                !normalizedQ || entry.title.toLowerCase().includes(normalizedQ);
-              const matchesGenre =
-                selectedGenreId === 'ALL' ||
-                entry.genres.some(
-                  (g) => g.toLowerCase() === selectedGenreId.toLowerCase(),
-                );
-              return matchesQuery && matchesGenre;
-            });
-          setCatalogItems(localFallback);
-          setTotalPages(1);
-        }
+        const normalizedQ = debouncedQuery.toLowerCase();
+        const localFallback = movies
+          .map(movieToCatalogEntry)
+          .filter((entry) => {
+            const matchesQuery =
+              !normalizedQ || entry.title.toLowerCase().includes(normalizedQ);
+            const matchesGenre =
+              selectedGenreId === 'ALL' ||
+              entry.genres.some(
+                (g) => g.toLowerCase() === selectedGenreId.toLowerCase(),
+              );
+            return matchesQuery && matchesGenre;
+          });
+        const totalLocalPages = Math.max(1, Math.ceil(localFallback.length / pageSize));
+        const startIdx = (page - 1) * pageSize;
+        setCatalogItems(localFallback.slice(startIdx, startIdx + pageSize));
+        setTotalPages(totalLocalPages);
       })
       .finally(() => {
         if (cancelled) return;
         setIsLoadingPage(false);
-        setIsLoadingMore(false);
       });
 
     return () => {
       cancelled = true;
     };
-  }, [page, debouncedQuery, selectedGenreId, movies]);
+  }, [page, pageSize, debouncedQuery, selectedGenreId, onlyInTheaters, movies, genreOptions]);
+
+  const handleGoToPage = (targetPage: number) => {
+    const clamped = Math.max(1, Math.min(totalPages, targetPage));
+    if (clamped === page) return;
+    setPage(clamped);
+    if (catalogTopRef.current && typeof catalogTopRef.current.scrollIntoView === 'function') {
+      catalogTopRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   // Sync deep-link props (e.g., "Ver Comentários da Rede" from MovieDetailView)
   useEffect(() => {
@@ -648,11 +706,23 @@ export function CommunityReviewsView({
                       {genre}
                     </span>
                   ))}
-                  {selectedEntry.advisoryRating && (
-                    <span className="rounded-full border border-[var(--amber-progress)]/40 bg-[var(--amber-progress)]/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#FCD34D]">
-                      {selectedEntry.advisoryRating}
-                    </span>
-                  )}
+                  {(selectedEntry.advisoryRating || matchedTheaterMovie?.rating) && (() => {
+                    const ratingStr = selectedEntry.advisoryRating || matchedTheaterMovie?.rating || 'Livre';
+                    const classInfo = resolveClassificationSymbol(ratingStr);
+                    return (
+                      <span
+                        title={classInfo.fullDescription}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-[var(--amber-progress)]/40 bg-[var(--amber-progress)]/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#FCD34D]"
+                      >
+                        <img
+                          src={classInfo.iconSrc}
+                          alt={classInfo.fullDescription}
+                          className="h-4 w-4 rounded-sm object-contain"
+                        />
+                        {ratingStr}
+                      </span>
+                    );
+                  })()}
                 </div>
 
                 <h1 className="font-display mt-3 break-words text-3xl font-extrabold uppercase tracking-tight text-[var(--text-primary)] sm:text-4xl lg:text-5xl">
@@ -1366,7 +1436,10 @@ export function CommunityReviewsView({
       aria-label="Catálogo extenso de filmes CineFood"
     >
       {/* Top Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[var(--border-subtle)] pb-6">
+      <div
+        ref={catalogTopRef}
+        className="flex flex-wrap items-start justify-between gap-4 border-b border-[var(--border-subtle)] pb-6"
+      >
         <div className="min-w-0">
           <button
             type="button"
@@ -1406,82 +1479,317 @@ export function CommunityReviewsView({
         </div>
       </div>
 
-      {/* Search & Genre Filter Controls */}
-      <div className="mt-6 space-y-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4 sm:p-5">
-        <form onSubmit={handleSearchSubmit} className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="relative min-w-0 flex-1">
-            <Search
-              className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]"
-              aria-hidden="true"
-            />
-            <label htmlFor="catalog-search-input" className="sr-only">
-              Buscar filmes por título
+      {/* Unified Search, Category Dropdown, Page-Size & In-Theaters Controls */}
+      <div
+        ref={filterToolbarRef}
+        className="mt-6 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4 sm:p-5"
+      >
+        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-[1fr_240px_175px_auto]">
+          {/* Input 1: Search by title */}
+          <form onSubmit={handleSearchSubmit} className="min-w-0">
+            <label
+              htmlFor="catalog-search-input"
+              className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]"
+            >
+              Buscar Filme
             </label>
-            <input
-              id="catalog-search-input"
-              type="search"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Buscar filmes por título..."
-              className={`min-h-[44px] w-full rounded-xl border border-white/15 bg-[var(--bg-surface)] py-2.5 pl-10 pr-11 text-base text-[var(--text-primary)] placeholder:text-[var(--text-muted)] sm:text-sm ${FOCUS_RING_CLASS}`}
-            />
-            {searchInput && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchInput('');
-                  setDebouncedQuery('');
-                }}
-                aria-label="Limpar busca"
-                className={`absolute right-1 top-1/2 inline-flex min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-lg text-[var(--text-muted)] hover:text-white ${FOCUS_RING_CLASS}`}
-              >
-                <X className="h-4 w-4" aria-hidden="true" />
-              </button>
-            )}
-          </div>
-        </form>
+            <div className="relative">
+              <Search
+                className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]"
+                aria-hidden="true"
+              />
+              <input
+                id="catalog-search-input"
+                type="search"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="Digite o título do filme..."
+                className={`min-h-[44px] w-full rounded-xl border border-white/15 bg-[var(--bg-surface)] py-2.5 pl-10 pr-10 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] transition-colors hover:border-white/30 focus:border-[var(--brand-red)] ${FOCUS_RING_CLASS}`}
+              />
+              {searchInput && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchInput('');
+                    setDebouncedQuery('');
+                  }}
+                  aria-label="Limpar busca"
+                  className={`absolute right-1 top-1/2 inline-flex min-h-[36px] min-w-[36px] -translate-y-1/2 items-center justify-center rounded-lg text-[var(--text-muted)] hover:text-white ${FOCUS_RING_CLASS}`}
+                >
+                  <X className="h-4 w-4" aria-hidden="true" />
+                </button>
+              )}
+            </div>
+          </form>
 
-        <div>
-          <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)]">
-            Filtrar por categoria
-          </span>
-          <div
-            className="flex flex-wrap gap-2"
-            role="group"
-            aria-label="Filtrar catálogo por categoria"
-          >
+          {/* Input 2: Category Select Dropdown (opens on click) */}
+          <div className="relative min-w-0">
+            <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">
+              Categoria / Gênero
+            </span>
             <button
               type="button"
-              aria-pressed={selectedGenreId === 'ALL'}
-              onClick={() => setSelectedGenreId('ALL')}
-              className={`min-h-[44px] rounded-full border px-4 py-2 text-xs font-semibold transition-colors ${FOCUS_RING_CLASS} ${
-                selectedGenreId === 'ALL'
-                  ? 'border-[var(--brand-red)] bg-[var(--brand-red)] text-white'
-                  : 'border-white/15 bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:border-white/35 hover:text-[var(--text-primary)]'
+              aria-haspopup="listbox"
+              aria-expanded={genreDropdownOpen}
+              aria-label="Filtrar catálogo por categoria"
+              onClick={() => {
+                setGenreDropdownOpen((prev) => !prev);
+                setPageSizeDropdownOpen(false);
+              }}
+              className={`flex min-h-[44px] w-full items-center justify-between gap-2 rounded-xl border px-3.5 py-2.5 text-left text-sm font-medium transition-colors ${FOCUS_RING_CLASS} ${
+                selectedGenreId !== 'ALL'
+                  ? 'border-[var(--brand-red)]/70 bg-[var(--brand-red)]/15 text-white'
+                  : 'border-white/15 bg-[var(--bg-surface)] text-[var(--text-primary)] hover:border-white/30'
               }`}
             >
-              Todos
+              <span className="inline-flex min-w-0 items-center gap-2 truncate">
+                <SlidersHorizontal
+                  className={`h-4 w-4 shrink-0 ${
+                    selectedGenreId !== 'ALL'
+                      ? 'text-[var(--brand-red)]'
+                      : 'text-[var(--text-muted)]'
+                  }`}
+                  aria-hidden="true"
+                />
+                <span className="truncate">
+                  {selectedGenreId === 'ALL'
+                    ? 'Todas as categorias'
+                    : (effectiveGenreOptions.find((g) => g.id === selectedGenreId)?.name ??
+                      selectedGenreId)}
+                </span>
+              </span>
+              <ChevronDown
+                className={`h-4 w-4 shrink-0 text-[var(--text-muted)] transition-transform duration-200 ${
+                  genreDropdownOpen ? 'rotate-180 text-white' : ''
+                }`}
+                aria-hidden="true"
+              />
             </button>
-            {effectiveGenreOptions.map((genre) => {
-              const active = selectedGenreId === genre.id;
-              return (
+
+            {genreDropdownOpen && (
+              <div
+                role="listbox"
+                aria-label="Opções de categoria"
+                className="absolute left-0 right-0 top-[calc(100%+6px)] z-30 max-h-72 overflow-y-auto rounded-xl border border-white/15 bg-[#14161E] p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] backdrop-blur-xl [scrollbar-width:thin]"
+              >
                 <button
-                  key={genre.id}
                   type="button"
-                  aria-pressed={active}
-                  onClick={() => setSelectedGenreId(genre.id)}
-                  className={`min-h-[44px] rounded-full border px-4 py-2 text-xs font-semibold transition-colors ${FOCUS_RING_CLASS} ${
-                    active
-                      ? 'border-[var(--brand-red)] bg-[var(--brand-red)] text-white'
-                      : 'border-white/15 bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:border-white/35 hover:text-[var(--text-primary)]'
+                  role="option"
+                  aria-selected={selectedGenreId === 'ALL'}
+                  onClick={() => {
+                    setSelectedGenreId('ALL');
+                    setGenreDropdownOpen(false);
+                  }}
+                  className={`flex min-h-[40px] w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-semibold transition-colors ${
+                    selectedGenreId === 'ALL'
+                      ? 'bg-[var(--brand-red)] text-white'
+                      : 'text-[var(--text-secondary)] hover:bg-white/10 hover:text-white'
                   }`}
                 >
-                  {genre.name}
+                  <span>Todas as categorias</span>
+                  {selectedGenreId === 'ALL' && (
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  )}
                 </button>
-              );
-            })}
+
+                {effectiveGenreOptions.map((genre) => {
+                  const active = selectedGenreId === genre.id;
+                  return (
+                    <button
+                      key={genre.id}
+                      type="button"
+                      role="option"
+                      aria-selected={active}
+                      onClick={() => {
+                        setSelectedGenreId(genre.id);
+                        setGenreDropdownOpen(false);
+                      }}
+                      className={`mt-0.5 flex min-h-[40px] w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-semibold transition-colors ${
+                        active
+                          ? 'bg-[var(--brand-red)] text-white'
+                          : 'text-[var(--text-secondary)] hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      <span>{genre.name}</span>
+                      {active && (
+                        <CheckCircle2 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Input 3: Movies per Page Select Dropdown (opens on click) */}
+          <div className="relative min-w-0">
+            <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">
+              Filmes por página
+            </span>
+            <button
+              type="button"
+              aria-haspopup="listbox"
+              aria-expanded={pageSizeDropdownOpen}
+              aria-label="Selecionar quantidade de filmes por página"
+              onClick={() => {
+                setPageSizeDropdownOpen((prev) => !prev);
+                setGenreDropdownOpen(false);
+              }}
+              className={`flex min-h-[44px] w-full items-center justify-between gap-2 rounded-xl border border-white/15 bg-[var(--bg-surface)] px-3.5 py-2.5 text-left text-sm font-medium text-[var(--text-primary)] transition-colors hover:border-white/30 ${FOCUS_RING_CLASS}`}
+            >
+              <span className="inline-flex items-center gap-2 truncate">
+                <Film className="h-4 w-4 shrink-0 text-[var(--amber-progress)]" aria-hidden="true" />
+                <span>{pageSize} filmes</span>
+              </span>
+              <ChevronDown
+                className={`h-4 w-4 shrink-0 text-[var(--text-muted)] transition-transform duration-200 ${
+                  pageSizeDropdownOpen ? 'rotate-180 text-white' : ''
+                }`}
+                aria-hidden="true"
+              />
+            </button>
+
+            {pageSizeDropdownOpen && (
+              <div
+                role="listbox"
+                aria-label="Opções de quantidade por página"
+                className="absolute left-0 right-0 top-[calc(100%+6px)] z-30 rounded-xl border border-white/15 bg-[#14161E] p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] backdrop-blur-xl"
+              >
+                {[10, 15, 20].map((sizeOption) => {
+                  const active = pageSize === sizeOption;
+                  return (
+                    <button
+                      key={sizeOption}
+                      type="button"
+                      role="option"
+                      aria-selected={active}
+                      onClick={() => {
+                        setPageSize(sizeOption);
+                        setPageSizeDropdownOpen(false);
+                      }}
+                      className={`mt-0.5 flex min-h-[40px] w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-semibold transition-colors first:mt-0 ${
+                        active
+                          ? 'bg-[var(--brand-red)] text-white'
+                          : 'text-[var(--text-secondary)] hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      <span>{sizeOption} filmes por página</span>
+                      {active && (
+                        <CheckCircle2 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Input 4: Quick Filter for Movies Currently in Theaters ("Em Cartaz") */}
+          <div className="min-w-0">
+            <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">
+              Sessões no Cinema
+            </span>
+            <button
+              type="button"
+              aria-pressed={onlyInTheaters}
+              onClick={() => {
+                setOnlyInTheaters((prev) => !prev);
+                setGenreDropdownOpen(false);
+                setPageSizeDropdownOpen(false);
+              }}
+              className={`flex min-h-[44px] w-full items-center justify-between gap-2.5 rounded-xl border px-3.5 py-2.5 text-left text-sm font-semibold transition-all ${FOCUS_RING_CLASS} ${
+                onlyInTheaters
+                  ? 'border-[var(--brand-red)] bg-[var(--brand-red)] text-white shadow-[0_10px_24px_rgba(229,9,20,0.32)]'
+                  : 'border-white/15 bg-[var(--bg-surface)] text-[var(--text-primary)] hover:border-[var(--brand-red)]/60 hover:bg-white/5'
+              }`}
+            >
+              <span className="inline-flex items-center gap-2 whitespace-nowrap">
+                <Ticket
+                  className={`h-4 w-4 shrink-0 ${
+                    onlyInTheaters ? 'text-white' : 'text-[var(--brand-red)]'
+                  }`}
+                  aria-hidden="true"
+                />
+                <span>Filmes em Cartaz</span>
+              </span>
+              <span
+                className={`inline-flex min-w-[26px] items-center justify-center rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                  onlyInTheaters
+                    ? 'bg-white/25 text-white'
+                    : 'bg-[var(--brand-red)]/20 text-[#FCA5A5]'
+                }`}
+              >
+                {movies.length}
+              </span>
+            </button>
           </div>
         </div>
+
+        {/* Active filter bar summary (only shown when a filter is active) */}
+        {(debouncedQuery || selectedGenreId !== 'ALL' || onlyInTheaters) && (
+          <div className="mt-3.5 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] pt-3 text-xs">
+            <div className="flex flex-wrap items-center gap-2 text-[var(--text-secondary)]">
+              <span>Filtros ativos:</span>
+              {onlyInTheaters && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--brand-red)]/50 bg-[var(--brand-red)]/20 px-3 py-1 font-semibold text-white">
+                  <Ticket className="h-3 w-3 text-[#FCA5A5]" aria-hidden="true" />
+                  Filmes em Cartaz ({movies.length})
+                  <button
+                    type="button"
+                    onClick={() => setOnlyInTheaters(false)}
+                    aria-label="Remover filtro de filmes em cartaz"
+                    className="rounded-full p-0.5 hover:bg-white/15"
+                  >
+                    <X className="h-3 w-3" aria-hidden="true" />
+                  </button>
+                </span>
+              )}
+              {selectedGenreId !== 'ALL' && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--brand-red)]/40 bg-[var(--brand-red)]/15 px-3 py-1 font-semibold text-white">
+                  {effectiveGenreOptions.find((g) => g.id === selectedGenreId)?.name ??
+                    selectedGenreId}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedGenreId('ALL')}
+                    aria-label="Remover filtro de categoria"
+                    className="rounded-full p-0.5 hover:bg-white/15"
+                  >
+                    <X className="h-3 w-3" aria-hidden="true" />
+                  </button>
+                </span>
+              )}
+              {debouncedQuery && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-[var(--bg-surface)] px-3 py-1 font-semibold text-white">
+                  &ldquo;{debouncedQuery}&rdquo;
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchInput('');
+                      setDebouncedQuery('');
+                    }}
+                    aria-label="Remover termo de busca"
+                    className="rounded-full p-0.5 hover:bg-white/15"
+                  >
+                    <X className="h-3 w-3" aria-hidden="true" />
+                  </button>
+                </span>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setSearchInput('');
+                setDebouncedQuery('');
+                setSelectedGenreId('ALL');
+                setOnlyInTheaters(false);
+              }}
+              className={`inline-flex items-center gap-1 text-xs font-semibold text-[var(--amber-progress)] hover:underline ${FOCUS_RING_CLASS}`}
+            >
+              Limpar todos os filtros
+            </button>
+          </div>
+        )}
       </div>
 
       {catalogError && (
@@ -1525,13 +1833,14 @@ export function CommunityReviewsView({
           <p className="mt-1 text-sm text-[var(--text-secondary)]">
             Tente outro termo de busca ou remova o filtro de categoria selecionado.
           </p>
-          {(debouncedQuery || selectedGenreId !== 'ALL') && (
+          {(debouncedQuery || selectedGenreId !== 'ALL' || onlyInTheaters) && (
             <button
               type="button"
               onClick={() => {
                 setSearchInput('');
                 setDebouncedQuery('');
                 setSelectedGenreId('ALL');
+                setOnlyInTheaters(false);
               }}
               className={`mt-5 inline-flex min-h-[44px] items-center rounded-full border border-white/20 px-5 py-2 text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] hover:bg-white/10 ${FOCUS_RING_CLASS}`}
             >
@@ -1580,6 +1889,21 @@ export function CommunityReviewsView({
                         Em Cartaz
                       </span>
                     )}
+
+                    {(entry.advisoryRating || matchedMovie?.rating) && (() => {
+                      const entryClassInfo = resolveClassificationSymbol(
+                        entry.advisoryRating || matchedMovie?.rating || 'Livre',
+                      );
+                      return (
+                        <img
+                          src={entryClassInfo.iconSrc}
+                          alt={entryClassInfo.fullDescription}
+                          title={entryClassInfo.fullDescription}
+                          loading="lazy"
+                          className="absolute right-2.5 top-2.5 h-6 w-6 rounded-md object-contain shadow-md"
+                        />
+                      );
+                    })()}
                   </div>
 
                   <div className="flex min-w-0 flex-1 flex-col justify-between gap-1.5 p-3">
@@ -1595,31 +1919,137 @@ export function CommunityReviewsView({
             })}
           </div>
 
-          {/* Pagination Controls */}
-          <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-[var(--border-subtle)] pt-6 sm:flex-row">
-            <p className="text-xs font-medium text-[var(--text-secondary)]">
-              Exibindo {catalogItems.length}{' '}
-              {catalogItems.length === 1 ? 'filme' : 'filmes'} · Página {page} de {totalPages}
-            </p>
+          {/* Numbered Pagination Bar */}
+          {(() => {
+            const windowSize = 5;
+            const half = Math.floor(windowSize / 2);
+            let startPage = Math.max(1, page - half);
+            const endPage = Math.min(totalPages, startPage + windowSize - 1);
+            if (endPage - startPage + 1 < windowSize) {
+              startPage = Math.max(1, endPage - windowSize + 1);
+            }
+            const pageNumbers: number[] = [];
+            for (let p = startPage; p <= endPage; p++) {
+              pageNumbers.push(p);
+            }
+            const rangeStart = (page - 1) * pageSize + 1;
+            const rangeEnd = (page - 1) * pageSize + catalogItems.length;
 
-            {page < totalPages && (
-              <button
-                type="button"
-                disabled={isLoadingMore}
-                onClick={() => setPage((prev) => prev + 1)}
-                className={`inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-white/20 bg-[var(--bg-elevated)] px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] transition-colors hover:border-white/40 hover:bg-white/10 disabled:opacity-60 ${FOCUS_RING_CLASS}`}
+            return (
+              <nav
+                aria-label="Paginação do catálogo de filmes"
+                className="mt-8 flex flex-col items-center justify-between gap-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-4 py-4 sm:flex-row sm:px-6"
               >
-                {isLoadingMore ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                    <span>Carregando mais...</span>
-                  </>
-                ) : (
-                  <span>Carregar mais filmes</span>
+                <p className="text-xs font-medium text-[var(--text-secondary)]">
+                  Exibindo <span className="font-mono-tabular font-bold text-white">{rangeStart}–{rangeEnd}</span>{' '}
+                  ({catalogItems.length} {catalogItems.length === 1 ? 'filme' : 'filmes'} nesta página) ·{' '}
+                  Página <span className="font-mono-tabular font-bold text-white">{page}</span> de{' '}
+                  <span className="font-mono-tabular font-bold text-white">{totalPages}</span>
+                </p>
+
+                {totalPages > 1 && (
+                  <div className="flex flex-wrap items-center justify-center gap-1.5">
+                    <button
+                      type="button"
+                      disabled={page <= 1}
+                      onClick={() => handleGoToPage(1)}
+                      aria-label="Primeira página"
+                      title="Primeira página"
+                      className={`inline-flex min-h-[40px] min-w-[40px] items-center justify-center rounded-xl border border-white/15 bg-[var(--bg-surface)] text-xs font-semibold text-[var(--text-secondary)] transition-colors hover:border-white/35 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 ${FOCUS_RING_CLASS}`}
+                    >
+                      <ChevronsLeft className="h-4 w-4" aria-hidden="true" />
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={page <= 1}
+                      onClick={() => handleGoToPage(page - 1)}
+                      aria-label="Página anterior"
+                      className={`inline-flex min-h-[40px] items-center gap-1 rounded-xl border border-white/15 bg-[var(--bg-surface)] px-3 py-2 text-xs font-semibold text-[var(--text-secondary)] transition-colors hover:border-white/35 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 ${FOCUS_RING_CLASS}`}
+                    >
+                      <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                      <span className="hidden sm:inline">Anterior</span>
+                    </button>
+
+                    {startPage > 1 && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => handleGoToPage(1)}
+                          className={`font-mono-tabular inline-flex min-h-[40px] min-w-[40px] items-center justify-center rounded-xl border border-white/15 bg-[var(--bg-surface)] px-2.5 text-xs font-bold text-[var(--text-secondary)] transition-colors hover:border-white/35 hover:text-white ${FOCUS_RING_CLASS}`}
+                        >
+                          1
+                        </button>
+                        {startPage > 2 && (
+                          <span className="px-1 text-xs text-[var(--text-muted)]" aria-hidden="true">
+                            …
+                          </span>
+                        )}
+                      </>
+                    )}
+
+                    {pageNumbers.map((pageNum) => {
+                      const active = pageNum === page;
+                      return (
+                        <button
+                          key={pageNum}
+                          type="button"
+                          aria-current={active ? 'page' : undefined}
+                          onClick={() => handleGoToPage(pageNum)}
+                          className={`font-mono-tabular inline-flex min-h-[40px] min-w-[40px] items-center justify-center rounded-xl border px-2.5 text-xs font-bold transition-colors ${FOCUS_RING_CLASS} ${
+                            active
+                              ? 'border-[var(--brand-red)] bg-[var(--brand-red)] text-white shadow-md'
+                              : 'border-white/15 bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:border-white/35 hover:text-white'
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+
+                    {endPage < totalPages && (
+                      <>
+                        {endPage < totalPages - 1 && (
+                          <span className="px-1 text-xs text-[var(--text-muted)]" aria-hidden="true">
+                            …
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleGoToPage(totalPages)}
+                          className={`font-mono-tabular inline-flex min-h-[40px] min-w-[40px] items-center justify-center rounded-xl border border-white/15 bg-[var(--bg-surface)] px-2.5 text-xs font-bold text-[var(--text-secondary)] transition-colors hover:border-white/35 hover:text-white ${FOCUS_RING_CLASS}`}
+                        >
+                          {totalPages}
+                        </button>
+                      </>
+                    )}
+
+                    <button
+                      type="button"
+                      disabled={page >= totalPages}
+                      onClick={() => handleGoToPage(page + 1)}
+                      aria-label="Próxima página"
+                      className={`inline-flex min-h-[40px] items-center gap-1 rounded-xl border border-white/15 bg-[var(--bg-surface)] px-3 py-2 text-xs font-semibold text-[var(--text-secondary)] transition-colors hover:border-white/35 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 ${FOCUS_RING_CLASS}`}
+                    >
+                      <span className="hidden sm:inline">Próxima</span>
+                      <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={page >= totalPages}
+                      onClick={() => handleGoToPage(totalPages)}
+                      aria-label="Última página"
+                      title="Última página"
+                      className={`inline-flex min-h-[40px] min-w-[40px] items-center justify-center rounded-xl border border-white/15 bg-[var(--bg-surface)] text-xs font-semibold text-[var(--text-secondary)] transition-colors hover:border-white/35 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 ${FOCUS_RING_CLASS}`}
+                    >
+                      <ChevronsRight className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  </div>
                 )}
-              </button>
-            )}
-          </div>
+              </nav>
+            );
+          })()}
         </>
       )}
     </section>

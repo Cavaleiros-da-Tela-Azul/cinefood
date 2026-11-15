@@ -18,6 +18,7 @@ import {
   X,
 } from 'lucide-react';
 import { COMPLEX_OPTIONS, DATE_OPTIONS, MovieItem, SessionSlot } from '../data/cinemaData';
+import { resolveClassificationSymbol } from '../services/movieCatalogApi';
 
 export const DETAIL_FORMAT_FILTERS = ['Todos', 'IMAX 3D', 'Dolby Atmos', '2D'] as const;
 export type DetailFormatFilter = (typeof DETAIL_FORMAT_FILTERS)[number];
@@ -256,9 +257,14 @@ export function MovieDetailView({
       className="relative min-h-[calc(100dvh-68px)] overflow-x-hidden"
       aria-label={`Detalhes de ${movie.title}`}
     >
-      {/* Full-bleed moody cinema backdrop */}
-      <div className="absolute inset-0 z-0">
-        <img src={movie.backdropSrc} alt="" className="h-full w-full object-cover object-center" />
+      {/* Full-bleed moody cinema backdrop (fixed to viewport so changing date/session filters never zooms or shifts the image) */}
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        <img
+          src={movie.backdropSrc}
+          alt=""
+          decoding="async"
+          className="h-full w-full object-cover object-center"
+        />
         <div
           className="absolute inset-0"
           style={{
@@ -395,23 +401,39 @@ export function MovieDetailView({
                 className="mt-7"
               >
                 <div className="max-w-2xl">
-                  <div className="mb-3 flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)]">
-                    <span className="rounded border border-[var(--border-strong)] bg-white/10 px-2.5 py-0.5 text-[var(--text-primary)]">
-                      {movie.rating}
-                    </span>
-                    <span className="inline-flex items-center gap-1.5">
-                      <Clock className="h-3.5 w-3.5" aria-hidden="true" />
-                      {movie.duration}
-                    </span>
-                    {typeof movie.ratingAvg === 'number' && (
-                      <span className="inline-flex items-center gap-1 text-[#FCD34D]">
-                        <Star className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
-                        <span className="font-mono-tabular">{movie.ratingAvg.toFixed(1)}</span>
-                      </span>
-                    )}
-                    <span>·</span>
-                    <span>{movie.genre}</span>
-                  </div>
+                  {(() => {
+                    const detailClassInfo = resolveClassificationSymbol(
+                      movie.rating,
+                      movie.genre.split(','),
+                    );
+                    return (
+                      <div className="mb-3 flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)]">
+                        <span
+                          title={detailClassInfo.fullDescription}
+                          className="inline-flex items-center gap-1.5 rounded border border-[var(--border-strong)] bg-white/10 px-2 py-0.5 text-[var(--text-primary)]"
+                        >
+                          <img
+                            src={detailClassInfo.iconSrc}
+                            alt={detailClassInfo.fullDescription}
+                            className="h-5 w-5 shrink-0 rounded-sm object-contain"
+                          />
+                          <span>{movie.rating}</span>
+                        </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                          {movie.duration}
+                        </span>
+                        {typeof movie.ratingAvg === 'number' && (
+                          <span className="inline-flex items-center gap-1 text-[#FCD34D]">
+                            <Star className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
+                            <span className="font-mono-tabular">{movie.ratingAvg.toFixed(1)}</span>
+                          </span>
+                        )}
+                        <span>·</span>
+                        <span>{movie.genre}</span>
+                      </div>
+                    );
+                  })()}
 
                   <h1 className="font-display line-clamp-2 break-words text-4xl font-extrabold uppercase leading-[0.92] tracking-[-0.02em] text-[var(--text-primary)] sm:text-7xl lg:text-8xl">
                     {movie.title}
