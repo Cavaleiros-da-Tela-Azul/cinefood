@@ -193,12 +193,12 @@ export const AdminOccupancyView: React.FC<AdminOccupancyViewProps> = ({
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-amber-400">
-            RF-10 · RF-15 · Gestão em Tempo Real
+            Gestão em Tempo Real
           </p>
-          <h2 className="font-display text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--text-primary)] mt-0.5">
+          <h2 className="font-display mt-0.5 text-2xl font-bold uppercase tracking-tight text-[var(--text-primary)] sm:text-3xl">
             Painel Admin · Sessões, Preços &amp; Ocupação
           </h2>
-          <p className="text-xs text-[var(--text-secondary)] mt-1">
+          <p className="mt-1 text-xs text-[var(--text-secondary)]">
             Fórmula oficial de ocupação:{' '}
             <span className="font-mono text-[var(--text-primary)]">
               ingressos ativos por sessionId ÷ {ROOM_CAPACITY} poltronas/sala × 100
@@ -210,80 +210,80 @@ export const AdminOccupancyView: React.FC<AdminOccupancyViewProps> = ({
         {adminToast && (
           <div
             role="status"
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-emerald-500/15 border border-emerald-400/40 text-xs text-emerald-100"
+            className="inline-flex items-center gap-2 rounded-xl border border-emerald-400/40 bg-emerald-500/15 px-3.5 py-2 text-xs text-emerald-100"
           >
-            <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+            <CheckCircle2 className="h-4 w-4 text-emerald-300" aria-hidden="true" />
             {adminToast}
           </div>
         )}
       </div>
 
-      {/* KPI Cards (Occupancy, Sales, Refunds, Sessions, Stock) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
-        <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-4">
-          <p className="text-xs uppercase tracking-[0.14em] text-[var(--text-secondary)] flex items-center gap-1.5">
-            <BarChart3 className="w-3.5 h-3.5 text-amber-400" />
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="rounded-2xl border border-[var(--border-subtle)] border-t-2 border-t-amber-400 bg-[var(--bg-surface)]/95 p-4 shadow-md">
+          <p className="flex items-center gap-1.5 text-xs uppercase tracking-[0.14em] text-[var(--text-secondary)]">
+            <BarChart3 className="h-3.5 w-3.5 text-amber-400" aria-hidden="true" />
             Ocupação Média da Rede
           </p>
-          <p className="font-mono text-3xl font-bold text-[var(--text-primary)] mt-1 tabular-nums">
+          <p className="font-mono-tabular mt-1.5 text-3xl font-bold text-[var(--text-primary)]">
             {globalOccupancyPct}%
           </p>
-          <p className="font-mono text-xs text-[var(--text-muted)] mt-0.5">
+          <p className="font-mono-tabular mt-0.5 text-xs text-[var(--text-muted)]">
             {totalActiveTickets} / {totalCapacity} assentos ativos
           </p>
         </div>
 
-        <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-4">
-          <p className="text-xs uppercase tracking-[0.14em] text-[var(--text-secondary)] flex items-center gap-1.5">
-            <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
+        <div className="rounded-2xl border border-[var(--border-subtle)] border-t-2 border-t-emerald-400 bg-[var(--bg-surface)]/95 p-4 shadow-md">
+          <p className="flex items-center gap-1.5 text-xs uppercase tracking-[0.14em] text-[var(--text-secondary)]">
+            <DollarSign className="h-3.5 w-3.5 text-emerald-400" aria-hidden="true" />
             Vendas Confirmadas
           </p>
-          <p className="font-mono text-3xl font-bold text-emerald-300 mt-1 tabular-nums">
+          <p className="font-mono-tabular mt-1.5 text-3xl font-bold text-emerald-300">
             R$ {confirmedRevenue}
           </p>
-          <p className="font-mono text-xs text-[var(--text-muted)] mt-0.5">
+          <p className="font-mono-tabular mt-0.5 text-xs text-[var(--text-muted)]">
             {confirmedOrders.length} pedidos ativos/concluídos
           </p>
         </div>
 
-        <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-4">
-          <p className="text-xs uppercase tracking-[0.14em] text-[var(--text-secondary)] flex items-center gap-1.5">
-            <RotateCcw className="w-3.5 h-3.5 text-rose-400" />
+        <div className="rounded-2xl border border-[var(--border-subtle)] border-t-2 border-t-rose-400 bg-[var(--bg-surface)]/95 p-4 shadow-md">
+          <p className="flex items-center gap-1.5 text-xs uppercase tracking-[0.14em] text-[var(--text-secondary)]">
+            <RotateCcw className="h-3.5 w-3.5 text-rose-400" aria-hidden="true" />
             Estornos / Cancelamentos (CDC)
           </p>
-          <p className="font-mono text-3xl font-bold text-rose-300 mt-1 tabular-nums">
+          <p className="font-mono-tabular mt-1.5 text-3xl font-bold text-rose-300">
             R$ {refundedTotal}
           </p>
-          <p className="font-mono text-xs text-[var(--text-muted)] mt-0.5">
+          <p className="font-mono-tabular mt-0.5 text-xs text-[var(--text-muted)]">
             {refundedOrders.length} estornos registrados
           </p>
         </div>
 
-        <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-4">
+        <div className="rounded-2xl border border-[var(--border-subtle)] border-t-2 border-t-white/40 bg-[var(--bg-surface)]/95 p-4 shadow-md">
           <p className="text-xs uppercase tracking-[0.14em] text-[var(--text-secondary)]">
             Sessões Publicadas
           </p>
-          <p className="font-mono text-3xl font-bold text-[var(--text-primary)] mt-1 tabular-nums">
+          <p className="font-mono-tabular mt-1.5 text-3xl font-bold text-[var(--text-primary)]">
             {sessionRows.length}
           </p>
-          <p className="text-xs text-[var(--text-muted)] mt-0.5">
+          <p className="mt-0.5 text-xs text-[var(--text-muted)]">
             {sessionRows.filter((r) => r.session.status === 'ATIVA').length} ativas no catálogo
           </p>
         </div>
 
-        <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-4">
-          <p className="text-xs uppercase tracking-[0.14em] text-[var(--text-secondary)] flex items-center gap-1.5">
-            <Utensils className="w-3.5 h-3.5 text-amber-400" />
+        <div className="rounded-2xl border border-[var(--border-subtle)] border-t-2 border-t-amber-500 bg-[var(--bg-surface)]/95 p-4 shadow-md">
+          <p className="flex items-center gap-1.5 text-xs uppercase tracking-[0.14em] text-[var(--text-secondary)]">
+            <Utensils className="h-3.5 w-3.5 text-amber-400" aria-hidden="true" />
             Alertas de Estoque
           </p>
           <p
-            className={`font-mono text-3xl font-bold mt-1 tabular-nums ${
+            className={`font-mono-tabular mt-1.5 text-3xl font-bold ${
               lowStockItems.length > 0 ? 'text-amber-300' : 'text-emerald-300'
             }`}
           >
             {lowStockItems.length}
           </p>
-          <p className="text-xs text-[var(--text-muted)] mt-0.5">
+          <p className="mt-0.5 line-clamp-2 text-xs text-[var(--text-muted)]">
             {lowStockItems.length > 0
               ? lowStockItems.map((i) => `${i.name} (${i.stock})`).join(' · ')
               : 'Todos os combos com estoque regular.'}
@@ -291,14 +291,14 @@ export const AdminOccupancyView: React.FC<AdminOccupancyViewProps> = ({
         </div>
       </div>
 
-      {/* Responsive Table (modern-web-guidance: responsive-table) */}
+      {/* Responsive Table */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <h3
             id="admin-occupancy-heading"
-            className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-secondary)] flex items-center gap-2"
+            className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-secondary)]"
           >
-            <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />
+            <SlidersHorizontal className="h-3.5 w-3.5 text-amber-400" aria-hidden="true" />
             Grade de Sessões, Status &amp; Precificação Dinâmica
           </h3>
           <span className="font-mono text-xs text-[var(--text-muted)]">
@@ -310,7 +310,7 @@ export const AdminOccupancyView: React.FC<AdminOccupancyViewProps> = ({
           tabIndex={0}
           role="region"
           aria-labelledby="admin-occupancy-heading"
-          className="ops-table-wrapper"
+          className="ops-table-wrapper rounded-2xl"
         >
           <table className="ops-table">
             <thead>
@@ -332,20 +332,20 @@ export const AdminOccupancyView: React.FC<AdminOccupancyViewProps> = ({
                       {session.dateLabel} · {session.time}
                     </div>
                   </th>
-                  <td data-label="Sala &amp; Formato" className="text-xs text-[var(--text-secondary)]">
+                  <td data-label="Sala & Formato" className="text-xs text-[var(--text-secondary)]">
                     <div>{session.room}</div>
                     <div className="text-xs text-[var(--text-muted)]">
                       {session.format} · {session.complex}
                     </div>
                   </td>
-                  <td data-label="Ativos / Total" className="font-mono text-xs text-[var(--text-primary)] tabular-nums">
+                  <td data-label="Ativos / Total" className="font-mono-tabular text-xs text-[var(--text-primary)]">
                     {activeTickets} / {ROOM_CAPACITY}
                   </td>
                   <td data-label="Ocupação" className="min-w-[140px]">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-20 h-2 rounded-full bg-white/10 overflow-hidden">
+                      <div className="h-2 w-20 overflow-hidden rounded-full bg-white/10">
                         <div
-                          className={`h-full rounded-full ${
+                          className={`h-full rounded-full transition-all ${
                             occupancyRate >= 85
                               ? 'bg-[var(--brand-red)]'
                               : occupancyRate >= 55
@@ -355,7 +355,7 @@ export const AdminOccupancyView: React.FC<AdminOccupancyViewProps> = ({
                           style={{ width: `${Math.min(100, occupancyRate)}%` }}
                         />
                       </div>
-                      <span className="font-mono text-xs font-semibold text-[var(--text-primary)] tabular-nums">
+                      <span className="font-mono-tabular text-xs font-semibold text-[var(--text-primary)]">
                         {occupancyRate}%
                       </span>
                     </div>
@@ -367,12 +367,12 @@ export const AdminOccupancyView: React.FC<AdminOccupancyViewProps> = ({
                       onChange={(e) =>
                         handleStatusChange(movie.id, session.id, e.target.value as SessionStatus)
                       }
-                      className={`rounded-md border px-2 py-1.5 font-mono text-xs font-bold focus:outline-none focus:border-[var(--focus-ring)] cursor-pointer ${
+                      className={`min-h-[38px] cursor-pointer rounded-lg border px-2.5 py-1.5 font-mono text-xs font-bold focus:border-[var(--focus-ring)] focus:outline-none ${
                         session.status === 'ATIVA'
-                          ? 'bg-emerald-500/15 border-emerald-400/40 text-emerald-200'
+                          ? 'border-emerald-400/40 bg-emerald-500/15 text-emerald-200'
                           : session.status === 'INATIVA'
-                            ? 'bg-amber-500/15 border-amber-400/40 text-amber-200'
-                            : 'bg-red-500/15 border-red-400/40 text-red-200'
+                            ? 'border-amber-400/40 bg-amber-500/15 text-amber-200'
+                            : 'border-red-400/40 bg-red-500/15 text-red-200'
                       }`}
                     >
                       <option value="ATIVA">ATIVA</option>
@@ -388,11 +388,11 @@ export const AdminOccupancyView: React.FC<AdminOccupancyViewProps> = ({
                         onClick={() =>
                           handlePriceStep(movie.id, session.id, session.basePrice, -2)
                         }
-                        className="w-8 h-8 rounded bg-[var(--bg-elevated)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] text-[var(--text-primary)] font-mono text-xs cursor-pointer"
+                        className="cine-press font-mono h-9 w-9 cursor-pointer rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-xs text-[var(--text-primary)] hover:border-[var(--border-strong)]"
                       >
                         -
                       </button>
-                      <span className="font-mono text-sm font-bold text-[var(--text-primary)] w-14 text-center tabular-nums">
+                      <span className="font-mono-tabular w-14 text-center text-sm font-bold text-[var(--text-primary)]">
                         R$ {session.basePrice}
                       </span>
                       <button
@@ -401,7 +401,7 @@ export const AdminOccupancyView: React.FC<AdminOccupancyViewProps> = ({
                         onClick={() =>
                           handlePriceStep(movie.id, session.id, session.basePrice, 2)
                         }
-                        className="w-8 h-8 rounded bg-[var(--bg-elevated)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] text-[var(--text-primary)] font-mono text-xs cursor-pointer"
+                        className="cine-press font-mono h-9 w-9 cursor-pointer rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-xs text-[var(--text-primary)] hover:border-[var(--border-strong)]"
                       >
                         +
                       </button>
@@ -415,29 +415,29 @@ export const AdminOccupancyView: React.FC<AdminOccupancyViewProps> = ({
       </section>
 
       {/* Create New Session + Editable Canteen Stock */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
         <form
           key={formKey}
           onSubmit={handleCreateSession}
-          className="lg:col-span-7 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-5 space-y-4"
+          className="space-y-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)]/95 p-5 shadow-md lg:col-span-7"
         >
           <div className="flex items-center gap-2">
-            <PlusCircle className="w-4 h-4 text-amber-400" />
+            <PlusCircle className="h-4 w-4 text-amber-400" aria-hidden="true" />
             <h3 className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-primary)]">
-              Publicar Nova Sessão (RF-10)
+              Publicar Nova Sessão
             </h3>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label htmlFor="adm-movie" className="block text-xs text-[var(--text-secondary)] mb-1">
+              <label htmlFor="adm-movie" className="mb-1 block text-xs text-[var(--text-secondary)]">
                 Filme
               </label>
               <select
                 id="adm-movie"
                 value={selectedMovieId}
                 onChange={(e) => setSelectedMovieId(e.target.value)}
-                className="w-full min-h-[44px] rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] px-3 py-2 text-base sm:text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)]"
+                className="min-h-[44px] w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2 text-base text-[var(--text-primary)] focus:border-[var(--focus-ring)] focus:outline-none sm:text-xs"
               >
                 {movies.map((m) => (
                   <option key={m.id} value={m.id}>
@@ -448,14 +448,14 @@ export const AdminOccupancyView: React.FC<AdminOccupancyViewProps> = ({
             </div>
 
             <div>
-              <label htmlFor="adm-date" className="block text-xs text-[var(--text-secondary)] mb-1">
+              <label htmlFor="adm-date" className="mb-1 block text-xs text-[var(--text-secondary)]">
                 Data da Programação
               </label>
               <select
                 id="adm-date"
                 value={newDateId}
                 onChange={(e) => setNewDateId(e.target.value)}
-                className="w-full min-h-[44px] rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] px-3 py-2 text-base sm:text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)]"
+                className="min-h-[44px] w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2 text-base text-[var(--text-primary)] focus:border-[var(--focus-ring)] focus:outline-none sm:text-xs"
               >
                 {DATE_OPTIONS.map((d) => (
                   <option key={d.id} value={d.id}>
@@ -466,14 +466,17 @@ export const AdminOccupancyView: React.FC<AdminOccupancyViewProps> = ({
             </div>
 
             <div>
-              <label htmlFor="adm-complex" className="block text-xs text-[var(--text-secondary)] mb-1">
+              <label
+                htmlFor="adm-complex"
+                className="mb-1 block text-xs text-[var(--text-secondary)]"
+              >
                 Complexo
               </label>
               <select
                 id="adm-complex"
                 value={newComplex}
                 onChange={(e) => setNewComplex(e.target.value)}
-                className="w-full min-h-[44px] rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] px-3 py-2 text-base sm:text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)]"
+                className="min-h-[44px] w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2 text-base text-[var(--text-primary)] focus:border-[var(--focus-ring)] focus:outline-none sm:text-xs"
               >
                 {COMPLEX_CHOICES.map((c) => (
                   <option key={c} value={c}>
@@ -484,14 +487,14 @@ export const AdminOccupancyView: React.FC<AdminOccupancyViewProps> = ({
             </div>
 
             <div>
-              <label htmlFor="adm-format" className="block text-xs text-[var(--text-secondary)] mb-1">
+              <label htmlFor="adm-format" className="mb-1 block text-xs text-[var(--text-secondary)]">
                 Formato de Projeção
               </label>
               <select
                 id="adm-format"
                 value={newFormat}
                 onChange={(e) => setNewFormat(e.target.value as SessionSlot['format'])}
-                className="w-full min-h-[44px] rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] px-3 py-2 text-base sm:text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)]"
+                className="min-h-[44px] w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2 text-base text-[var(--text-primary)] focus:border-[var(--focus-ring)] focus:outline-none sm:text-xs"
               >
                 <option value="IMAX 3D">IMAX 3D</option>
                 <option value="Dolby Atmos">Dolby Atmos</option>
@@ -500,7 +503,7 @@ export const AdminOccupancyView: React.FC<AdminOccupancyViewProps> = ({
             </div>
 
             <div>
-              <label htmlFor="adm-time" className="block text-xs text-[var(--text-secondary)] mb-1">
+              <label htmlFor="adm-time" className="mb-1 block text-xs text-[var(--text-secondary)]">
                 Horário (HH:MM)
               </label>
               <input
@@ -510,12 +513,12 @@ export const AdminOccupancyView: React.FC<AdminOccupancyViewProps> = ({
                 pattern="\d{2}:\d{2}"
                 value={newTime}
                 onChange={(e) => setNewTime(e.target.value)}
-                className="cine-input w-full min-h-[44px] rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] px-3 py-2 font-mono text-base sm:text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)]"
+                className="cine-input min-h-[44px] w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2 font-mono text-base text-[var(--text-primary)] focus:border-[var(--focus-ring)] focus:outline-none sm:text-xs"
               />
             </div>
 
             <div>
-              <label htmlFor="adm-price" className="block text-xs text-[var(--text-secondary)] mb-1">
+              <label htmlFor="adm-price" className="mb-1 block text-xs text-[var(--text-secondary)]">
                 Inteira (R$)
               </label>
               <input
@@ -526,13 +529,13 @@ export const AdminOccupancyView: React.FC<AdminOccupancyViewProps> = ({
                 max={120}
                 value={newPrice}
                 onChange={(e) => setNewPrice(e.target.value)}
-                className="cine-input w-full min-h-[44px] rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] px-3 py-2 font-mono text-base sm:text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)]"
+                className="cine-input min-h-[44px] w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2 font-mono text-base text-[var(--text-primary)] focus:border-[var(--focus-ring)] focus:outline-none sm:text-xs"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="adm-room" className="block text-xs text-[var(--text-secondary)] mb-1">
+            <label htmlFor="adm-room" className="mb-1 block text-xs text-[var(--text-secondary)]">
               Sala
             </label>
             <input
@@ -541,48 +544,55 @@ export const AdminOccupancyView: React.FC<AdminOccupancyViewProps> = ({
               required
               value={newRoom}
               onChange={(e) => setNewRoom(e.target.value)}
-              className="cine-input w-full min-h-[44px] rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] px-3 py-2 text-base sm:text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)]"
+              className="cine-input min-h-[44px] w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2 text-base text-[var(--text-primary)] focus:border-[var(--focus-ring)] focus:outline-none sm:text-xs"
             />
           </div>
 
           <button
             type="submit"
-            className="min-h-[44px] px-5 py-2.5 rounded-lg bg-[var(--brand-red)] hover:bg-[var(--brand-red-hover)] text-white text-xs font-bold uppercase tracking-[0.12em] transition cursor-pointer"
+            className="cine-press min-h-[44px] cursor-pointer rounded-xl bg-[var(--brand-red)] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-white shadow-md transition hover:bg-[var(--brand-red-hover)]"
           >
             Adicionar Sessão ao Cartaz
           </button>
         </form>
 
-        <section className="lg:col-span-5 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-5 space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-primary)] flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-amber-400" />
+        <section className="space-y-3 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)]/95 p-5 shadow-md lg:col-span-5">
+          <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-primary)]">
+            <AlertCircle className="h-4 w-4 text-amber-400" aria-hidden="true" />
             Gestão de Estoque da Cantina
           </h3>
-          <ul className="space-y-2">
+          <ul className="space-y-2.5">
             {effectiveCanteenItems.map((item) => (
               <li
                 key={item.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] px-3 py-2.5 text-xs"
+                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2.5 text-xs"
               >
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-[var(--text-primary)] truncate">{item.name}</p>
-                  <p className="font-mono text-xs text-[var(--text-muted)]">
-                    R$ {item.price} · {item.category}
-                  </p>
+                <div className="flex min-w-0 flex-1 items-center gap-3">
+                  <img
+                    src={item.imageSrc}
+                    alt=""
+                    className="h-10 w-10 shrink-0 rounded-lg border border-white/10 object-cover"
+                  />
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold text-[var(--text-primary)]">{item.name}</p>
+                    <p className="font-mono text-xs text-[var(--text-muted)]">
+                      R$ {item.price} · {item.category}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 shrink-0">
+                <div className="flex shrink-0 items-center gap-1.5">
                   <button
                     type="button"
                     aria-label={`Reduzir estoque de ${item.name}`}
                     disabled={item.stock <= 0}
                     onClick={() => handleStockChange(item, -1)}
-                    className="w-8 h-8 rounded bg-[var(--bg-base)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] disabled:opacity-40 text-[var(--text-primary)] font-mono text-xs cursor-pointer"
+                    className="cine-press font-mono h-9 w-9 cursor-pointer rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-base)] text-xs text-[var(--text-primary)] hover:border-[var(--border-strong)] disabled:opacity-40"
                   >
                     -1
                   </button>
                   <span
-                    className={`min-w-[68px] text-center font-mono text-xs font-bold px-2 py-1 rounded ${
+                    className={`font-mono-tabular min-w-[72px] rounded-lg px-2 py-1.5 text-center text-xs font-bold ${
                       item.stock === 0
                         ? 'bg-red-500/20 text-red-300'
                         : item.stock <= 2
@@ -596,7 +606,7 @@ export const AdminOccupancyView: React.FC<AdminOccupancyViewProps> = ({
                     type="button"
                     aria-label={`Aumentar estoque de ${item.name}`}
                     onClick={() => handleStockChange(item, 1)}
-                    className="w-8 h-8 rounded bg-[var(--bg-base)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] text-[var(--text-primary)] font-mono text-xs cursor-pointer"
+                    className="cine-press font-mono h-9 w-9 cursor-pointer rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-base)] text-xs text-[var(--text-primary)] hover:border-[var(--border-strong)]"
                   >
                     +1
                   </button>
@@ -604,7 +614,7 @@ export const AdminOccupancyView: React.FC<AdminOccupancyViewProps> = ({
                     type="button"
                     aria-label={`Repor 5 unidades de ${item.name}`}
                     onClick={() => handleStockChange(item, 5)}
-                    className="px-2 h-8 rounded bg-emerald-500/15 border border-emerald-400/35 hover:bg-emerald-500/25 text-emerald-200 font-mono text-xs font-semibold cursor-pointer"
+                    className="cine-press font-mono h-9 cursor-pointer rounded-lg border border-emerald-400/35 bg-emerald-500/15 px-2.5 text-xs font-semibold text-emerald-200 hover:bg-emerald-500/25"
                   >
                     +5
                   </button>

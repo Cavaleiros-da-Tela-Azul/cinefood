@@ -131,8 +131,9 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
 
     await page.screenshot({ path: `${SCREENSHOT_DIR}/01-home-hero-desktop.png`, fullPage: false });
 
-    // Date strip filtering: 18 DEZ has 0 sessions -> empty state + Limpar Filtros
+    // Date strip filtering + search empty state -> Limpar Filtros recovery
     await page.getByRole('button', { name: /18.*DEZ/i }).click();
+    await page.getByRole('searchbox', { name: /Buscar filme, gênero ou diretor/i }).fill('FILME_INEXISTENTE');
     await expect(page.getByRole('heading', { name: /Nenhuma sessão encontrada/i })).toBeVisible();
     await page.getByRole('button', { name: /Limpar Filtros/i }).click();
     await expect(page.getByRole('heading', { level: 1 })).toContainText('CIDADE DE FERRO');
@@ -233,8 +234,8 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
     await expect(page.getByText(/Ambiente de Homologação \/ Sandbox/i)).toBeVisible();
     await expect(page.getByText(/Trava Temporária de Assentos \(10 min\)/i)).toBeVisible();
 
-    // Test Pix Tardio (RN-01) creates refund alert + notice
-    await page.getByRole('button', { name: /Pix Tardio \(RN-01\)/i }).click();
+    // Test Pix Tardio creates refund alert + notice
+    await page.getByRole('button', { name: /Pix Tardio/i }).click();
     await page.getByRole('button', { name: /Confirmar Pagamento Simulado/i }).click();
     await expect(page.getByRole('status')).toContainText(/Status: PENDENTE/i);
     await expect(page.getByRole('alert').filter({ hasText: /estorno automático/i })).toBeVisible();
@@ -329,7 +330,7 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
 
     // CheckoutView in canteen-only mode (ADR-005)
     await expect(page.getByText(/Bomboniere Expressa/i)).toBeVisible();
-    await expect(page.getByText(/Pedido avulso de cantina \(ADR-005\)/i)).toBeVisible();
+    await expect(page.getByText(/Pedido avulso de cantina/i)).toBeVisible();
     await page.getByRole('button', { name: /Confirmar Pagamento Simulado/i }).click();
 
     // TicketPassView displays pickup token
@@ -355,14 +356,16 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
     await page.getByRole('navigation', { name: /Navegação principal/i }).getByRole('button', { name: 'Catálogo' }).click();
     await expect(page.getByRole('heading', { level: 1, name: /Catálogo de Filmes/i })).toBeVisible();
     await expect(page.locator('#catalog-search-input')).toBeVisible();
-    await expect(page.getByRole('group', { name: /Filtrar catálogo por categoria/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Filtrar catálogo por categoria/i })).toBeVisible();
     await expect(page.getByText('Em Cartaz', { exact: true }).first()).toBeVisible();
 
-    // Filter by category and search
-    await page.getByRole('group', { name: /Filtrar catálogo por categoria/i }).getByRole('button', { name: 'Suspense' }).click();
+    // Filter by category dropdown and search
+    await page.getByRole('button', { name: /Filtrar catálogo por categoria/i }).click();
+    await page.getByRole('listbox', { name: /Opções de categoria/i }).getByRole('option', { name: 'Suspense' }).click();
     await expect(page.getByRole('button', { name: /NOTURNO ESMERALDA/i })).toBeVisible();
     await expect(page.getByRole('button', { name: /CIDADE DE FERRO/i })).toHaveCount(0);
-    await page.getByRole('group', { name: /Filtrar catálogo por categoria/i }).getByRole('button', { name: 'Todos' }).click();
+    await page.getByRole('button', { name: /Filtrar catálogo por categoria/i }).click();
+    await page.getByRole('listbox', { name: /Opções de categoria/i }).getByRole('option', { name: 'Todas as categorias' }).click();
 
     await page.locator('#catalog-search-input').fill('ÓRBITA');
     await expect(page.getByRole('button', { name: /ÓRBITA ESCARLATE/i })).toBeVisible();
@@ -377,7 +380,7 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
     await expect(page.getByLabel('Comparativo de notas do filme')).toContainText('Rotten Tomatoes');
     await expect(page.getByLabel('Comparativo de notas do filme')).toContainText('Usuários CineFood');
     await page.locator('#catalog-tab-comments').click();
-    await expect(page.getByText(/Pré-requisito de entrada validada na portaria \(RF-13\)/i)).toBeVisible();
+    await expect(page.getByText(/Pré-requisito de entrada validada na portaria/i)).toBeVisible();
     await expect(page.locator('#review-eligible-order')).toHaveCount(0);
 
     // Return to Level 1 grid and open ÓRBITA ESCARLATE ficha
@@ -442,7 +445,7 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
     // Confirm zero Backstage / CRM links or buttons in customer AuthView
     await expect(page.getByText(/Abrir CineFood Backstage/i)).toHaveCount(0);
     await expect(page.getByText(/CRM Operacional/i)).toHaveCount(0);
-    await expect(page.getByText(/Aviso Completo de Privacidade \(LGPD · RF-17\)/i)).toBeVisible();
+    await expect(page.getByText(/Aviso Completo de Privacidade \(LGPD\)/i)).toBeVisible();
 
     // Toggle marketing opt-in switch
     const marketingSwitch = page.getByRole('switch');
@@ -670,7 +673,7 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
     await page.getByRole('button', { name: /Ir para Pagamento/i }).click();
     await page.getByRole('button', { name: /Confirmar Pagamento Simulado/i }).click();
 
-    await expect(page.getByText(/Esteira Guiada \(RN-05\)/i)).toBeVisible();
+    await expect(page.getByText(/Antecipe sua Bomboniere/i)).toBeVisible();
     await page.getByRole('button', { name: /Antecipar Bomboniere com Pré-Vínculo/i }).click();
 
     await expect(page.getByRole('heading', { name: /Cardápio da Bomboniere/i })).toBeVisible();

@@ -28,6 +28,18 @@ export interface KdsRunnerViewProps {
   onRegisterIncident: (incident: Omit<RunnerIncident, 'id' | 'createdAt' | 'operator'>) => void;
 }
 
+const KDS_HEADER_TONE: Record<CanteenOrderStatus, string> = {
+  NENHUM: 'bg-white/5 border-white/10 text-[var(--text-secondary)]',
+  AGUARDANDO_CHEGADA: 'bg-amber-500/20 border-amber-400/35 text-amber-200',
+  PENDENTE_PAGAMENTO: 'bg-amber-500/20 border-amber-400/35 text-amber-200',
+  EM_PREPARO: 'bg-blue-500/20 border-blue-400/35 text-blue-200',
+  PRONTO: 'bg-sky-500/20 border-sky-400/35 text-sky-200',
+  SAIU_PARA_ENTREGA: 'bg-purple-500/20 border-purple-400/35 text-purple-200',
+  RETIRADA_NO_BALCAO: 'bg-purple-500/20 border-purple-400/35 text-purple-200',
+  ENTREGUE: 'bg-emerald-500/20 border-emerald-400/35 text-emerald-200',
+  CANCELADO: 'bg-rose-500/20 border-rose-400/35 text-rose-200',
+};
+
 export const KdsRunnerView: React.FC<KdsRunnerViewProps> = ({
   orders,
   incidents,
@@ -102,9 +114,9 @@ export const KdsRunnerView: React.FC<KdsRunnerViewProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-amber-400">
-            RF-09 · RF-20 · RN-02 · RN-03 · KDS &amp; Runner
+            RN-02 · RN-03 · KDS &amp; Runner
           </p>
-          <h2 className="font-display text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--text-primary)] mt-0.5">
+          <h2 className="font-display mt-0.5 text-2xl font-bold uppercase tracking-tight text-[var(--text-primary)] sm:text-3xl">
             Cantina KDS &amp; Runner Sala Escura
           </h2>
         </div>
@@ -112,7 +124,7 @@ export const KdsRunnerView: React.FC<KdsRunnerViewProps> = ({
         <div
           role="tablist"
           aria-label="Visão da Cantina e Runner"
-          className="inline-flex rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] p-1 gap-1"
+          className="inline-flex gap-1 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-1.5"
         >
           <button
             type="button"
@@ -120,15 +132,19 @@ export const KdsRunnerView: React.FC<KdsRunnerViewProps> = ({
             disabled={!canAccessKds}
             aria-selected={resolvedSurfaceTab === 'kds'}
             onClick={() => canAccessKds && setSurfaceTab('kds')}
-            className={`min-h-[44px] inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-[0.1em] transition ${
+            className={`cine-press inline-flex min-h-[44px] items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-[0.1em] transition ${
               !canAccessKds
-                ? 'opacity-40 text-[var(--text-muted)] cursor-not-allowed'
+                ? 'cursor-not-allowed text-[var(--text-muted)] opacity-40'
                 : resolvedSurfaceTab === 'kds'
-                  ? 'bg-[var(--brand-red)] text-white cursor-pointer'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer'
+                  ? 'cursor-pointer bg-[var(--brand-red)] text-white shadow-sm'
+                  : 'cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
             }`}
           >
-            {canAccessKds ? <ChefHat className="w-4 h-4" /> : <Lock className="w-3.5 h-3.5" />}
+            {canAccessKds ? (
+              <ChefHat className="h-4 w-4" aria-hidden="true" />
+            ) : (
+              <Lock className="h-3.5 w-3.5" aria-hidden="true" />
+            )}
             Cozinha KDS ({canteenOrders.length})
           </button>
           <button
@@ -137,111 +153,115 @@ export const KdsRunnerView: React.FC<KdsRunnerViewProps> = ({
             disabled={!canAccessRunner}
             aria-selected={resolvedSurfaceTab === 'runner'}
             onClick={() => canAccessRunner && setSurfaceTab('runner')}
-            className={`min-h-[44px] inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-[0.1em] transition ${
+            className={`cine-press inline-flex min-h-[44px] items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-[0.1em] transition ${
               !canAccessRunner
-                ? 'opacity-40 text-[var(--text-muted)] cursor-not-allowed'
+                ? 'cursor-not-allowed text-[var(--text-muted)] opacity-40'
                 : resolvedSurfaceTab === 'runner'
-                  ? 'bg-black text-amber-300 border border-amber-400/50 cursor-pointer'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer'
+                  ? 'cursor-pointer border border-amber-400/50 bg-black text-amber-300 shadow-sm'
+                  : 'cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
             }`}
           >
-            {canAccessRunner ? <MoonStar className="w-4 h-4" /> : <Lock className="w-3.5 h-3.5" />}
+            {canAccessRunner ? (
+              <MoonStar className="h-4 w-4" aria-hidden="true" />
+            ) : (
+              <Lock className="h-3.5 w-3.5" aria-hidden="true" />
+            )}
             Runner · OLED ({runnerQueue.length})
           </button>
         </div>
       </div>
 
       {resolvedSurfaceTab === 'kds' ? (
-        <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {canteenOrders.map((order) => {
             const blockedByRn02 =
               order.deliveryMode === 'seat' && order.canteenStatus === 'AGUARDANDO_CHEGADA';
             const pendingPayment = order.canteenStatus === 'PENDENTE_PAGAMENTO';
+            const headerTone = KDS_HEADER_TONE[order.canteenStatus];
 
             return (
               <article
                 key={order.id}
-                className={`rounded-xl border p-5 flex flex-col justify-between gap-4 ${
+                className={`flex flex-col justify-between overflow-hidden rounded-2xl border shadow-lg transition ${
                   blockedByRn02
-                    ? 'bg-[var(--bg-surface)]/80 border-amber-400/35'
+                    ? 'border-amber-400/35 bg-[var(--bg-surface)]/85'
                     : order.canteenStatus === 'ENTREGUE'
-                      ? 'bg-[var(--bg-surface)]/55 border-emerald-500/25'
-                      : 'bg-[var(--bg-surface)] border-[var(--border-subtle)]'
+                      ? 'border-emerald-500/25 bg-[var(--bg-surface)]/65'
+                      : 'border-[var(--border-subtle)] bg-[var(--bg-surface)]'
                 }`}
               >
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <span className="font-mono text-xs font-bold text-[var(--text-primary)]">
-                        {order.id}
+                <div>
+                  {/* Color-coded KDS Ticket Header Band */}
+                  <div
+                    className={`flex items-center justify-between gap-2 border-b px-4 py-3 ${headerTone}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs font-extrabold">{order.id}</span>
+                      <span className="text-[11px] font-semibold opacity-85">
+                        · {order.room}
                       </span>
-                      <h3 className="text-sm font-bold text-[var(--text-primary)] mt-0.5">
-                        {order.canteenSummary}
-                      </h3>
                     </div>
-                    <span
-                      className={`font-mono text-xs font-bold uppercase px-2 py-1 rounded ${
-                        order.canteenStatus === 'AGUARDANDO_CHEGADA' ||
-                        order.canteenStatus === 'PENDENTE_PAGAMENTO'
-                          ? 'bg-amber-500/20 text-amber-200'
-                          : order.canteenStatus === 'EM_PREPARO'
-                            ? 'bg-blue-500/20 text-blue-200'
-                            : order.canteenStatus === 'PRONTO'
-                              ? 'bg-sky-500/20 text-sky-200'
-                              : order.canteenStatus === 'SAIU_PARA_ENTREGA' ||
-                                  order.canteenStatus === 'RETIRADA_NO_BALCAO'
-                                ? 'bg-purple-500/20 text-purple-200'
-                                : 'bg-emerald-500/20 text-emerald-200'
-                      }`}
-                    >
+                    <span className="font-mono rounded-full bg-black/35 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider">
                       {order.canteenStatus}
                     </span>
                   </div>
 
-                  <div className="rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] p-3 text-xs text-[var(--text-secondary)] space-y-1">
-                    <p>
-                      <strong className="text-[var(--text-primary)]">{order.room}</strong> · Poltronas:{' '}
-                      <span className="font-mono text-[var(--text-primary)]">
-                        {order.seatsLabel.length > 0 ? order.seatsLabel.join(', ') : 'Balcão'}
+                  {/* Ticket Body */}
+                  <div className="space-y-3 p-5">
+                    <div>
+                      <h3 className="text-base font-bold text-[var(--text-primary)]">
+                        {order.canteenSummary}
+                      </h3>
+                      <p className="mt-1 text-xs text-[var(--text-secondary)]">
+                        Sessão {order.time} · Canal:{' '}
+                        {order.deliveryMode === 'seat'
+                          ? 'Entrega na Poltrona'
+                          : 'Retirada no Balcão'}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-3 text-xs">
+                      <span className="font-semibold text-[var(--text-secondary)]">
+                        Destino
                       </span>
-                    </p>
-                    <p className="text-xs text-[var(--text-secondary)]">
-                      Sessão {order.time} · Canal:{' '}
-                      {order.deliveryMode === 'seat'
-                        ? 'Entrega na Poltrona'
-                        : 'Retirada no Balcão'}
-                    </p>
+                      <span className="font-mono rounded-lg bg-white/10 px-2.5 py-1 text-xs font-bold text-white">
+                        {order.seatsLabel.length > 0
+                          ? `Poltrona ${order.seatsLabel.join(', ')}`
+                          : 'Balcão Expresso'}
+                      </span>
+                    </div>
+
                     <p className="text-xs text-[var(--text-muted)]">
                       {CANTEEN_STATUS_LABEL[order.canteenStatus]}
                     </p>
+
+                    {blockedByRn02 && (
+                      <div className="flex items-start gap-2 rounded-xl border border-amber-400/35 bg-amber-500/12 p-3 text-xs text-amber-100">
+                        <Lock className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" aria-hidden="true" />
+                        <span>
+                          <strong>Bloqueado pela RN-02 — aguardando validação na portaria.</strong>{' '}
+                          O preparo inicia automaticamente quando o QR{' '}
+                          <span className="font-mono">{order.qrToken}</span> passar pela Portaria.
+                        </span>
+                      </div>
+                    )}
+
+                    {order.canteenStatus === 'RETIRADA_NO_BALCAO' && (
+                      <div className="rounded-xl border border-purple-400/35 bg-purple-500/12 p-2.5 text-xs text-purple-100">
+                        Disponível no balcão (<strong>RN-03</strong>). Aguardando retirada pelo titular.
+                      </div>
+                    )}
                   </div>
-
-                  {blockedByRn02 && (
-                    <div className="rounded-lg bg-amber-500/12 border border-amber-400/35 p-3 flex items-start gap-2 text-xs text-amber-100">
-                      <Lock className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
-                      <span>
-                        <strong>Bloqueado pela RN-02 — aguardando validação na portaria.</strong>{' '}
-                        O preparo inicia automaticamente quando o QR{' '}
-                        <span className="font-mono">{order.qrToken}</span> passar pela Portaria.
-                      </span>
-                    </div>
-                  )}
-
-                  {order.canteenStatus === 'RETIRADA_NO_BALCAO' && (
-                    <div className="rounded-lg bg-purple-500/12 border border-purple-400/35 p-2.5 text-xs text-purple-100">
-                      Disponível no balcão (<strong>RN-03</strong>). Aguardando retirada pelo titular.
-                    </div>
-                  )}
                 </div>
 
-                <div className="pt-2 border-t border-[var(--border-subtle)] flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 border-t border-[var(--border-subtle)] bg-black/20 p-4">
                   {order.canteenStatus === 'EM_PREPARO' && (
                     <button
                       type="button"
                       onClick={() => onAdvanceCanteenStatus(order.id, 'PRONTO')}
-                      className="w-full min-h-[44px] py-2.5 px-3 rounded-lg bg-[var(--brand-red)] hover:bg-[var(--brand-red-hover)] text-white text-xs font-bold uppercase tracking-[0.1em] inline-flex items-center justify-center gap-2 transition cursor-pointer"
+                      className="cine-press inline-flex min-h-[44px] w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--brand-red)] px-3 py-2.5 text-xs font-bold uppercase tracking-[0.1em] text-white transition hover:bg-[var(--brand-red-hover)]"
                     >
-                      <ChefHat className="w-4 h-4" />
+                      <ChefHat className="h-4 w-4" aria-hidden="true" />
                       Marcar Pronto (PRONTO)
                     </button>
                   )}
@@ -257,9 +277,9 @@ export const KdsRunnerView: React.FC<KdsRunnerViewProps> = ({
                             : 'RETIRADA_NO_BALCAO',
                         )
                       }
-                      className="w-full min-h-[44px] py-2.5 px-3 rounded-lg bg-[var(--brand-red)] hover:bg-[var(--brand-red-hover)] text-white text-xs font-bold uppercase tracking-[0.1em] inline-flex items-center justify-center gap-2 transition cursor-pointer"
+                      className="cine-press inline-flex min-h-[44px] w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--brand-red)] px-3 py-2.5 text-xs font-bold uppercase tracking-[0.1em] text-white transition hover:bg-[var(--brand-red-hover)]"
                     >
-                      <Truck className="w-4 h-4" />
+                      <Truck className="h-4 w-4" aria-hidden="true" />
                       {order.deliveryMode === 'seat'
                         ? 'Despachar para Runner (SAIU_PARA_ENTREGA)'
                         : 'Liberar no Balcão (RETIRADA_NO_BALCAO)'}
@@ -271,9 +291,9 @@ export const KdsRunnerView: React.FC<KdsRunnerViewProps> = ({
                     <button
                       type="button"
                       onClick={() => onAdvanceCanteenStatus(order.id, 'ENTREGUE')}
-                      className="w-full min-h-[44px] py-2.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-[0.1em] inline-flex items-center justify-center gap-2 transition cursor-pointer"
+                      className="cine-press inline-flex min-h-[44px] w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-emerald-600 px-3 py-2.5 text-xs font-bold uppercase tracking-[0.1em] text-white transition hover:bg-emerald-500"
                     >
-                      <PackageCheck className="w-4 h-4" />
+                      <PackageCheck className="h-4 w-4" aria-hidden="true" />
                       Confirmar Entrega Concluída (ENTREGUE)
                     </button>
                   )}
@@ -282,9 +302,9 @@ export const KdsRunnerView: React.FC<KdsRunnerViewProps> = ({
                     <button
                       type="button"
                       disabled
-                      className="w-full min-h-[44px] py-2.5 px-3 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-muted)] text-xs font-semibold inline-flex items-center justify-center gap-1.5 cursor-not-allowed"
+                      className="inline-flex min-h-[44px] w-full cursor-not-allowed items-center justify-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2.5 text-xs font-semibold text-[var(--text-muted)]"
                     >
-                      <Clock className="w-3.5 h-3.5" />
+                      <Clock className="h-3.5 w-3.5" aria-hidden="true" />
                       {pendingPayment
                         ? 'Aguardando Confirmação de Pagamento'
                         : 'Aguardando Check-in na Portaria (RN-02)'}
@@ -292,7 +312,7 @@ export const KdsRunnerView: React.FC<KdsRunnerViewProps> = ({
                   )}
 
                   {order.canteenStatus === 'ENTREGUE' && (
-                    <p className="w-full text-center text-xs text-emerald-300 font-semibold py-1">
+                    <p className="w-full py-1 text-center text-xs font-semibold text-emerald-300">
                       Pedido entregue sem pendências
                     </p>
                   )}
@@ -302,15 +322,15 @@ export const KdsRunnerView: React.FC<KdsRunnerViewProps> = ({
           })}
         </section>
       ) : (
-        /* Runner OLED Dark Mode (forced #000000 surface per #17 & RF-09) */
+        /* Runner OLED Dark Mode (#000000 surface) */
         <section
           aria-label="Console Runner OLED Modo Sala Escura"
-          className="rounded-2xl bg-black border border-amber-400/35 p-5 sm:p-6 space-y-6 text-white"
+          className="space-y-6 rounded-2xl border border-amber-400/35 bg-black p-5 text-white shadow-2xl sm:p-6"
         >
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border-subtle)] pb-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-amber-500/15 border border-amber-400/40 flex items-center justify-center">
-                <MoonStar className="w-5 h-5 text-amber-300" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/15">
+                <MoonStar className="h-5 w-5 text-amber-300" aria-hidden="true" />
               </div>
               <div>
                 <h3 className="text-sm font-bold uppercase tracking-[0.14em] text-amber-300">
@@ -322,16 +342,16 @@ export const KdsRunnerView: React.FC<KdsRunnerViewProps> = ({
                 </p>
               </div>
             </div>
-            <span className="font-mono text-xs px-2.5 py-1 rounded bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-amber-200">
+            <span className="font-mono rounded-full border border-amber-400/30 bg-[#0B0C10] px-3 py-1 text-xs font-bold text-amber-200">
               {runnerQueue.length} entregas elegíveis
             </span>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
             {/* Active Runner Delivery Cards */}
-            <div className="lg:col-span-7 space-y-3">
+            <div className="space-y-3 lg:col-span-7">
               {runnerQueue.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-[var(--border-subtle)] p-6 text-center text-xs text-[var(--text-secondary)]">
+                <div className="rounded-2xl border border-dashed border-white/15 bg-[#050507] p-6 text-center text-xs text-[var(--text-secondary)]">
                   Nenhuma entrega pronta ou em rota para poltrona no momento. Libere o check-in na
                   Portaria QR (RN-02) e conclua o preparo na Cozinha KDS.
                 </div>
@@ -339,48 +359,46 @@ export const KdsRunnerView: React.FC<KdsRunnerViewProps> = ({
                 runnerQueue.map((order) => (
                   <div
                     key={order.id}
-                    className="rounded-xl bg-[var(--bg-elevated)] border border-amber-400/30 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    className="flex flex-col justify-between gap-4 rounded-2xl border border-amber-400/35 bg-[#090A0E] p-4 sm:flex-row sm:items-center"
                   >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-200 font-bold">
+                    <div className="space-y-1.5">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-mono rounded-lg bg-amber-500/20 px-2.5 py-0.5 text-xs font-bold text-amber-200">
                           {order.room}
                         </span>
-                        <span className="font-mono text-sm font-bold text-white">
+                        <span className="font-mono text-base font-extrabold text-amber-300">
                           Poltrona {order.seatsLabel.join(', ')}
                         </span>
                       </div>
-                      <p className="text-sm font-semibold text-white">
-                        {order.canteenSummary}
-                      </p>
+                      <p className="text-sm font-semibold text-white">{order.canteenSummary}</p>
                       <p className="font-mono text-xs text-[var(--text-secondary)]">
                         Pedido {order.id} · Status: {order.canteenStatus}
                       </p>
                     </div>
 
-                    <div className="flex sm:flex-col gap-2 shrink-0">
+                    <div className="flex shrink-0 flex-wrap gap-2 sm:flex-col">
                       {order.canteenStatus === 'PRONTO' && (
                         <button
                           type="button"
                           onClick={() => onAdvanceCanteenStatus(order.id, 'SAIU_PARA_ENTREGA')}
-                          className="min-h-[44px] px-4 py-2 rounded-lg bg-[var(--brand-red)] hover:bg-[var(--brand-red-hover)] text-white text-xs font-bold uppercase tracking-[0.1em] inline-flex items-center justify-center gap-1.5 transition cursor-pointer"
+                          className="cine-press inline-flex min-h-[44px] cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-[var(--brand-red)] px-4 py-2 text-xs font-bold uppercase tracking-[0.1em] text-white transition hover:bg-[var(--brand-red-hover)]"
                         >
-                          <Truck className="w-4 h-4" />
+                          <Truck className="h-4 w-4" aria-hidden="true" />
                           Iniciar Entrega
                         </button>
                       )}
                       <button
                         type="button"
                         onClick={() => onAdvanceCanteenStatus(order.id, 'ENTREGUE')}
-                        className="min-h-[44px] px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-[0.1em] inline-flex items-center justify-center gap-1.5 transition cursor-pointer"
+                        className="cine-press inline-flex min-h-[44px] cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold uppercase tracking-[0.1em] text-white transition hover:bg-emerald-500"
                       >
-                        <CheckCircle2 className="w-4 h-4" />
+                        <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
                         Confirmar Entrega
                       </button>
                       <button
                         type="button"
                         onClick={() => setIncidentOrderId(order.id)}
-                        className="min-h-[44px] px-3 py-2 rounded-lg bg-[var(--bg-surface)] hover:border-[var(--border-strong)] border border-[var(--border-subtle)] text-amber-200 text-xs font-semibold cursor-pointer"
+                        className="cine-press inline-flex min-h-[44px] cursor-pointer items-center justify-center rounded-xl border border-white/15 bg-black px-3 py-2 text-xs font-semibold text-amber-200 hover:border-amber-400/50"
                       >
                         Selecionar Ocorrência
                       </button>
@@ -390,24 +408,24 @@ export const KdsRunnerView: React.FC<KdsRunnerViewProps> = ({
               )}
             </div>
 
-            {/* RF-20 + RN-03 Runner Incident Form */}
-            <div className="lg:col-span-5 space-y-4">
+            {/* RN-03 Runner Incident Form */}
+            <div className="space-y-4 lg:col-span-5">
               <form
                 key={incidentFormKey}
                 onSubmit={handleIncidentSubmit}
-                className="rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] p-4 space-y-3"
+                className="space-y-3 rounded-2xl border border-white/15 bg-[#090A0E] p-4"
               >
                 <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 text-amber-300" />
+                  <AlertTriangle className="h-4 w-4 text-amber-300" aria-hidden="true" />
                   <h4 className="text-xs font-bold uppercase tracking-[0.14em] text-white">
-                    Registrar Ocorrência em Sala (RF-20 · RN-03)
+                    Registrar Ocorrência em Sala (RN-03)
                   </h4>
                 </div>
 
                 <div>
                   <label
                     htmlFor="runner-order"
-                    className="block text-xs text-[var(--text-secondary)] mb-1"
+                    className="mb-1 block text-xs text-[var(--text-secondary)]"
                   >
                     Pedido Elegível em Entrega (Poltrona)
                   </label>
@@ -416,7 +434,7 @@ export const KdsRunnerView: React.FC<KdsRunnerViewProps> = ({
                     value={selectedIncidentOrder?.id ?? ''}
                     onChange={(e) => setIncidentOrderId(e.target.value)}
                     disabled={runnerQueue.length === 0}
-                    className="w-full min-h-[44px] rounded-lg bg-black border border-[var(--border-subtle)] px-3 py-2 text-base sm:text-xs text-white focus:outline-none focus:border-[var(--focus-ring)] disabled:opacity-50"
+                    className="min-h-[44px] w-full rounded-xl border border-white/15 bg-black px-3 py-2 text-base text-white focus:border-[var(--focus-ring)] focus:outline-none disabled:opacity-50 sm:text-xs"
                   >
                     {runnerQueue.length === 0 ? (
                       <option value="">Nenhum pedido elegível (PRONTO / SAIU_PARA_ENTREGA)</option>
@@ -433,7 +451,7 @@ export const KdsRunnerView: React.FC<KdsRunnerViewProps> = ({
                 <div>
                   <label
                     htmlFor="runner-reason"
-                    className="block text-xs text-[var(--text-secondary)] mb-1"
+                    className="mb-1 block text-xs text-[var(--text-secondary)]"
                   >
                     Motivo Operacional
                   </label>
@@ -443,7 +461,7 @@ export const KdsRunnerView: React.FC<KdsRunnerViewProps> = ({
                     onChange={(e) =>
                       setIncidentReason(e.target.value as RunnerIncidentReason)
                     }
-                    className="w-full min-h-[44px] rounded-lg bg-black border border-[var(--border-subtle)] px-3 py-2 text-base sm:text-xs text-white focus:outline-none focus:border-[var(--focus-ring)]"
+                    className="min-h-[44px] w-full rounded-xl border border-white/15 bg-black px-3 py-2 text-base text-white focus:border-[var(--focus-ring)] focus:outline-none sm:text-xs"
                   >
                     {(Object.keys(RUNNER_INCIDENT_LABELS) as RunnerIncidentReason[]).map(
                       (key) => (
@@ -456,7 +474,7 @@ export const KdsRunnerView: React.FC<KdsRunnerViewProps> = ({
                 </div>
 
                 {incidentReason === 'CLIENTE_AUSENTE' && (
-                  <div className="rounded-lg bg-amber-500/12 border border-amber-400/35 p-2.5 text-xs text-amber-100">
+                  <div className="rounded-xl border border-amber-400/35 bg-amber-500/12 p-3 text-xs text-amber-100">
                     <strong>Regra RN-03:</strong> ao registrar ausência do cliente no assento, o
                     pedido é convertido automaticamente para{' '}
                     <span className="font-mono">RETIRADA_NO_BALCAO</span> e o titular recebe um
@@ -467,7 +485,7 @@ export const KdsRunnerView: React.FC<KdsRunnerViewProps> = ({
                 <div>
                   <label
                     htmlFor="runner-notes"
-                    className="block text-xs text-[var(--text-secondary)] mb-1"
+                    className="mb-1 block text-xs text-[var(--text-secondary)]"
                   >
                     Observação para a Supervisão
                   </label>
@@ -479,35 +497,35 @@ export const KdsRunnerView: React.FC<KdsRunnerViewProps> = ({
                     value={incidentNotes}
                     onChange={(e) => setIncidentNotes(e.target.value)}
                     placeholder="Ex: Poltrona G7 vazia; combo mantido aquecido no balcão."
-                    className="cine-input w-full rounded-lg bg-black border border-[var(--border-subtle)] px-3 py-2 text-base sm:text-xs text-white placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--focus-ring)]"
+                    className="cine-input w-full rounded-xl border border-white/15 bg-black px-3 py-2 text-base text-white placeholder:text-[var(--text-muted)] focus:border-[var(--focus-ring)] focus:outline-none sm:text-xs"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={!selectedIncidentOrder}
-                  className="w-full min-h-[44px] py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-black text-xs font-bold uppercase tracking-[0.12em] inline-flex items-center justify-center gap-2 transition cursor-pointer"
+                  className="cine-press inline-flex min-h-[44px] w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-amber-500 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-black transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  <Send className="w-3.5 h-3.5" />
+                  <Send className="h-3.5 w-3.5" aria-hidden="true" />
                   Registrar Ocorrência
                 </button>
 
                 {incidentFeedback && (
-                  <p role="status" className="text-xs text-emerald-300 font-medium">
+                  <p role="status" className="text-xs font-medium text-emerald-300">
                     {incidentFeedback}
                   </p>
                 )}
               </form>
 
-              <div className="rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] p-4 space-y-2.5">
+              <div className="space-y-2.5 rounded-2xl border border-white/15 bg-[#090A0E] p-4">
                 <h4 className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--text-secondary)]">
                   Histórico de Ocorrências ({incidents.length})
                 </h4>
-                <ul className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                <ul className="max-h-48 space-y-2 overflow-y-auto pr-1">
                   {incidents.map((inc) => (
                     <li
                       key={inc.id}
-                      className="rounded-lg bg-black border border-[var(--border-subtle)] p-2.5 text-xs space-y-1"
+                      className="space-y-1 rounded-xl border border-white/10 bg-black p-2.5 text-xs"
                     >
                       <div className="flex justify-between font-mono text-amber-200">
                         <span>

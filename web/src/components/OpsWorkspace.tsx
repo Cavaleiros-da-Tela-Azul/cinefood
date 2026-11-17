@@ -165,18 +165,22 @@ export const OpsWorkspace: React.FC<OpsWorkspaceProps> = ({
       STAFF_PROFILES.find((p) => p.role === gateSelectedRole) ?? STAFF_PROFILES[0];
 
     return (
-      <div className="min-h-dvh bg-[var(--bg-base)] text-[var(--text-primary)] flex items-center justify-center p-4 sm:p-8">
-        <div className="w-full max-w-4xl rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] p-5 sm:p-8 space-y-6 shadow-2xl">
+      <div className="relative flex min-h-dvh items-center justify-center overflow-x-clip bg-[var(--bg-base)] p-4 text-[var(--text-primary)] sm:p-8">
+        <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+          <div className="h-full w-full bg-[radial-gradient(circle_at_top_left,rgba(196,10,20,0.16),transparent_48%),radial-gradient(circle_at_bottom_right,rgba(245,158,11,0.10),transparent_48%)]" />
+        </div>
+
+        <div className="relative z-10 w-full max-w-4xl space-y-6 rounded-3xl border border-white/12 bg-[var(--bg-elevated)]/92 p-5 shadow-2xl backdrop-blur-md sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border-subtle)] pb-5">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-[var(--brand-red)] flex items-center justify-center shrink-0">
-                <Shield className="w-6 h-6 text-white" aria-hidden="true" />
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--brand-red)] shadow-lg shadow-red-900/30">
+                <Shield className="h-6 w-6 text-white" aria-hidden="true" />
               </div>
               <div>
                 <p className="font-mono text-xs uppercase tracking-[0.2em] text-amber-400">
                   Acesso Restrito · #/ops
                 </p>
-                <h1 className="font-display text-2xl sm:text-3xl font-extrabold uppercase tracking-wide text-[var(--text-primary)]">
+                <h1 className="font-display text-2xl font-extrabold uppercase tracking-wide text-[var(--text-primary)] sm:text-3xl">
                   CineFood Backstage · Login de Estação
                 </h1>
               </div>
@@ -187,17 +191,17 @@ export const OpsWorkspace: React.FC<OpsWorkspaceProps> = ({
                 type="button"
                 onClick={onToggleOled}
                 aria-pressed={oledMode}
-                className="min-h-[44px] inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] focus-visible:outline-[var(--focus-ring)] cursor-pointer"
+                className="cine-press inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3.5 py-2 text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] focus-visible:outline-[var(--focus-ring)]"
               >
-                {oledMode ? <Moon className="w-4 h-4 text-amber-300" /> : <Sun className="w-4 h-4" />}
+                {oledMode ? <Moon className="h-4 w-4 text-amber-300" /> : <Sun className="h-4 w-4" />}
                 OLED {oledMode ? 'ON' : 'OFF'}
               </button>
               <button
                 type="button"
                 onClick={onExitToStorefront}
-                className="min-h-[44px] inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] focus-visible:outline-[var(--focus-ring)] cursor-pointer"
+                className="cine-press inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3.5 py-2 text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] focus-visible:outline-[var(--focus-ring)]"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="h-4 w-4" />
                 Loja Web
               </button>
             </div>
@@ -205,12 +209,12 @@ export const OpsWorkspace: React.FC<OpsWorkspaceProps> = ({
 
           <form onSubmit={handleConfirmStationLogin} className="space-y-6">
             <div className="space-y-3">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-secondary)] flex items-center gap-2">
-                <UserCog className="w-4 h-4 text-amber-400" aria-hidden="true" />
+              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-secondary)]">
+                <UserCog className="h-4 w-4 text-amber-400" aria-hidden="true" />
                 1. Selecione a Estação / Papel RBAC
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {STAFF_PROFILES.map((profile) => {
                   const selected = gateSelectedRole === profile.role;
                   return (
@@ -222,27 +226,27 @@ export const OpsWorkspace: React.FC<OpsWorkspaceProps> = ({
                         setGateSelectedRole(profile.role);
                         setGateError(null);
                       }}
-                      className={`min-h-[44px] text-left rounded-xl border p-4 transition-colors focus-visible:outline-[var(--focus-ring)] cursor-pointer ${
+                      className={`cine-press min-h-[44px] cursor-pointer rounded-2xl border p-4 text-left transition-colors focus-visible:outline-[var(--focus-ring)] ${
                         selected
-                          ? 'bg-[var(--brand-red)]/15 border-[var(--brand-red)] text-[var(--text-primary)]'
-                          : 'bg-[var(--bg-surface)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-strong)]'
+                          ? 'border-[var(--brand-red)] bg-[var(--brand-red)]/15 text-[var(--text-primary)] shadow-md'
+                          : 'border-[var(--border-subtle)] bg-[var(--bg-surface)]/90 text-[var(--text-secondary)] hover:border-[var(--border-strong)]'
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="font-mono text-xs font-bold uppercase tracking-wider text-amber-300">
                           {profile.stationCode}
                         </span>
-                        <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-[var(--bg-base)] border border-[var(--border-subtle)] text-[var(--text-secondary)]">
+                        <span className="font-mono rounded-full border border-[var(--border-subtle)] bg-[var(--bg-base)] px-2.5 py-0.5 text-[11px] text-[var(--text-secondary)]">
                           {profile.role}
                         </span>
                       </div>
-                      <p className="text-sm font-bold text-[var(--text-primary)] mt-1.5">
+                      <p className="mt-2 text-sm font-bold text-[var(--text-primary)]">
                         {profile.groupLabel}
                       </p>
-                      <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+                      <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
                         Operador: <strong className="text-[var(--text-primary)]">{profile.operatorName}</strong>
                       </p>
-                      <p className="text-xs text-[var(--text-muted)] mt-1.5 leading-relaxed">
+                      <p className="mt-1.5 text-xs leading-relaxed text-[var(--text-muted)]">
                         {profile.description}
                       </p>
                     </button>
@@ -251,13 +255,13 @@ export const OpsWorkspace: React.FC<OpsWorkspaceProps> = ({
               </div>
             </div>
 
-            <div className="rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] p-4 sm:p-5 grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-              <div className="md:col-span-7 space-y-1.5">
+            <div className="grid grid-cols-1 items-end gap-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4 sm:p-5 md:grid-cols-12">
+              <div className="space-y-1.5 md:col-span-7">
                 <label
                   htmlFor="ops-pin-input"
                   className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-[var(--text-secondary)]"
                 >
-                  <KeyRound className="w-3.5 h-3.5 text-amber-400" aria-hidden="true" />
+                  <KeyRound className="h-3.5 w-3.5 text-amber-400" aria-hidden="true" />
                   2. PIN / Crachá da Estação ({selectedGateProfile.operatorName})
                 </label>
                 <input
@@ -272,7 +276,7 @@ export const OpsWorkspace: React.FC<OpsWorkspaceProps> = ({
                     if (gateError) setGateError(null);
                   }}
                   placeholder={`Digite o PIN (demo: ${DEMO_OPS_PIN})`}
-                  className="cine-input w-full min-h-[44px] rounded-lg bg-[var(--bg-base)] border border-[var(--border-subtle)] px-3.5 py-2.5 font-mono text-base sm:text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)]"
+                  className="cine-input min-h-[44px] w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-base)] px-3.5 py-2.5 font-mono text-base text-[var(--text-primary)] focus:border-[var(--focus-ring)] focus:outline-none sm:text-sm"
                 />
                 <p className="text-xs text-[var(--text-muted)]">
                   Ambiente de demonstração: PIN pré-informado <span className="font-mono text-amber-300">{DEMO_OPS_PIN}</span>.
@@ -282,9 +286,9 @@ export const OpsWorkspace: React.FC<OpsWorkspaceProps> = ({
               <div className="md:col-span-5">
                 <button
                   type="submit"
-                  className="w-full min-h-[44px] px-5 py-3 rounded-lg bg-[var(--brand-red)] hover:bg-[var(--brand-red-hover)] text-white text-xs font-bold uppercase tracking-[0.14em] inline-flex items-center justify-center gap-2 transition cursor-pointer"
+                  className="cine-press inline-flex min-h-[44px] w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--brand-red)] px-5 py-3 text-xs font-bold uppercase tracking-[0.14em] text-white shadow-lg transition hover:bg-[var(--brand-red-hover)]"
                 >
-                  <ShieldCheck className="w-4 h-4" />
+                  <ShieldCheck className="h-4 w-4" aria-hidden="true" />
                   Confirmar e Entrar na Estação
                 </button>
               </div>
@@ -293,7 +297,7 @@ export const OpsWorkspace: React.FC<OpsWorkspaceProps> = ({
             {gateError && (
               <div
                 role="alert"
-                className="rounded-lg bg-red-500/15 border border-red-400/45 px-4 py-3 text-xs text-red-200"
+                className="rounded-xl border border-red-400/45 bg-red-500/15 px-4 py-3 text-xs text-red-200"
               >
                 {gateError}
               </div>
@@ -305,18 +309,18 @@ export const OpsWorkspace: React.FC<OpsWorkspaceProps> = ({
   }
 
   return (
-    <div className="min-h-dvh bg-[var(--bg-base)] text-[var(--text-primary)] flex flex-col lg:flex-row">
+    <div className="flex min-h-dvh flex-col bg-[var(--bg-base)] text-[var(--text-primary)] lg:flex-row">
       {/* Dedicated Backstage CRM Sidebar — completely isolated from Consumer Header */}
-      <aside className="lg:w-72 shrink-0 bg-[var(--bg-elevated)] border-b lg:border-b-0 lg:border-r border-[var(--border-subtle)] flex flex-col justify-between p-4 sm:p-5 space-y-5">
+      <aside className="flex shrink-0 flex-col justify-between space-y-5 border-b border-white/10 bg-[var(--bg-elevated)]/95 p-4 backdrop-blur-md sm:p-5 lg:w-72 lg:border-b-0 lg:border-r">
         <div className="space-y-5">
           {/* Backstage Identity */}
           <div className="flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] pb-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-lg bg-[var(--brand-red)] flex items-center justify-center shrink-0">
-                <Shield className="w-5 h-5 text-white" aria-hidden="true" />
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--brand-red)] shadow-md">
+                <Shield className="h-5 w-5 text-white" aria-hidden="true" />
               </div>
               <div className="leading-tight">
-                <p className="font-display text-xl font-extrabold tracking-wide text-[var(--text-primary)] uppercase">
+                <p className="font-display text-xl font-extrabold uppercase tracking-wide text-[var(--text-primary)]">
                   CINEFOOD
                 </p>
                 <p className="font-mono text-xs uppercase tracking-[0.18em] text-amber-400">
@@ -327,18 +331,18 @@ export const OpsWorkspace: React.FC<OpsWorkspaceProps> = ({
             <button
               type="button"
               onClick={onExitToStorefront}
-              className="lg:hidden min-h-[44px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer"
+              className="cine-press inline-flex min-h-[44px] cursor-pointer items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] lg:hidden"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
+              <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
               Loja Web
             </button>
           </div>
 
           {/* Active User Group / Station Card */}
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             <div className="flex items-center justify-between gap-2">
               <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.14em] text-[var(--text-secondary)]">
-                <UserCog className="w-3.5 h-3.5 text-amber-400" aria-hidden="true" />
+                <UserCog className="h-3.5 w-3.5 text-amber-400" aria-hidden="true" />
                 Estação Autenticada
               </span>
             </div>
@@ -358,7 +362,7 @@ export const OpsWorkspace: React.FC<OpsWorkspaceProps> = ({
                     const nextProf = STAFF_PROFILES.find((p) => p.role === nextRole);
                     if (nextProf) onTabChange(nextProf.defaultTab);
                   }}
-                  className="w-full min-h-[44px] rounded-lg bg-[var(--bg-base)] border border-amber-400/35 px-3 py-2 text-base sm:text-xs font-semibold text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)]"
+                  className="min-h-[44px] w-full rounded-xl border border-amber-400/35 bg-[var(--bg-base)] px-3 py-2 text-base font-semibold text-[var(--text-primary)] focus:border-[var(--focus-ring)] focus:outline-none sm:text-xs"
                 >
                   {STAFF_PROFILES.map((p) => (
                     <option key={p.role} value={p.role}>
@@ -369,12 +373,12 @@ export const OpsWorkspace: React.FC<OpsWorkspaceProps> = ({
               </div>
             )}
 
-            <div className="rounded-lg bg-[var(--bg-base)] border border-[var(--border-subtle)] p-3 space-y-1.5">
+            <div className="space-y-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-base)]/90 p-3.5">
               <div className="flex items-center justify-between gap-2">
-                <span className="font-mono text-xs uppercase tracking-wider text-amber-300 font-bold">
+                <span className="font-mono text-xs font-bold uppercase tracking-wider text-amber-300">
                   {activeProfile.stationCode}
                 </span>
-                <span className="font-mono text-xs px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300">
+                <span className="font-mono rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-bold text-emerald-300">
                   ATIVO
                 </span>
               </div>
@@ -389,9 +393,9 @@ export const OpsWorkspace: React.FC<OpsWorkspaceProps> = ({
             <button
               type="button"
               onClick={handleEndShift}
-              className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-amber-400/35 bg-[var(--bg-surface)] hover:border-amber-300 text-xs font-bold uppercase tracking-[0.08em] text-amber-200 transition cursor-pointer"
+              className="cine-press inline-flex min-h-[44px] w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-amber-400/35 bg-[var(--bg-surface)] px-3 py-2 text-xs font-bold uppercase tracking-[0.08em] text-amber-200 transition hover:border-amber-300"
             >
-              <LogOut className="w-3.5 h-3.5" />
+              <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
               Encerrar Turno / Trocar Estação
             </button>
           </div>
@@ -404,7 +408,7 @@ export const OpsWorkspace: React.FC<OpsWorkspaceProps> = ({
             <div
               role="tablist"
               aria-label="Módulos do CineFood Backstage"
-              className="flex lg:flex-col gap-1.5 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0 flex-nowrap"
+              className="flex flex-nowrap gap-1.5 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0"
             >
               {OPS_MODULES.map((mod) => {
                 const Icon = mod.icon;
@@ -424,19 +428,19 @@ export const OpsWorkspace: React.FC<OpsWorkspaceProps> = ({
                         : `Acesso restrito ao grupo ${mod.ownerGroup} ou Admin`
                     }
                     onClick={() => allowed && onTabChange(mod.id)}
-                    className={`min-h-[44px] flex items-center justify-between gap-2.5 px-3 py-2.5 rounded-lg border text-left text-xs font-semibold whitespace-nowrap shrink-0 transition-colors ${
+                    className={`cine-press flex min-h-[44px] shrink-0 items-center justify-between gap-2.5 whitespace-nowrap rounded-xl border px-3 py-2.5 text-left text-xs font-semibold transition-colors ${
                       !allowed
-                        ? 'bg-[var(--bg-base)]/50 border-[var(--border-subtle)] text-[var(--text-muted)] opacity-50 cursor-not-allowed'
+                        ? 'cursor-not-allowed border-[var(--border-subtle)] bg-[var(--bg-base)]/50 text-[var(--text-muted)] opacity-50'
                         : isSelected
-                          ? 'bg-[var(--brand-red)] border-[var(--brand-red)] text-white cursor-pointer'
-                          : 'bg-[var(--bg-base)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] cursor-pointer'
+                          ? 'cursor-pointer border-[var(--brand-red)] bg-[var(--brand-red)] text-white shadow-md'
+                          : 'cursor-pointer border-[var(--border-subtle)] bg-[var(--bg-base)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]'
                     }`}
                   >
                     <span className="inline-flex items-center gap-2">
                       {allowed ? (
-                        <Icon className="w-4 h-4 shrink-0" aria-hidden="true" />
+                        <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
                       ) : (
-                        <Lock className="w-3.5 h-3.5 shrink-0 text-[var(--text-muted)]" aria-hidden="true" />
+                        <Lock className="h-3.5 w-3.5 shrink-0 text-[var(--text-muted)]" aria-hidden="true" />
                       )}
                       <span>{mod.label}</span>
                     </span>
@@ -451,19 +455,19 @@ export const OpsWorkspace: React.FC<OpsWorkspaceProps> = ({
         </div>
 
         {/* Bottom Backstage Controls (Desktop) */}
-        <div className="hidden lg:flex flex-col gap-2 pt-4 border-t border-[var(--border-subtle)]">
+        <div className="hidden flex-col gap-2 border-t border-[var(--border-subtle)] pt-4 lg:flex">
           <button
             type="button"
             onClick={onToggleOled}
             aria-pressed={oledMode}
-            className={`w-full min-h-[44px] inline-flex items-center justify-between px-3 py-2 rounded-lg border text-xs font-semibold cursor-pointer ${
+            className={`cine-press inline-flex min-h-[44px] w-full cursor-pointer items-center justify-between rounded-xl border px-3 py-2 text-xs font-semibold ${
               oledMode
                 ? 'border-amber-400/50 bg-amber-500/15 text-amber-200'
                 : 'border-[var(--border-subtle)] bg-[var(--bg-base)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
             }`}
           >
             <span className="inline-flex items-center gap-2">
-              {oledMode ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />}
+              {oledMode ? <Moon className="h-3.5 w-3.5" /> : <Sun className="h-3.5 w-3.5" />}
               Sala Escura OLED
             </span>
             <span className="font-mono text-xs">{oledMode ? 'ON' : 'OFF'}</span>
@@ -472,27 +476,28 @@ export const OpsWorkspace: React.FC<OpsWorkspaceProps> = ({
           <button
             type="button"
             onClick={onExitToStorefront}
-            className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] hover:border-[var(--border-strong)] text-xs font-bold uppercase tracking-[0.1em] text-[var(--text-primary)] transition cursor-pointer"
+            className="cine-press inline-flex min-h-[44px] w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2.5 text-xs font-bold uppercase tracking-[0.1em] text-[var(--text-primary)] transition hover:border-[var(--border-strong)]"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
+            <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
             Voltar para Loja Web
           </button>
         </div>
       </aside>
 
       {/* Main Backstage Workspace */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex min-w-0 flex-1 flex-col">
         {/* Top Backstage Telemetry Bar */}
-        <div className="border-b border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-4 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-[var(--bg-elevated)]/90 px-4 py-3.5 backdrop-blur-md sm:px-8">
           <div className="flex flex-wrap items-center gap-2.5 text-xs">
-            <span className="font-mono text-xs font-bold uppercase px-2.5 py-1 rounded bg-amber-500/15 border border-amber-400/35 text-amber-200">
+            <span className="font-mono rounded-full border border-amber-400/35 bg-amber-500/15 px-3 py-1 text-xs font-bold uppercase text-amber-200">
               {activeProfile.groupLabel}
             </span>
             <span className="text-[var(--text-secondary)]">
-              Operador: <strong className="text-[var(--text-primary)]">{activeProfile.operatorName}</strong>
+              Operador:{' '}
+              <strong className="text-[var(--text-primary)]">{activeProfile.operatorName}</strong>
             </span>
-            <span className="hidden sm:inline text-[var(--text-muted)]">·</span>
-            <span className="hidden sm:inline text-[var(--text-secondary)]">
+            <span className="hidden text-[var(--text-muted)] sm:inline">·</span>
+            <span className="hidden text-[var(--text-secondary)] sm:inline">
               Escopo isolado em módulos autorizados para este grupo
             </span>
           </div>

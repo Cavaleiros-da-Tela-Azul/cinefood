@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
+import { motion } from 'motion/react';
 import { Film, Menu, Moon, Sun, Ticket, User, X } from 'lucide-react';
 import { CustomerUser } from '../data/cinemaData';
 
@@ -63,7 +64,7 @@ export function Header({
   };
 
   return (
-    <header className="relative z-30 w-full border-b border-white/10 bg-[var(--bg-glass)] backdrop-blur-md">
+    <header className="relative z-30 w-full border-b border-white/10 bg-[var(--bg-glass)] pt-[env(safe-area-inset-top)] backdrop-blur-md">
       <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-1.5 px-3 py-2.5 sm:gap-3 sm:px-8">
         <div className="flex min-w-0 items-center gap-1.5 sm:gap-2.5">
           <button
@@ -72,7 +73,7 @@ export function Header({
             aria-label="Abrir menu de navegação"
             aria-expanded={drawerOpen}
             aria-controls={drawerId}
-            className={`inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white transition-colors hover:border-white/30 lg:hidden ${FOCUS_RING_CLASS}`}
+            className={`cine-press inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white transition-colors hover:border-white/30 lg:hidden ${FOCUS_RING_CLASS}`}
           >
             <Menu className="h-5 w-5" aria-hidden="true" />
           </button>
@@ -97,7 +98,7 @@ export function Header({
           </button>
         </div>
 
-        <nav aria-label="Navegação principal" className="hidden items-center gap-3 xl:gap-5 lg:flex">
+        <nav aria-label="Navegação principal" className="hidden items-center gap-1.5 xl:gap-2 lg:flex">
           {NAV_ITEMS.map(({ step, label }) => {
             const active = currentStep === step;
             return (
@@ -106,13 +107,20 @@ export function Header({
                 type="button"
                 onClick={() => onNavigate(step)}
                 aria-current={active ? 'page' : undefined}
-                className={`relative inline-flex min-h-[44px] items-center whitespace-nowrap rounded-md px-1.5 py-2 text-sm font-medium transition-colors ${FOCUS_RING_CLASS} ${
+                className={`cine-press relative inline-flex min-h-[44px] items-center whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${FOCUS_RING_CLASS} ${
                   active ? 'text-white' : 'text-[var(--text-secondary)] hover:text-white'
                 }`}
               >
-                {label}
                 {active && (
-                  <span className="absolute bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-[var(--brand-red)]" />
+                  <motion.span
+                    layoutId="header-nav-pill"
+                    transition={{ type: 'spring', duration: 0.28, bounce: 0 }}
+                    className="absolute inset-0 -z-10 rounded-full border border-white/15 bg-white/10"
+                  />
+                )}
+                <span>{label}</span>
+                {active && (
+                  <span className="ml-1.5 h-1.5 w-1.5 rounded-full bg-[var(--brand-red)]" />
                 )}
               </button>
             );
@@ -126,7 +134,7 @@ export function Header({
             aria-pressed={oledMode}
             aria-label={oledMode ? 'Desativar Modo Sala Escura OLED' : 'Ativar Modo Sala Escura OLED'}
             title="Modo Sala Escura OLED — reduz emissão luminosa dentro da sala"
-            className={`inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border transition-colors active:scale-95 ${FOCUS_RING_CLASS} ${
+            className={`cine-press inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border transition-colors ${FOCUS_RING_CLASS} ${
               oledMode
                 ? 'border-[var(--amber-progress)]/60 bg-[var(--amber-progress)]/15 text-[#FCD34D]'
                 : 'border-white/15 bg-white/5 text-[var(--text-secondary)] hover:border-white/30 hover:text-white'
@@ -139,7 +147,7 @@ export function Header({
             type="button"
             onClick={() => onNavigate('auth')}
             aria-label={currentUser ? `Conta de ${currentUser.name}` : 'Entrar ou criar conta'}
-            className={`hidden min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors active:scale-95 sm:inline-flex ${FOCUS_RING_CLASS} ${
+            className={`cine-press hidden min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors sm:inline-flex ${FOCUS_RING_CLASS} ${
               currentStep === 'auth'
                 ? 'border-white bg-white text-[#0D0E12]'
                 : 'border-white/15 bg-white/5 text-[var(--text-secondary)] hover:border-white/30 hover:text-white'
@@ -154,7 +162,7 @@ export function Header({
           <button
             type="button"
             onClick={() => onNavigate(selectedSeatsCount > 0 ? 'seats' : 'detail')}
-            className={`inline-flex min-h-[44px] items-center gap-1 whitespace-nowrap rounded-md bg-[var(--brand-red)] px-2.5 py-2 text-[11px] font-bold uppercase tracking-wider text-white transition-colors hover:bg-[var(--brand-red-hover)] active:scale-95 sm:gap-1.5 sm:px-3.5 sm:text-xs ${FOCUS_RING_CLASS}`}
+            className={`cine-press inline-flex min-h-[44px] items-center gap-1 whitespace-nowrap rounded-full bg-[var(--brand-red)] px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-white shadow-[0_6px_18px_rgba(0,0,0,0.4)] transition-colors hover:bg-[var(--brand-red-hover)] sm:gap-1.5 sm:px-4 sm:text-xs ${FOCUS_RING_CLASS}`}
           >
             <Ticket className="h-3.5 w-3.5" aria-hidden="true" />
             <span>{selectedSeatsCount > 0 ? `Comprar (${selectedSeatsCount})` : 'Comprar'}</span>
@@ -181,7 +189,7 @@ export function Header({
         <nav
           ref={sheetRef}
           aria-label="Menu móvel"
-          className="flex h-full w-[min(82vw,320px)] flex-col justify-between border-r border-white/15 bg-[var(--bg-elevated)] p-5 shadow-2xl"
+          className="flex h-full w-[min(82vw,320px)] flex-col justify-between border-r border-white/15 bg-[var(--bg-elevated)] p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[max(1.25rem,env(safe-area-inset-top))] shadow-2xl"
         >
           <div>
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
@@ -193,7 +201,7 @@ export function Header({
                 autoFocus
                 onClick={() => setDrawerOpen(false)}
                 aria-label="Fechar menu de navegação"
-                className={`inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-white/15 text-[var(--text-secondary)] hover:text-white ${FOCUS_RING_CLASS}`}
+                className={`cine-press inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-white/15 text-[var(--text-secondary)] hover:text-white ${FOCUS_RING_CLASS}`}
               >
                 <X className="h-4 w-4" aria-hidden="true" />
               </button>
@@ -208,7 +216,7 @@ export function Header({
                       type="button"
                       onClick={() => handleNavigateFromDrawer(step)}
                       aria-current={active ? 'page' : undefined}
-                      className={`flex min-h-[44px] w-full items-center justify-between rounded-xl px-4 py-2.5 text-left text-sm font-semibold transition-colors ${FOCUS_RING_CLASS} ${
+                      className={`cine-press flex min-h-[44px] w-full items-center justify-between rounded-xl px-4 py-2.5 text-left text-sm font-semibold transition-colors ${FOCUS_RING_CLASS} ${
                         active
                           ? 'bg-[var(--brand-red)] text-white'
                           : 'bg-white/5 text-[var(--text-secondary)] hover:bg-white/10 hover:text-white'
@@ -226,7 +234,7 @@ export function Header({
             <button
               type="button"
               onClick={() => handleNavigateFromDrawer('auth')}
-              className={`flex min-h-[44px] w-full items-center justify-between rounded-xl border border-white/15 bg-white/5 px-4 text-xs font-semibold text-white ${FOCUS_RING_CLASS}`}
+              className={`cine-press flex min-h-[44px] w-full items-center justify-between rounded-xl border border-white/15 bg-white/5 px-4 text-xs font-semibold text-white ${FOCUS_RING_CLASS}`}
             >
               <span className="inline-flex items-center gap-2 truncate">
                 <User className="h-4 w-4 shrink-0" aria-hidden="true" />
