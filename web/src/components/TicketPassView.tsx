@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import {
+  Armchair,
   Calendar,
   Check,
   CheckCircle2,
@@ -11,7 +12,6 @@ import {
   Popcorn,
   RotateCcw,
   ShieldCheck,
-  Sparkles,
   Ticket,
 } from 'lucide-react';
 import {
@@ -266,7 +266,7 @@ export function TicketPassView({
                   </div>
                   <div>
                     <p className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                      <Sparkles className="h-3 w-3 text-[var(--success-emerald)]" aria-hidden="true" />
+                      <Armchair className="h-3 w-3 text-[var(--success-emerald)]" aria-hidden="true" />
                       {isCanteenOnly ? 'Entrega' : 'Assentos'}
                     </p>
                     <p className="font-mono-tabular mt-0.5 truncate text-xs font-semibold text-white">

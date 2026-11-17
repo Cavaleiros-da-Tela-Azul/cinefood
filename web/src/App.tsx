@@ -254,6 +254,7 @@ export function App() {
   const [reviewsViewKey, setReviewsViewKey] = useState(0);
   const [savedMovieIds, setSavedMovieIds] = useState<string[]>([]);
   const [lgpdRequests, setLgpdRequests] = useState<LgpdRequestItem[]>(INITIAL_LGPD_REQUESTS);
+  const [clientOrdersTab, setClientOrdersTab] = useState<'orders' | 'reviews' | 'lgpd'>('orders');
 
   const [lastOrderId, setLastOrderId] = useState<string | null>(null);
   const [orderSessionIdMap, setOrderSessionIdMap] = useState<Record<string, string>>({});
@@ -311,8 +312,17 @@ export function App() {
       setReviewsSubTab('overview');
       setReviewsViewKey((k) => k + 1);
     }
+    if (next === 'orders') {
+      setClientOrdersTab('orders');
+    }
     setStep(next);
     syncHashForStep(next);
+  };
+
+  const handleOpenOrdersTab = (tab: 'orders' | 'reviews' | 'lgpd') => {
+    setClientOrdersTab(tab);
+    setStep('orders');
+    syncHashForStep('orders');
   };
 
   const handleSelectStaffRole = (role: StaffRoleGroup) => {
@@ -1088,7 +1098,7 @@ export function App() {
       orderId: matched.id,
       outcome: 'LIBERADO',
       detail: triggersKitchen
-        ? `Check-in confirmado para ${matched.room} (${seatText}). Cantina KDS notificada (RN-02 → EM_PREPARO).`
+        ? `Check-in confirmado para ${matched.room} (${seatText}). Cantina KDS notificada (RN-02: EM_PREPARO).`
         : `Check-in confirmado para ${matched.room} (${seatText}).`,
       triggeredKitchenPrep: triggersKitchen,
       timestamp: nowLabel,
@@ -1461,10 +1471,17 @@ export function App() {
           {step === 'auth' && (
             <AuthView
               currentUser={currentUser}
+              userOrders={currentUser ? orders.filter((o) => o.userId === currentUser.id) : []}
+              userNotices={currentUser ? notices.filter((n) => n.userId === currentUser.id) : []}
+              savedMovies={moviesCatalog.filter((m) => savedMovieIds.includes(m.id))}
+              lgpdRequestsCount={lgpdRequests.length}
               onLogin={(user) => setCurrentUser(user)}
               onLogout={() => setCurrentUser(null)}
               onBack={() => navigateStep('home')}
-              onGoToOrders={() => navigateStep('orders')}
+              onGoToOrders={() => handleOpenOrdersTab('orders')}
+              onGoToOrdersTab={handleOpenOrdersTab}
+              onSelectSavedMovie={handleSelectMovieForSessions}
+              onOpenReviewsForMovie={handleOpenReviewsForMovie}
               onToggleMarketingOptIn={handleToggleMarketingOptIn}
             />
           )}
@@ -1475,6 +1492,7 @@ export function App() {
               orders={orders}
               notices={notices}
               lgpdRequests={lgpdRequests}
+              initialTab={clientOrdersTab}
               onGoToAuth={() => navigateStep('auth')}
               onGoToHome={() => navigateStep('home')}
               onCancelOrder={handleCancelOrder}

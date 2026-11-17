@@ -445,7 +445,18 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
     // Confirm zero Backstage / CRM links or buttons in customer AuthView
     await expect(page.getByText(/Abrir CineFood Backstage/i)).toHaveCount(0);
     await expect(page.getByText(/CRM Operacional/i)).toHaveCount(0);
-    await expect(page.getByText(/Aviso Completo de Privacidade \(LGPD\)/i)).toBeVisible();
+
+    // User's past reviews section is visible on Profile
+    await expect(page.getByRole('region', { name: /Avaliações feitas por você/i })).toContainText('VEREDAS DA NEBLINA');
+
+    // Privacy & Terms LGPD details open on demand in popup dialog
+    await expect(page.getByText(/Aviso Completo de Privacidade \(LGPD\)/i)).toBeHidden();
+    await page.getByRole('button', { name: /Visualizar Termos de Uso e Privacidade/i }).click();
+    const termsDialog = page.getByRole('dialog', { name: /Termos de Uso e Privacidade/i });
+    await expect(termsDialog).toBeVisible();
+    await expect(termsDialog.getByText(/Aviso Completo de Privacidade \(LGPD\)/i)).toBeVisible();
+    await termsDialog.getByRole('button', { name: 'Fechar', exact: true }).click();
+    await expect(termsDialog).toBeHidden();
 
     // Toggle marketing opt-in switch
     const marketingSwitch = page.getByRole('switch');

@@ -2,10 +2,10 @@ import React, { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import {
   CheckCircle2,
+  ClipboardList,
   QrCode,
   ScanLine,
   ShieldAlert,
-  Sparkles,
   UtensilsCrossed,
   Volume2,
   VolumeX,
@@ -501,7 +501,7 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
           <div className="space-y-3 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)]/95 p-5 shadow-md">
             <div className="flex items-center justify-between">
               <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-secondary)]">
-                <Sparkles className="h-3.5 w-3.5 text-amber-400" aria-hidden="true" />
+                <ClipboardList className="h-3.5 w-3.5 text-amber-400" aria-hidden="true" />
                 Log da Portaria
               </h3>
               <span className="font-mono-tabular text-xs text-[var(--text-muted)]">

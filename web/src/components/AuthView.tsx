@@ -1,32 +1,61 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import {
   AlertCircle,
   ArrowLeft,
+  ArrowUpRight,
+  Bell,
+  Bookmark,
+  Calendar,
   CheckCircle2,
+  Clock,
   Eye,
   EyeOff,
   FileText,
   Film,
   Lock,
   LogOut,
+  MessageSquare,
   Popcorn,
+  QrCode,
   ShieldCheck,
-  Sparkles,
+  Star,
+  Ticket,
   UserCheck,
+  X,
 } from 'lucide-react';
-import { CustomerUser } from '../data/cinemaData';
+import {
+  CANTEEN_STATUS_LABEL,
+  ClientTicketOrder,
+  CustomerUser,
+  InternalNoticeItem,
+  MovieItem,
+} from '../data/cinemaData';
 
 export interface AuthViewProps {
   currentUser: CustomerUser | null;
+  userOrders?: ClientTicketOrder[];
+  userNotices?: InternalNoticeItem[];
+  savedMovies?: MovieItem[];
+  lgpdRequestsCount?: number;
   onLogin: (user: CustomerUser) => void;
   onLogout: () => void;
   onBack: () => void;
   onGoToOrders: () => void;
+  onGoToOrdersTab?: (tab: 'orders' | 'reviews' | 'lgpd') => void;
+  onSelectSavedMovie?: (movieId: string) => void;
+  onOpenReviewsForMovie?: (movieId: string) => void;
   onToggleMarketingOptIn?: (next: boolean) => void;
 }
 
 const LGPD_NOTICE_VERSION = 'v2.1 · Vigência a partir de 14/12/2026';
+
+function getMemberInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return 'CF';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+}
 
 function LgpdFullNoticeCard({ compact = false }: { compact?: boolean }) {
   return (
@@ -85,14 +114,23 @@ function LgpdFullNoticeCard({ compact = false }: { compact?: boolean }) {
 
 export function AuthView({
   currentUser,
+  userOrders = [],
+  userNotices = [],
+  savedMovies = [],
+  lgpdRequestsCount = 0,
   onLogin,
   onLogout,
   onBack,
   onGoToOrders,
+  onGoToOrdersTab,
+  onSelectSavedMovie,
+  onOpenReviewsForMovie,
   onToggleMarketingOptIn,
 }: AuthViewProps) {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [showPassword, setShowPassword] = useState(false);
+  const [termsModalOpen, setTermsModalOpen] = useState(false);
+  const termsDialogRef = useRef<HTMLDialogElement>(null);
 
   // Sign-in state
   const [loginEmail, setLoginEmail] = useState('');
@@ -113,6 +151,16 @@ export function AuthView({
   const [lgpdNoticeErr, setLgpdNoticeErr] = useState(false);
 
   const [marketingUpdatedAt, setMarketingUpdatedAt] = useState<string | null>(null);
+
+  useEffect(() => {
+    const dialog = termsDialogRef.current;
+    if (!dialog) return;
+    if (termsModalOpen && !dialog.open) {
+      dialog.showModal();
+    } else if (!termsModalOpen && dialog.open) {
+      dialog.close();
+    }
+  }, [termsModalOpen]);
 
   const formatNowPtBr = () => new Date().toLocaleString('pt-BR');
 
@@ -172,26 +220,54 @@ export function AuthView({
     }
   };
 
+  const openOrdersSection = (tab: 'orders' | 'reviews' | 'lgpd') => {
+    if (onGoToOrdersTab) {
+      onGoToOrdersTab(tab);
+    } else {
+      onGoToOrders();
+    }
+  };
+
+  // Derived Member Hub stats when signed in
+  const activeOrders = userOrders.filter(
+    (o) => o.status === 'ATIVO' && o.orderKind !== 'canteen-only',
+  );
+  const featuredTicket =
+    activeOrders[0] ?? userOrders.find((o) => o.status === 'ATIVO') ?? userOrders[0] ?? null;
+  const reviewedOrders = userOrders.filter(
+    (o) => o.orderKind !== 'canteen-only' && typeof o.rating === 'number' && o.rating > 0,
+  );
+  const pendingReviewOrders = userOrders.filter(
+    (o) =>
+      o.orderKind !== 'canteen-only' &&
+      o.checkedIn &&
+      o.sessionEnded &&
+      o.status !== 'CANCELADO' &&
+      !(typeof o.rating === 'number' && o.rating > 0),
+  );
+  const unreadNoticesCount = userNotices.filter((n) => !n.read).length;
+
   return (
     <section
       className="relative min-h-[calc(100vh-80px)] overflow-x-clip px-4 py-8 sm:px-8 sm:py-10"
       aria-label="Autenticação e Privacidade"
     >
-      {/* Atmospheric Cinema Backdrop */}
+      {/* Shared Atmospheric Dark Backdrop + Subtle Ambient Glow */}
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <img
           src="/assets/horizon-backdrop.jpg"
           alt=""
-          className="h-full w-full scale-105 object-cover object-center opacity-20 blur-sm"
+          className="h-full w-full scale-105 object-cover object-center opacity-15 blur-sm"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0D0E12]/90 via-[#0D0E12]/88 to-[#0D0E12]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(196,10,20,0.14),transparent_48%),radial-gradient(circle_at_top_right,rgba(245,158,11,0.09),transparent_45%)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0D0E12]/88 via-[#0D0E12]/90 to-[#0D0E12]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-[1060px]">
+      <div className="relative z-10 mx-auto max-w-[1160px]">
         <button
           type="button"
           onClick={onBack}
-          className="cine-press inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)] transition-colors hover:border-white/25 hover:text-white"
+          className="cine-press inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)] backdrop-blur-md transition-colors hover:border-white/25 hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           <span>Voltar ao Cartaz</span>
@@ -202,91 +278,557 @@ export function AuthView({
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-6 space-y-6 rounded-3xl border border-white/15 bg-[var(--bg-elevated)]/90 p-6 shadow-2xl backdrop-blur-md sm:p-8"
+            className="mt-6 space-y-6"
           >
-            <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/10 pb-6">
-              <div className="flex items-start gap-4">
-                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[var(--success-emerald)]/30 bg-[var(--success-emerald)]/15 text-[var(--success-emerald)] shadow-lg">
-                  <UserCheck className="h-7 w-7" aria-hidden="true" />
-                </span>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--success-emerald)]">
-                    Sessão Autenticada
-                  </p>
-                  <h1 className="font-display mt-1 text-3xl font-extrabold uppercase text-white sm:text-4xl">
-                    {currentUser.name}
-                  </h1>
-                  <p className="break-all text-sm text-[var(--text-secondary)]">{currentUser.email}</p>
-                </div>
-              </div>
+            {/* Member Identity Hero Banner */}
+            <div className="rounded-3xl border border-white/12 bg-[var(--bg-elevated)]/92 p-6 shadow-2xl backdrop-blur-md sm:p-7">
+              <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/10 pb-6">
+                <div className="flex min-w-0 items-center gap-4">
+                  <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-gradient-to-br from-[var(--brand-red)] to-[#7F070E] font-display text-2xl font-extrabold tracking-wide text-white shadow-lg">
+                    {getMemberInitials(currentUser.name)}
+                    <span
+                      title="Sessão autenticada"
+                      className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-[var(--bg-elevated)] bg-[var(--success-emerald)] text-[#0D0E12]"
+                    >
+                      <UserCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                    </span>
+                  </div>
 
-              <button
-                type="button"
-                onClick={onLogout}
-                className="cine-press inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] transition-colors hover:border-white/40 hover:bg-white/10 hover:text-white"
-              >
-                <LogOut className="h-4 w-4" aria-hidden="true" />
-                <span>Encerrar Sessão</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl border border-white/10 bg-black/35 p-4 text-xs">
-                <p className="font-bold uppercase tracking-wider text-white">Termo LGPD</p>
-                <p className="mt-1.5 leading-relaxed text-[var(--text-secondary)]">
-                  Ciência contratual (Art. 7º, V) registrada em{' '}
-                  <strong className="font-mono-tabular text-white">{currentUser.lgpdAcceptedAt}</strong>.
-                </p>
-                <p className="mt-1.5 text-[11px] text-[var(--text-muted)]">{LGPD_NOTICE_VERSION}</p>
-              </div>
-
-              <div className="flex flex-col justify-between gap-3 rounded-2xl border border-white/10 bg-black/35 p-4 text-xs">
-                <div>
-                  <p className="font-bold uppercase tracking-wider text-white">
-                    Comunicações Promocionais
-                  </p>
-                  <p className="mt-1.5 text-[var(--text-secondary)]">
-                    Consentimento opcional (Art. 7º, I):{' '}
-                    <strong className="text-white">
-                      {currentUser.marketingOptIn ? 'Ativado' : 'Desativado'}
-                    </strong>
-                  </p>
-                  {marketingUpdatedAt && (
-                    <p className="mt-1 text-[11px] text-[#6EE7B7]">
-                      Atualizado em <span className="font-mono-tabular">{marketingUpdatedAt}</span>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--success-emerald)]">
+                      Sessão Autenticada
                     </p>
-                  )}
+                    <h1 className="font-display mt-0.5 truncate text-3xl font-extrabold uppercase text-white sm:text-4xl">
+                      {currentUser.name}
+                    </h1>
+                    <p className="break-all text-xs text-[var(--text-secondary)] sm:text-sm">
+                      {currentUser.email}
+                    </p>
+                  </div>
                 </div>
+
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => openOrdersSection('orders')}
+                    className="cine-press inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[var(--brand-red)] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-lg transition hover:bg-[var(--brand-red-hover)]"
+                  >
+                    <Ticket className="h-4 w-4" aria-hidden="true" />
+                    <span>Abrir Meus Ingressos &amp; LGPD</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onLogout}
+                    className="cine-press inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] transition-colors hover:border-white/40 hover:bg-white/10 hover:text-white"
+                  >
+                    <LogOut className="h-4 w-4" aria-hidden="true" />
+                    <span>Encerrar Sessão</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Member Quick Telemetry Strip */}
+              <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <button
+                  type="button"
+                  onClick={() => openOrdersSection('orders')}
+                  className="cine-press flex min-h-[58px] items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-left transition-colors hover:border-white/25"
+                >
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                      Ingressos Ativos
+                    </p>
+                    <p className="font-mono-tabular mt-0.5 text-xl font-bold text-white">
+                      {activeOrders.length}
+                    </p>
+                  </div>
+                  <Ticket className="h-5 w-5 text-[var(--brand-red)]" aria-hidden="true" />
+                </button>
 
                 <button
                   type="button"
-                  role="switch"
-                  aria-checked={currentUser.marketingOptIn}
-                  onClick={handleToggleMarketing}
-                  className={`cine-press inline-flex min-h-[44px] items-center justify-center rounded-xl border px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${
-                    currentUser.marketingOptIn
-                      ? 'border-rose-400/50 bg-rose-500/15 text-rose-100 hover:bg-rose-500/25'
-                      : 'border-[var(--success-emerald)]/50 bg-[var(--success-emerald)]/15 text-[#6EE7B7] hover:bg-[var(--success-emerald)]/25'
-                  }`}
+                  onClick={() => openOrdersSection('reviews')}
+                  className="cine-press flex min-h-[58px] items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-left transition-colors hover:border-white/25"
                 >
-                  {currentUser.marketingOptIn
-                    ? 'Revogar Consentimento de Marketing'
-                    : 'Conceder Consentimento de Marketing'}
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                      Avaliações Feitas
+                    </p>
+                    <p className="font-mono-tabular mt-0.5 text-xl font-bold text-white">
+                      {reviewedOrders.length}
+                    </p>
+                  </div>
+                  <Star className="h-5 w-5 text-[var(--amber-progress)]" aria-hidden="true" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => openOrdersSection('orders')}
+                  className="cine-press flex min-h-[58px] items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-left transition-colors hover:border-white/25"
+                >
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                      Avisos Não Lidos
+                    </p>
+                    <p className="font-mono-tabular mt-0.5 text-xl font-bold text-white">
+                      {unreadNoticesCount}
+                    </p>
+                  </div>
+                  <Bell
+                    className={`h-5 w-5 ${
+                      unreadNoticesCount > 0
+                        ? 'text-[var(--amber-progress)]'
+                        : 'text-[var(--text-muted)]'
+                    }`}
+                    aria-hidden="true"
+                  />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => openOrdersSection('lgpd')}
+                  className="cine-press flex min-h-[58px] items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-left transition-colors hover:border-white/25"
+                >
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                      Protocolos LGPD
+                    </p>
+                    <p className="font-mono-tabular mt-0.5 text-xl font-bold text-white">
+                      {lgpdRequestsCount}
+                    </p>
+                  </div>
+                  <ShieldCheck className="h-5 w-5 text-[var(--success-emerald)]" aria-hidden="true" />
                 </button>
               </div>
             </div>
 
-            <LgpdFullNoticeCard />
-
-            <div className="flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={onGoToOrders}
-                className="cine-press inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[var(--brand-red)] px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg transition hover:bg-[var(--brand-red-hover)]"
+            {/* Stacked Member Activity Cards + Bottom 2-Column Row */}
+            <div className="space-y-6">
+              {/* Active Cinema Pass Stub */}
+              <section
+                aria-label="Próxima sessão e passe ativo"
+                className="overflow-hidden rounded-3xl border border-white/12 bg-[var(--bg-elevated)]/92 shadow-xl backdrop-blur-md"
               >
-                <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-                <span>Abrir Meus Ingressos &amp; LGPD</span>
-              </button>
+                  <div className="flex items-center justify-between gap-3 border-b border-white/10 px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <QrCode className="h-4 w-4 text-[var(--amber-progress)]" aria-hidden="true" />
+                      <h2 className="font-display text-xl font-bold uppercase tracking-wide text-white">
+                        {featuredTicket ? 'Passe em Destaque' : 'Sua Próxima Sessão'}
+                      </h2>
+                    </div>
+                    {featuredTicket && (
+                      <span className="font-mono-tabular rounded-full bg-white/10 px-2.5 py-0.5 text-[11px] font-semibold text-white">
+                        {featuredTicket.id}
+                      </span>
+                    )}
+                  </div>
+
+                  {featuredTicket ? (
+                    <div className="p-6">
+                      <div className="flex items-start gap-4">
+                        <img
+                          src={featuredTicket.posterSrc}
+                          alt={featuredTicket.movieTitle}
+                          className="h-28 w-20 shrink-0 rounded-xl border border-white/15 object-cover shadow-md"
+                        />
+                        <div className="min-w-0 flex-1 space-y-2">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span
+                              className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider ${
+                                featuredTicket.status === 'ATIVO'
+                                  ? 'bg-[var(--success-emerald)]/20 text-[#6EE7B7]'
+                                  : 'bg-white/10 text-[var(--text-secondary)]'
+                              }`}
+                            >
+                              {featuredTicket.status}
+                            </span>
+                            <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-[11px] font-semibold text-white">
+                              {featuredTicket.format}
+                            </span>
+                          </div>
+
+                          <h3 className="font-display line-clamp-1 text-2xl font-extrabold uppercase text-white">
+                            {featuredTicket.movieTitle}
+                          </h3>
+
+                          <p className="flex flex-wrap items-center gap-3 text-xs text-[var(--text-secondary)]">
+                            <span className="inline-flex items-center gap-1">
+                              <Calendar className="h-3.5 w-3.5 text-[var(--amber-progress)]" aria-hidden="true" />
+                              {featuredTicket.dateLabel}
+                            </span>
+                            <span className="font-mono-tabular inline-flex items-center gap-1 text-white">
+                              <Clock className="h-3.5 w-3.5 text-[var(--amber-progress)]" aria-hidden="true" />
+                              {featuredTicket.time}
+                            </span>
+                            <span>{featuredTicket.room}</span>
+                          </p>
+
+                          <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                            {featuredTicket.seatsLabel.length > 0 && (
+                              <span className="font-mono-tabular rounded-lg border border-[var(--brand-red)]/40 bg-[var(--brand-red)]/15 px-2.5 py-1 text-xs font-bold text-white">
+                                Assentos: {featuredTicket.seatsLabel.join(', ')}
+                              </span>
+                            )}
+                            {featuredTicket.canteenSummary && (
+                              <span className="inline-flex items-center gap-1 rounded-lg border border-[var(--amber-progress)]/35 bg-[var(--amber-progress)]/10 px-2.5 py-1 text-xs font-semibold text-[#FDE68A]">
+                                <Popcorn className="h-3.5 w-3.5" aria-hidden="true" />
+                                {CANTEEN_STATUS_LABEL[featuredTicket.canteenStatus]}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Perforated Divider */}
+                      <div className="relative -mx-6 my-5 flex items-center" aria-hidden="true">
+                        <span className="-ml-3 h-6 w-6 shrink-0 rounded-full border border-white/15 bg-[#0D0E12]" />
+                        <div className="ticket-perforated-divider mx-3 flex-1" />
+                        <span className="-mr-3 h-6 w-6 shrink-0 rounded-full border border-white/15 bg-[#0D0E12]" />
+                      </div>
+
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <span className="font-mono-tabular text-xs text-[var(--text-muted)]">
+                          Token: <strong className="text-white">{featuredTicket.qrToken}</strong>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => openOrdersSection('orders')}
+                          className="cine-press inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition hover:border-white/40 hover:bg-white/10"
+                        >
+                          <span>Ver Todos os Pedidos</span>
+                          <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-6 text-center">
+                      <p className="text-sm text-[var(--text-secondary)]">
+                        Você ainda não possui ingressos emitidos nesta sessão.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={onBack}
+                        className="cine-press mt-4 inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/20 bg-white/5 px-5 py-2 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/10"
+                      >
+                        <Film className="h-4 w-4 text-[var(--brand-red)]" aria-hidden="true" />
+                        <span>Explorar Filmes em Cartaz</span>
+                      </button>
+                    </div>
+                  )}
+                </section>
+
+                {/* User's Published Reviews ("Minhas Avaliações") */}
+                <section
+                  aria-label="Avaliações feitas por você"
+                  className="rounded-3xl border border-white/12 bg-[var(--bg-elevated)]/92 p-6 shadow-xl backdrop-blur-md"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <MessageSquare className="h-4 w-4 text-[var(--amber-progress)]" aria-hidden="true" />
+                      <h2 className="font-display text-xl font-bold uppercase tracking-wide text-white">
+                        Minhas Avaliações ({reviewedOrders.length})
+                      </h2>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => openOrdersSection('reviews')}
+                      className="inline-flex min-h-[36px] items-center gap-1 text-xs font-semibold text-[var(--amber-progress)] hover:underline"
+                    >
+                      <span>
+                        {pendingReviewOrders.length > 0
+                          ? `${pendingReviewOrders.length} sessão(ões) para avaliar`
+                          : 'Gerenciar avaliações'}
+                      </span>
+                      <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                    </button>
+                  </div>
+
+                  {reviewedOrders.length === 0 ? (
+                    <div className="mt-4 rounded-2xl border border-dashed border-white/12 bg-black/25 p-5 text-xs leading-relaxed text-[var(--text-secondary)]">
+                      <p>
+                        Você ainda não publicou avaliações de sessões assistidas.
+                        {pendingReviewOrders.length > 0
+                          ? ` Há ${pendingReviewOrders.length} sessão(ões) já concluída(s) e elegível(eis) para avaliação.`
+                          : ''}
+                      </p>
+                      {pendingReviewOrders.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => openOrdersSection('reviews')}
+                          className="cine-press mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-[var(--amber-progress)]/45 bg-[var(--amber-progress)]/15 px-4 py-2 text-xs font-bold uppercase tracking-wider text-[#FCD34D] transition hover:bg-[var(--amber-progress)]/25"
+                        >
+                          <Star className="h-3.5 w-3.5" aria-hidden="true" />
+                          <span>Avaliar Sessão Concluída</span>
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="mt-4 space-y-3">
+                      {reviewedOrders.map((order) => (
+                        <article
+                          key={order.id}
+                          className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-black/35 p-4 sm:flex-row sm:items-start"
+                        >
+                          <img
+                            src={order.posterSrc}
+                            alt={`Pôster de ${order.movieTitle}`}
+                            className="h-20 w-14 shrink-0 rounded-lg border border-white/10 object-cover"
+                          />
+                          <div className="min-w-0 flex-1 space-y-1.5">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <div>
+                                <h3 className="font-display text-lg font-extrabold uppercase text-white">
+                                  {order.movieTitle}
+                                </h3>
+                                <p className="text-[11px] text-[var(--text-muted)]">
+                                  {order.complex} · {order.dateLabel} · {order.format}
+                                </p>
+                              </div>
+
+                              <div
+                                className="inline-flex items-center gap-1 rounded-full border border-[var(--amber-progress)]/40 bg-[var(--amber-progress)]/15 px-2.5 py-1 text-xs font-bold text-[#FCD34D]"
+                                aria-label={`Nota ${order.rating} de 5`}
+                              >
+                                {[1, 2, 3, 4, 5].map((starNum) => (
+                                  <Star
+                                    key={starNum}
+                                    className={`h-3.5 w-3.5 ${
+                                      (order.rating ?? 0) >= starNum
+                                        ? 'fill-current text-[var(--amber-progress)]'
+                                        : 'text-white/20'
+                                    }`}
+                                    aria-hidden="true"
+                                  />
+                                ))}
+                                <span className="font-mono-tabular ml-1">{order.rating}/5</span>
+                              </div>
+                            </div>
+
+                            {order.reviewTitle && (
+                              <p className="text-xs font-bold text-white">{order.reviewTitle}</p>
+                            )}
+                            {order.reviewComment && (
+                              <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
+                                &ldquo;{order.reviewComment}&rdquo;
+                              </p>
+                            )}
+
+                            <div className="flex flex-wrap items-center gap-2 pt-1">
+                              <span className="inline-flex items-center gap-1 rounded-full bg-[var(--success-emerald)]/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#6EE7B7]">
+                                <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+                                Entrada Validada
+                              </span>
+                              {onOpenReviewsForMovie && (
+                                <button
+                                  type="button"
+                                  onClick={() => onOpenReviewsForMovie(order.movieId)}
+                                  className="inline-flex min-h-[36px] items-center gap-1 text-[11px] font-semibold text-white/80 hover:text-white hover:underline"
+                                >
+                                  <span>Ver no Catálogo</span>
+                                  <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  )}
+                </section>
+
+                {/* Saved Watchlist Section */}
+                <section
+                  aria-label="Filmes salvos na sua lista"
+                  className="rounded-3xl border border-white/12 bg-[var(--bg-elevated)]/92 p-6 shadow-xl backdrop-blur-md"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <Bookmark className="h-4 w-4 text-[var(--amber-progress)]" aria-hidden="true" />
+                      <h2 className="font-display text-xl font-bold uppercase tracking-wide text-white">
+                        Minha Lista ({savedMovies.length})
+                      </h2>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={onBack}
+                      className="inline-flex min-h-[36px] items-center gap-1 text-xs font-semibold text-[var(--amber-progress)] hover:underline"
+                    >
+                      <span>Explorar Cartaz</span>
+                      <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                    </button>
+                  </div>
+
+                  {savedMovies.length === 0 ? (
+                    <p className="mt-3 rounded-2xl border border-dashed border-white/12 bg-black/25 p-4 text-xs leading-relaxed text-[var(--text-secondary)]">
+                      Nenhum filme salvo ainda. Use o botão de salvar na vitrine{' '}
+                      <strong className="text-white">Em Cartaz</strong> ou em{' '}
+                      <strong className="text-white">Sessões</strong> para acompanhar estreias aqui.
+                    </p>
+                  ) : (
+                    <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      {savedMovies.map((movie) => (
+                        <button
+                          key={movie.id}
+                          type="button"
+                          onClick={() => (onSelectSavedMovie ? onSelectSavedMovie(movie.id) : onBack())}
+                          className="cine-press flex min-h-[44px] items-center gap-3 rounded-2xl border border-white/12 bg-black/35 p-3 text-left transition hover:border-white/30"
+                        >
+                          <img
+                            src={movie.posterSrc}
+                            alt={`Pôster de ${movie.title}`}
+                            className="h-16 w-11 shrink-0 rounded-lg object-cover"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="font-display truncate text-lg font-extrabold uppercase text-white">
+                              {movie.title}
+                            </p>
+                            <p className="truncate text-[11px] text-[var(--text-secondary)]">
+                              {movie.genre} · {movie.duration}
+                            </p>
+                            <span className="mt-1 inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-[var(--amber-progress)]">
+                              Ver Sessões <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+                            </span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </section>
+
+              {/* Bottom 2-Column Row Below Minha Lista: Avisos da Conta & Preferências & Segurança */}
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:items-stretch">
+                {/* Recent Internal Notices Summary */}
+                <section
+                  aria-label="Resumo de avisos internos"
+                  className="flex flex-col rounded-3xl border border-white/12 bg-[var(--bg-elevated)]/92 p-6 shadow-xl backdrop-blur-md"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <Bell className="h-4 w-4 text-[var(--amber-progress)]" aria-hidden="true" />
+                      <h2 className="font-display text-xl font-bold uppercase tracking-wide text-white">
+                        Avisos da Conta
+                      </h2>
+                    </div>
+                    {unreadNoticesCount > 0 && (
+                      <span className="rounded-full bg-[var(--brand-red)] px-2.5 py-0.5 text-[11px] font-bold text-white">
+                        {unreadNoticesCount} novo(s)
+                      </span>
+                    )}
+                  </div>
+
+                  {userNotices.length === 0 ? (
+                    <p className="mt-3 text-xs text-[var(--text-secondary)]">
+                      Nenhum aviso operacional registrado até o momento.
+                    </p>
+                  ) : (
+                    <ul className="mt-4 space-y-2.5">
+                      {userNotices.slice(0, 2).map((notice) => (
+                        <li
+                          key={notice.id}
+                          className="rounded-2xl border border-white/10 bg-black/35 p-3.5 text-xs"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <span className="font-bold text-white">{notice.title}</span>
+                            {!notice.read && (
+                              <span className="rounded-full bg-[var(--amber-progress)]/20 px-2 py-0.5 text-[10px] font-bold uppercase text-[#FCD34D]">
+                                Não lido
+                              </span>
+                            )}
+                          </div>
+                          <p className="mt-1 text-[var(--text-secondary)]">{notice.message}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+
+                {/* Preferences & On-Demand Privacy Popup */}
+                <div className="flex flex-col justify-between gap-4 rounded-3xl border border-white/12 bg-[var(--bg-elevated)]/92 p-6 shadow-xl backdrop-blur-md">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 border-b border-white/10 pb-3.5">
+                      <ShieldCheck className="h-4 w-4 text-[var(--success-emerald)]" aria-hidden="true" />
+                      <h2 className="font-display text-xl font-bold uppercase tracking-wide text-white">
+                        Preferências &amp; Segurança
+                      </h2>
+                    </div>
+
+                    {/* Tactile Pill Switch for Optional Marketing Opt-in */}
+                    <div className="rounded-2xl border border-white/10 bg-black/35 p-4 text-xs">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="min-w-0">
+                          <p className="font-bold uppercase tracking-wider text-white">
+                            Comunicações Promocionais
+                          </p>
+                          <p className="mt-1 text-[var(--text-secondary)]">
+                            Envio de pré-vendas e estreias:{' '}
+                            <strong className="text-white">
+                              {currentUser.marketingOptIn ? 'Ativado' : 'Desativado'}
+                            </strong>
+                          </p>
+                        </div>
+
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={currentUser.marketingOptIn}
+                          aria-label={
+                            currentUser.marketingOptIn
+                              ? 'Revogar Consentimento de Marketing'
+                              : 'Conceder Consentimento de Marketing'
+                          }
+                          onClick={handleToggleMarketing}
+                          className={`cine-press relative inline-flex h-11 w-[68px] shrink-0 cursor-pointer items-center rounded-full border px-1.5 transition-colors ${
+                            currentUser.marketingOptIn
+                              ? 'border-[var(--success-emerald)]/60 bg-[var(--success-emerald)]/25'
+                              : 'border-white/20 bg-white/10'
+                          }`}
+                        >
+                          <motion.span
+                            layout
+                            transition={{ type: 'spring', stiffness: 500, damping: 32 }}
+                            className={`h-7 w-7 rounded-full shadow-md ${
+                              currentUser.marketingOptIn
+                                ? 'ml-auto bg-[var(--success-emerald)]'
+                                : 'bg-white/80'
+                            }`}
+                          />
+                        </button>
+                      </div>
+
+                      {marketingUpdatedAt && (
+                        <p className="mt-2.5 flex items-center gap-1.5 text-[11px] text-[#6EE7B7]">
+                          <CheckCircle2 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                          <span>
+                            Atualizado em <span className="font-mono-tabular">{marketingUpdatedAt}</span>
+                          </span>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* On-demand Terms & Privacy Popup Trigger */}
+                  <div className="space-y-2.5 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setTermsModalOpen(true)}
+                      className="cine-press inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition hover:border-white/40 hover:bg-white/10"
+                    >
+                      <FileText className="h-4 w-4 text-[var(--amber-progress)]" aria-hidden="true" />
+                      <span>Visualizar Termos de Uso e Privacidade</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => openOrdersSection('lgpd')}
+                      className="cine-press inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border border-white/12 bg-black/35 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] transition hover:border-white/30 hover:text-white"
+                    >
+                      <ShieldCheck className="h-4 w-4 text-[var(--success-emerald)]" aria-hidden="true" />
+                      <span>Solicitações LGPD ({lgpdRequestsCount})</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </motion.div>
         ) : (
@@ -599,7 +1141,6 @@ export function AuthView({
                     </p>
                   </div>
 
-                  {/* Full LGPD Notice & Separate Contractual Acknowledgment vs Optional Marketing Consent */}
                   <div className="space-y-3 text-xs">
                     <LgpdFullNoticeCard compact />
 
@@ -651,7 +1192,7 @@ export function AuthView({
 
             {/* Right Cinematic Showcase & Privacy Trust Aside */}
             <aside className="flex flex-col gap-5">
-              <div className="overflow-hidden rounded-3xl border border-white/12 bg-[var(--bg-elevated)]/88 shadow-xl backdrop-blur-md">
+              <div className="overflow-hidden rounded-3xl border border-white/12 bg-[var(--bg-elevated)]/92 shadow-xl backdrop-blur-md">
                 <div className="relative h-36 overflow-hidden">
                   <img
                     src="/assets/solaris-backdrop.jpg"
@@ -686,7 +1227,7 @@ export function AuthView({
                       </span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[var(--success-emerald)]" aria-hidden="true" />
+                      <Star className="mt-0.5 h-4 w-4 shrink-0 text-[var(--success-emerald)]" aria-hidden="true" />
                       <span>
                         Avaliação pós-sessão com edição e exclusão após o check-in na portaria.
                       </span>
@@ -708,6 +1249,82 @@ export function AuthView({
           </div>
         )}
       </div>
+
+      {/* Terms of Use & Privacy Popup Dialog (<dialog>) */}
+      <dialog
+        ref={termsDialogRef}
+        aria-label="Termos de Uso e Privacidade"
+        onCancel={(e) => {
+          e.preventDefault();
+          setTermsModalOpen(false);
+        }}
+        className="m-auto w-[min(92vw,680px)] rounded-3xl border border-white/15 bg-[var(--bg-elevated)] p-6 text-white shadow-2xl backdrop:bg-black/80 backdrop:backdrop-blur-sm sm:p-7"
+      >
+        <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[var(--amber-progress)]/35 bg-[var(--amber-progress)]/15 text-[var(--amber-progress)]">
+              <FileText className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <div>
+              <h2 className="font-display text-2xl font-extrabold uppercase text-white">
+                Termos de Uso e Privacidade
+              </h2>
+              <p className="text-xs text-[var(--text-secondary)]">
+                Transparência contratual e dados pessoais (LGPD · Lei nº 13.709/2018)
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setTermsModalOpen(false)}
+            aria-label="Fechar termos de uso e privacidade"
+            className="cine-press inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-[var(--text-secondary)] transition hover:border-white/35 hover:text-white"
+          >
+            <X className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
+
+        <div className="mt-5 max-h-[65vh] space-y-4 overflow-y-auto pr-1">
+          {currentUser && (
+            <div className="rounded-2xl border border-[var(--success-emerald)]/30 bg-[var(--success-emerald)]/10 p-4 text-xs">
+              <p className="font-bold uppercase tracking-wider text-[#6EE7B7]">
+                Termo LGPD Registrado na Conta
+              </p>
+              <p className="mt-1 leading-relaxed text-[var(--text-secondary)]">
+                Ciência contratual (Art. 7º, V) confirmada por{' '}
+                <strong className="text-white">{currentUser.name}</strong> em{' '}
+                <strong className="font-mono-tabular text-white">{currentUser.lgpdAcceptedAt}</strong>.
+              </p>
+            </div>
+          )}
+
+          <LgpdFullNoticeCard />
+        </div>
+
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
+          <button
+            type="button"
+            onClick={() => {
+              setTermsModalOpen(false);
+              openOrdersSection('lgpd');
+            }}
+            className="cine-press inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-xs font-semibold text-white transition hover:border-white/40 hover:bg-white/10"
+          >
+            <ShieldCheck className="h-4 w-4 text-[var(--success-emerald)]" aria-hidden="true" />
+            <span>Abrir Solicitações LGPD</span>
+          </button>
+
+          <button
+            type="button"
+            autoFocus
+            onClick={() => setTermsModalOpen(false)}
+            className="cine-press inline-flex min-h-[44px] items-center justify-center rounded-full bg-[var(--brand-red)] px-6 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-md transition hover:bg-[var(--brand-red-hover)]"
+          >
+            Fechar
+          </button>
+        </div>
+      </dialog>
     </section>
   );
 }

@@ -33,6 +33,7 @@ export interface ClientOrdersViewProps {
   orders: ClientTicketOrder[];
   notices?: InternalNoticeItem[];
   lgpdRequests: LgpdRequestItem[];
+  initialTab?: ClientTab;
   onGoToAuth: () => void;
   onGoToHome: () => void;
   onCancelOrder: (orderId: string) => void;
@@ -44,11 +45,19 @@ export interface ClientOrdersViewProps {
 
 type ClientTab = 'orders' | 'reviews' | 'lgpd';
 
+function getMemberInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return 'CF';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+}
+
 export function ClientOrdersView({
   currentUser,
   orders,
   notices = [],
   lgpdRequests,
+  initialTab = 'orders',
   onGoToAuth,
   onGoToHome,
   onCancelOrder,
@@ -57,7 +66,11 @@ export function ClientOrdersView({
   onMarkNoticeRead,
   onSubmitLgpdRequest,
 }: ClientOrdersViewProps) {
-  const [activeTab, setActiveTab] = useState<ClientTab>('orders');
+  const [activeTab, setActiveTab] = useState<ClientTab>(initialTab);
+
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
   const [cancelTarget, setCancelTarget] = useState<ClientTicketOrder | null>(null);
   const cancelDialogRef = useRef<HTMLDialogElement>(null);
 
@@ -170,17 +183,22 @@ export function ClientOrdersView({
 
       <div className="relative z-10 mx-auto max-w-[1160px]">
         {/* Header Profile Banner */}
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-white/12 bg-[var(--bg-elevated)]/90 p-6 shadow-xl backdrop-blur-md">
-          <div className="min-w-0">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--amber-progress)]">
-              Histórico Privado · {currentUser.name}
-            </p>
-            <h1 className="font-display mt-1 text-4xl font-extrabold uppercase text-white sm:text-5xl">
-              Meus Ingressos &amp; LGPD
-            </h1>
-            <p className="mt-1 break-all text-xs text-[var(--text-secondary)]">
-              {currentUser.email}
-            </p>
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-white/12 bg-[var(--bg-elevated)]/92 p-6 shadow-2xl backdrop-blur-md">
+          <div className="flex min-w-0 items-center gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-gradient-to-br from-[var(--brand-red)] to-[#7F070E] font-display text-2xl font-extrabold tracking-wide text-white shadow-lg">
+              {getMemberInitials(currentUser.name)}
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--amber-progress)]">
+                Histórico Privado · {currentUser.name}
+              </p>
+              <h1 className="font-display mt-0.5 text-3xl font-extrabold uppercase text-white sm:text-4xl">
+                Meus Ingressos &amp; LGPD
+              </h1>
+              <p className="mt-0.5 break-all text-xs text-[var(--text-secondary)]">
+                {currentUser.email}
+              </p>
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">

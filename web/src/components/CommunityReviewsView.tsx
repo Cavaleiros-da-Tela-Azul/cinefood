@@ -11,6 +11,7 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  Clapperboard,
   Clock,
   Film,
   Loader2,
@@ -20,7 +21,6 @@ import {
   Search,
   ShieldCheck,
   SlidersHorizontal,
-  Sparkles,
   Star,
   Ticket,
   Trash2,
@@ -771,7 +771,7 @@ export function CommunityReviewsView({
                   )}
                   {(selectedEntry.director || matchedTheaterMovie?.director) && (
                     <span className="inline-flex items-center gap-1.5">
-                      <Sparkles className="h-3.5 w-3.5 text-[var(--text-muted)]" aria-hidden="true" />
+                      <Clapperboard className="h-3.5 w-3.5 text-[var(--text-muted)]" aria-hidden="true" />
                       Dir. {selectedEntry.director || matchedTheaterMovie?.director}
                     </span>
                   )}
@@ -871,7 +871,8 @@ export function CommunityReviewsView({
                       <div key={bucket.stars} className="flex items-center gap-2 sm:flex-col sm:items-stretch sm:gap-1">
                         <div className="flex items-center justify-between text-[11px]">
                           <span className="font-mono-tabular inline-flex items-center gap-0.5 font-bold text-[#FCD34D]">
-                            {bucket.stars}★
+                            {bucket.stars}
+                            <Star className="h-3 w-3 fill-current" aria-hidden="true" />
                           </span>
                           <span className="font-mono-tabular text-[var(--text-muted)]">
                             {bucket.count}
@@ -1542,7 +1543,7 @@ export function CommunityReviewsView({
             {sourceInfo.isOfflineFallback || catalogError ? (
               <WifiOff className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
             ) : (
-              <Sparkles className="h-3.5 w-3.5 shrink-0 text-[var(--amber-progress)]" aria-hidden="true" />
+              <Film className="h-3.5 w-3.5 shrink-0 text-[var(--amber-progress)]" aria-hidden="true" />
             )}
             <span>{sourceInfo.label}</span>
           </span>
