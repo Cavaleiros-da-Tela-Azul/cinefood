@@ -131,8 +131,8 @@ export class OperationsService {
     const endsAt = new Date(startsAt.getTime() + 135 * 60 * 1000);
 
     return {
-      unitId: 'cinefood-piloto-paulista',
-      unitName: 'CineFood Paulista IMAX (Unidade Piloto)',
+      unitId: 'cinefood-piloto-unica',
+      unitName: 'CineFood Operações Piloto Ltda.',
       movies: [
         {
           movieId: 'mov-piloto-ferro',
@@ -145,9 +145,30 @@ export class OperationsService {
       ],
       rooms: [
         {
-          roomId: 'room-piloto-imax-01',
-          cinemaName: 'CineFood Paulista IMAX',
-          name: 'Sala 1 IMAX',
+          roomId: 'room-piloto-01',
+          cinemaName: 'CineFood Operações Piloto Ltda.',
+          name: 'Sala 01 · IMAX',
+          sellableSeats: 96,
+          active: true,
+        },
+        {
+          roomId: 'room-piloto-02',
+          cinemaName: 'CineFood Operações Piloto Ltda.',
+          name: 'Sala 02 · Atmos',
+          sellableSeats: 96,
+          active: true,
+        },
+        {
+          roomId: 'room-piloto-03',
+          cinemaName: 'CineFood Operações Piloto Ltda.',
+          name: 'Sala 03 · 2D',
+          sellableSeats: 96,
+          active: true,
+        },
+        {
+          roomId: 'room-piloto-04',
+          cinemaName: 'CineFood Operações Piloto Ltda.',
+          name: 'Sala 04 · 2D',
           sellableSeats: 96,
           active: true,
         },
@@ -155,7 +176,7 @@ export class OperationsService {
       screening: {
         screeningId: 'scr-piloto-01',
         movieId: 'mov-piloto-ferro',
-        roomId: 'room-piloto-imax-01',
+        roomId: 'room-piloto-01',
         startsAt: startsAt.toISOString(),
         endsAt: endsAt.toISOString(),
         format: 'IMAX',

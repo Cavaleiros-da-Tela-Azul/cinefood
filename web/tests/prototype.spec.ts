@@ -108,6 +108,21 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
     await expect(page.getByTestId('catalog-source-badge')).toHaveCount(0);
     await expect(page.getByRole('heading', { level: 1 })).toContainText('CIDADE DE FERRO');
 
+    // Moving mouse over the Hero section must not reset or freeze the autoplay progress bar
+    const autoplayBar = page.getByTestId('hero-autoplay-bar');
+    const getBarScale = () =>
+      autoplayBar.evaluate((el) => {
+        const match = el.style.transform.match(/scaleX\(([^)]+)\)/);
+        return match ? Number(match[1]) : 0;
+      });
+    const scaleBeforeMouse = await getBarScale();
+    await page.mouse.move(300, 300);
+    await page.waitForTimeout(200);
+    await page.mouse.move(720, 420);
+    await page.waitForTimeout(250);
+    const scaleAfterMouse = await getBarScale();
+    expect(scaleAfterMouse).toBeGreaterThan(scaleBeforeMouse);
+
     const brokenImagesHome = await page.evaluate(() =>
       Array.from(document.querySelectorAll('img')).filter((img) => !img.complete || img.naturalWidth === 0).length,
     );
@@ -129,10 +144,31 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
       expect(Math.abs(boxAfter.height - boxBefore.height)).toBeLessThanOrEqual(1);
     }
 
+    // Verify poster deck hides native scrollbar and scrolls horizontally on mouse drag without triggering click
+    const deckStrip = deckCard.locator('..');
+    const deckMetrics = await deckStrip.evaluate((el) => ({
+      scrollbarWidth: getComputedStyle(el).scrollbarWidth,
+      canScroll: el.scrollWidth > el.clientWidth,
+      box: el.getBoundingClientRect().toJSON(),
+    }));
+    expect(deckMetrics.scrollbarWidth).toBe('none');
+    if (deckMetrics.canScroll && boxAfter) {
+      const startX = boxAfter.x + boxAfter.width / 2;
+      const startY = boxAfter.y + boxAfter.height / 2;
+      await page.mouse.move(startX, startY);
+      await page.mouse.down();
+      await page.mouse.move(startX - 140, startY, { steps: 6 });
+      await page.mouse.up();
+      const draggedScrollLeft = await deckStrip.evaluate((el) => el.scrollLeft);
+      expect(draggedScrollLeft).toBeGreaterThan(0);
+      await expect(page.getByRole('heading', { level: 1 })).toContainText('CIDADE DE FERRO');
+    }
+
     await page.screenshot({ path: `${SCREENSHOT_DIR}/01-home-hero-desktop.png`, fullPage: false });
 
-    // Date strip filtering: 18 DEZ has 0 sessions -> empty state + Limpar Filtros
+    // Date strip filtering + search empty state -> Limpar Filtros recovery
     await page.getByRole('button', { name: /18.*DEZ/i }).click();
+    await page.getByRole('searchbox', { name: /Buscar filme, gênero ou diretor/i }).fill('FILME_INEXISTENTE');
     await expect(page.getByRole('heading', { name: /Nenhuma sessão encontrada/i })).toBeVisible();
     await page.getByRole('button', { name: /Limpar Filtros/i }).click();
     await expect(page.getByRole('heading', { level: 1 })).toContainText('CIDADE DE FERRO');
@@ -150,28 +186,28 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
     await page.getByRole('button', { name: /Fechar prévia do trailer/i }).click();
     await expect(page.getByRole('dialog')).toBeHidden();
 
-    // Hierarchical grouping: Unidade -> Data -> Horários
-    const paulistaGroup = page.locator('section[aria-label="CineFood Paulista IMAX"]');
-    await expect(paulistaGroup).toBeVisible();
-    await expect(paulistaGroup.getByRole('heading', { name: /14 DEZ/i })).toBeVisible();
-    await expect(paulistaGroup.getByRole('button', { name: /22:15/i })).toBeVisible();
+    // Hierarchical grouping: Unidade Piloto Única (RST-01) -> Data -> Horários
+    const pilotGroup = page.locator('section[aria-label="CineFood Operações Piloto Ltda."]');
+    await expect(pilotGroup).toBeVisible();
+    await expect(pilotGroup.getByRole('heading', { name: /14 DEZ/i })).toBeVisible();
+    await expect(pilotGroup.getByRole('button', { name: /22:15/i })).toBeVisible();
 
     await page.getByRole('group', { name: /Filtrar sessões por formato/i }).getByRole('button', { name: '2D' }).click();
-    await expect(paulistaGroup.getByRole('button', { name: /22:15/i })).toBeVisible();
+    await expect(pilotGroup.getByRole('button', { name: /22:15/i })).toBeVisible();
 
     // Multi-movie quick-switcher rail switches films without returning to Em Cartaz
     const switcher = page.getByRole('region', { name: /Filmes em Cartaz/i });
     await expect(switcher).toBeVisible();
-    await switcher.getByRole('button', { name: 'Próximo filme' }).click();
+    await switcher.getByRole('button', { name: /ÓRBITA ESCARLATE/i }).click();
     await expect(page.getByRole('heading', { level: 1 })).toContainText('ÓRBITA ESCARLATE');
 
     await page.getByRole('group', { name: /Filtrar sessões por formato/i }).getByRole('button', { name: 'Todos' }).click();
     await switcher.getByRole('button', { name: /CIDADE DE FERRO/i }).click();
     await expect(page.getByRole('heading', { level: 1 })).toContainText('CIDADE DE FERRO');
     await page.getByRole('group', { name: /Filtrar sessões por data/i }).getByRole('button', { name: /Todas as datas/i }).click();
-    await expect(paulistaGroup.getByRole('heading', { name: /14 DEZ/i })).toBeVisible();
-    await expect(paulistaGroup.getByRole('heading', { name: /15 DEZ/i })).toBeVisible();
-    await expect(page.locator('section[aria-label="CineFood Jardins Atmos"]').getByRole('button', { name: /19:15/i })).toBeVisible();
+    await expect(pilotGroup.getByRole('heading', { name: /14 DEZ/i })).toBeVisible();
+    await expect(pilotGroup.getByRole('heading', { name: /15 DEZ/i })).toBeVisible();
+    await expect(pilotGroup.getByRole('button', { name: /19:15/i })).toBeVisible();
 
     expect(consoleErrors).toEqual([]);
     expect(pageErrors).toEqual([]);
@@ -224,17 +260,15 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
     await page.getByRole('button', { name: /Renovar Trava/i }).click();
     await expect(page.getByRole('dialog', { name: /Trava temporária expirada/i })).toBeHidden();
 
-    // Advance -> CanteenSheet -> add combo -> CheckoutView
+    // Advance directly to Ticket Checkout (ADR 005 — separate checkouts)
     await page.getByRole('button', { name: 'Avançar' }).click();
-    await expect(page.getByRole('dialog', { name: /Bomboniere e Cantina CineFood/i })).toBeVisible();
-    await page.getByRole('button', { name: /Adicionar uma unidade de Combo IMAX Manteiga Trufada/i }).click();
-    await page.getByRole('button', { name: /Ir para Pagamento/i }).click();
+    await expect(page.getByRole('dialog', { name: /Bomboniere e Cantina CineFood/i })).toHaveCount(0);
 
     await expect(page.getByText(/Ambiente de Homologação \/ Sandbox/i)).toBeVisible();
     await expect(page.getByText(/Trava Temporária de Assentos \(10 min\)/i)).toBeVisible();
 
-    // Test Pix Tardio (RN-01) creates refund alert + notice
-    await page.getByRole('button', { name: /Pix Tardio \(RN-01\)/i }).click();
+    // Test Pix Tardio creates refund alert + notice
+    await page.getByRole('button', { name: /Pix Tardio/i }).click();
     await page.getByRole('button', { name: /Confirmar Pagamento Simulado/i }).click();
     await expect(page.getByRole('status')).toContainText(/Status: PENDENTE/i);
     await expect(page.getByRole('alert').filter({ hasText: /estorno automático/i })).toBeVisible();
@@ -329,7 +363,7 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
 
     // CheckoutView in canteen-only mode (ADR-005)
     await expect(page.getByText(/Bomboniere Expressa/i)).toBeVisible();
-    await expect(page.getByText(/Pedido avulso de cantina \(ADR-005\)/i)).toBeVisible();
+    await expect(page.getByText(/Pedido avulso de cantina/i)).toBeVisible();
     await page.getByRole('button', { name: /Confirmar Pagamento Simulado/i }).click();
 
     // TicketPassView displays pickup token
@@ -355,14 +389,16 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
     await page.getByRole('navigation', { name: /Navegação principal/i }).getByRole('button', { name: 'Catálogo' }).click();
     await expect(page.getByRole('heading', { level: 1, name: /Catálogo de Filmes/i })).toBeVisible();
     await expect(page.locator('#catalog-search-input')).toBeVisible();
-    await expect(page.getByRole('group', { name: /Filtrar catálogo por categoria/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Filtrar catálogo por categoria/i })).toBeVisible();
     await expect(page.getByText('Em Cartaz', { exact: true }).first()).toBeVisible();
 
-    // Filter by category and search
-    await page.getByRole('group', { name: /Filtrar catálogo por categoria/i }).getByRole('button', { name: 'Suspense' }).click();
+    // Filter by category dropdown and search
+    await page.getByRole('button', { name: /Filtrar catálogo por categoria/i }).click();
+    await page.getByRole('listbox', { name: /Opções de categoria/i }).getByRole('option', { name: 'Suspense' }).click();
     await expect(page.getByRole('button', { name: /NOTURNO ESMERALDA/i })).toBeVisible();
     await expect(page.getByRole('button', { name: /CIDADE DE FERRO/i })).toHaveCount(0);
-    await page.getByRole('group', { name: /Filtrar catálogo por categoria/i }).getByRole('button', { name: 'Todos' }).click();
+    await page.getByRole('button', { name: /Filtrar catálogo por categoria/i }).click();
+    await page.getByRole('listbox', { name: /Opções de categoria/i }).getByRole('option', { name: 'Todas as categorias' }).click();
 
     await page.locator('#catalog-search-input').fill('ÓRBITA');
     await expect(page.getByRole('button', { name: /ÓRBITA ESCARLATE/i })).toBeVisible();
@@ -377,7 +413,7 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
     await expect(page.getByLabel('Comparativo de notas do filme')).toContainText('Rotten Tomatoes');
     await expect(page.getByLabel('Comparativo de notas do filme')).toContainText('Usuários CineFood');
     await page.locator('#catalog-tab-comments').click();
-    await expect(page.getByText(/Pré-requisito de entrada validada na portaria \(RF-13\)/i)).toBeVisible();
+    await expect(page.getByText(/Pré-requisito de entrada validada na portaria/i)).toBeVisible();
     await expect(page.locator('#review-eligible-order')).toHaveCount(0);
 
     // Return to Level 1 grid and open ÓRBITA ESCARLATE ficha
@@ -442,7 +478,18 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
     // Confirm zero Backstage / CRM links or buttons in customer AuthView
     await expect(page.getByText(/Abrir CineFood Backstage/i)).toHaveCount(0);
     await expect(page.getByText(/CRM Operacional/i)).toHaveCount(0);
-    await expect(page.getByText(/Aviso Completo de Privacidade \(LGPD · RF-17\)/i)).toBeVisible();
+
+    // User's past reviews section is visible on Profile
+    await expect(page.getByRole('region', { name: /Avaliações feitas por você/i })).toContainText('VEREDAS DA NEBLINA');
+
+    // Privacy & Terms LGPD details open on demand in popup dialog
+    await expect(page.getByText(/Aviso Completo de Privacidade \(LGPD\)/i)).toBeHidden();
+    await page.getByRole('button', { name: /Visualizar Termos de Uso e Privacidade/i }).click();
+    const termsDialog = page.getByRole('dialog', { name: /Termos de Uso e Privacidade/i });
+    await expect(termsDialog).toBeVisible();
+    await expect(termsDialog.getByText(/Aviso Completo de Privacidade \(LGPD\)/i)).toBeVisible();
+    await termsDialog.getByRole('button', { name: 'Fechar', exact: true }).click();
+    await expect(termsDialog).toBeHidden();
 
     // Toggle marketing opt-in switch
     const marketingSwitch = page.getByRole('switch');
@@ -501,6 +548,15 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
     await expect(page.getByRole('tab', { name: /Cantina KDS & Runner/i })).toBeDisabled();
     await expect(page.getByRole('tab', { name: /Painel Admin/i })).toBeDisabled();
 
+    // Switch station -> OPERADOR_BILHETERIA -> only Bilheteria enabled
+    await page.getByRole('button', { name: /Encerrar Turno \/ Trocar Estação/i }).click();
+    await page.getByRole('button', { name: /OPERADOR_BILHETERIA/i }).click();
+    await page.getByRole('button', { name: /Confirmar e Entrar na Estação/i }).click();
+    await expect(page.getByRole('heading', { name: /Bilheteria Assistida/i })).toBeVisible();
+    await expect(page.getByRole('tab', { name: /Portaria QR/i })).toBeDisabled();
+    await expect(page.getByRole('tab', { name: /Cantina KDS & Runner/i })).toBeDisabled();
+    await expect(page.getByRole('tab', { name: /Painel Admin/i })).toBeDisabled();
+
     // Switch station -> OPERADOR_CANTINA -> KDS active, Runner sub-tab disabled
     await page.getByRole('button', { name: /Encerrar Turno \/ Trocar Estação/i }).click();
     await page.getByRole('button', { name: /OPERADOR_CANTINA/i }).click();
@@ -522,9 +578,10 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
 
     await expect(page.getByText(/Backstage CRM · Ops/i)).toBeVisible();
 
-    // A. Bilheteria: confirm NO pre-selected D6, requires seat + meiaDoc + check to emit
+    // A. Bilheteria: confirm NO pre-selected D6, zero Dinheiro (RF-14), requires seat + meiaDoc + check to emit
     await page.getByRole('tab', { name: /Bilheteria/i }).click();
     await expect(page.getByRole('heading', { name: /Bilheteria Assistida/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Dinheiro/i })).toHaveCount(0);
     await expect(page.getByText(/nenhum assento/i)).toBeVisible();
     await expect(page.getByRole('button', { name: /Emitir Ingresso na Bilheteria/i })).toBeDisabled();
 
@@ -666,15 +723,23 @@ test.describe('CineFood Aligned MVP E2E Verification', () => {
     await firstSeat.click();
     await page.getByRole('button', { name: 'Avançar' }).click();
 
-    await expect(page.getByRole('dialog', { name: /Bomboniere e Cantina CineFood/i })).toBeVisible();
-    await page.getByRole('button', { name: /Ir para Pagamento/i }).click();
+    // ADR 005: direct ticket checkout first, then independent canteen pre-linked checkout
+    await expect(page.getByRole('dialog', { name: /Bomboniere e Cantina CineFood/i })).toHaveCount(0);
     await page.getByRole('button', { name: /Confirmar Pagamento Simulado/i }).click();
 
-    await expect(page.getByText(/Esteira Guiada \(RN-05\)/i)).toBeVisible();
+    await expect(page.getByText(/Antecipe sua Bomboniere/i)).toBeVisible();
     await page.getByRole('button', { name: /Antecipar Bomboniere com Pré-Vínculo/i }).click();
 
     await expect(page.getByRole('heading', { name: /Cardápio da Bomboniere/i })).toBeVisible();
-    await expect(page.getByRole('radio', { name: /Entregar no meu assento/i })).toBeEnabled();
+    const seatRadio = page.getByRole('radio', { name: /Entregar no meu assento/i });
+    await expect(seatRadio).toBeEnabled();
+    await seatRadio.click();
+    await page.getByRole('button', { name: /Adicionar uma unidade de Combo IMAX Manteiga Trufada/i }).click();
+    await page.getByRole('button', { name: /Finalizar Pedido da Cantina/i }).click();
+
+    await expect(page.getByText(/Bomboniere Expressa/i)).toBeVisible();
+    await page.getByRole('button', { name: /Confirmar Pagamento Simulado/i }).click();
+    await expect(page.getByRole('heading', { name: /PEDIDO DE CANTINA \(ENTREGA NO ASSENTO\)/i })).toBeVisible();
 
     expect(errors).toEqual([]);
   });

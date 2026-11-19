@@ -6,9 +6,17 @@ import type {
   CreateReviewInput,
   HistoryNoticeRecord,
   PrivateUserHistory,
+  PublicCommunityReview,
   SessionReview,
   UpdateReviewInput,
 } from './types.ts';
+
+export class NoticeNotFoundError extends Error {
+  constructor(noticeId: string) {
+    super(`Aviso interno ${noticeId} não encontrado.`);
+    this.name = 'NoticeNotFoundError';
+  }
+}
 
 export class TicketForReviewNotFoundError extends Error {
   constructor(ticketId: string) {
@@ -173,7 +181,10 @@ export class HistoryService {
       );
     }
 
-    const existing = await this.repository.findReviewByTicketId(ticket.ticketId);
+    const existing = await this.repository.findReviewByUserAndScreening(
+      ticket.ownerUserId,
+      ticket.screeningId,
+    );
     if (existing) {
       throw new DuplicateTicketReviewError(ticket.ticketId);
     }
@@ -235,5 +246,49 @@ export class HistoryService {
     });
 
     await this.repository.deleteReview(reviewId);
+  }
+
+  async markNoticeAsRead(
+    session: AuthenticatedSession,
+    noticeId: string,
+  ): Promise<HistoryNoticeRecord> {
+    const existing = await this.repository.findNoticeById(noticeId);
+    if (!existing) {
+      throw new NoticeNotFoundError(noticeId);
+    }
+    authorize({
+      session,
+      operation: 'CLIENT_ACCOUNT',
+      resourceOwnerUserId: existing.ownerUserId,
+    });
+    const updated = await this.repository.markNoticeAsRead(noticeId);
+    if (!updated) {
+      throw new NoticeNotFoundError(noticeId);
+    }
+    return updated;
+  }
+
+  /**
+   * Lista avaliações verificadas para a vitrine Comentários da Rede (RF-13 atualizado),
+   * sem expor userId/e-mail e preservando o selo de entrada validada na portaria.
+   */
+  async listPublicCommunityReviews(movieTitleFilter?: string): Promise<PublicCommunityReview[]> {
+    const all = await this.repository.listAllReviews();
+    const normalizedFilter = movieTitleFilter?.trim().toLowerCase();
+    return all
+      .filter((r) =>
+        normalizedFilter ? r.movieTitle.trim().toLowerCase() === normalizedFilter : true,
+      )
+      .map((r) => ({
+        reviewId: r.reviewId,
+        movieTitle: r.movieTitle,
+        screeningId: r.screeningId,
+        authorDisplayName: `Espectador ${r.ownerUserId.slice(-4).toUpperCase()}`,
+        rating: r.rating,
+        comment: r.comment,
+        verifiedEntry: true as const,
+        createdAt: r.createdAt,
+        updatedAt: r.updatedAt,
+      }));
   }
 }

@@ -64,6 +64,7 @@ export interface LegalRetentionSummary {
 
 export interface RectificationPayload {
   fullName?: string;
+  email?: string;
   phone?: string;
   nickname?: string;
   favoriteGenres?: string[];

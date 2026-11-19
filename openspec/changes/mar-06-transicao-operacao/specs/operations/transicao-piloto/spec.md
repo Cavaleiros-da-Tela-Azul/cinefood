@@ -1,7 +1,7 @@
 # Spec Delta: Transição, Prontidão Operacional e Jornada Piloto
 
 ## Purpose
-Validar a transição para o ambiente piloto ou simulado por meio de verificação de saúde, jornada integrada de fumaça (smoke test) e conciliação de fechamento operacional.
+Validar a transição para a unidade piloto (`CineFood Operações Piloto Ltda.`, 4 salas — `RST-01`) em protótipo acadêmico estático (Vercel + `node --test` + Playwright), conforme Manual de Processos v2.4, por meio de verificação de saúde, smoke test e trava Sandbox (`RST-03`).
 
 ## ADDED Requirements
 

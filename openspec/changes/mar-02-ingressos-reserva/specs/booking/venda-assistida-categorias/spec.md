@@ -5,8 +5,8 @@ Suporte à venda presencial assistida por operador na bilheteria compartilhando 
 
 ## ADDED Requirements
 
-### Requirement: Venda assistida na mesma fonte de assentos
-O sistema DEVE permitir que operador autorizado realize reserva de ingressos identificando comprador, canal presencial e categoria na mesma API central.
+### Requirement: Venda assistida na mesma fonte de assentos (sem pagamento em dinheiro)
+O sistema DEVE permitir que operador autorizado (`OPERADOR_BILHETERIA` ou `ADMIN_CINEMA`) realize reserva e venda de ingressos via `PIX` ou `CARTAO` em modo Sandbox (sem pagamento em dinheiro em espécie no escopo do MVP — `RF-14`), identificando comprador, canal presencial e categoria na mesma API central.
 
 #### Scenario: Venda assistida disputando assento com canal digital
 - **WHEN** operador da bilheteria e cliente no aplicativo tentam reservar o mesmo assento simultaneamente

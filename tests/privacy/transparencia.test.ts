@@ -4,6 +4,17 @@ import { getPrivacyNotice, revokeMarketingPreference, setMarketingPreference } f
 import { InMemoryPrivacyRepository } from '../../src/modules/privacy/repository.ts';
 import { DefaultPrivacyService } from '../../src/modules/privacy/service.ts';
 import type { PrivacyNotice } from '../../src/modules/privacy/types.ts';
+import type { AuthenticatedSession } from '../../src/modules/identity/types.ts';
+
+function sessionFor(userId: string): AuthenticatedSession {
+  return {
+    userId,
+    email: `${userId}@cinefood.test`,
+    role: 'CLIENTE',
+    iat: 1_700_000_000,
+    exp: 1_800_000_000,
+  };
+}
 
 const notice: PrivacyNotice = {
   version: '2026-01',
@@ -56,8 +67,10 @@ describe('Privacidade e LGPD (RF-17 / AC-5, AC-6)', () => {
 
   it('AC-6: persiste a recusa promocional e permite concluir a compra', async () => {
     const { repository, service } = createService();
-    const result = await setMarketingPreference(service, 'user-1', false);
+    const result = await setMarketingPreference(service, sessionFor('user-1'), false);
 
+    assert.equal(result.status, 200);
+    assert.ok('granted' in result.body);
     assert.equal(result.body.granted, false);
     assert.equal(result.body.noticeVersion, notice.version);
     assert.equal(result.body.recordedAt.toISOString(), '2026-02-01T12:00:00.000Z');
@@ -67,16 +80,22 @@ describe('Privacidade e LGPD (RF-17 / AC-5, AC-6)', () => {
     const history = await repository.listConsentHistory('user-1');
     assert.equal(history.length, 1);
     assert.equal(history[0].granted, false);
+
+    // Bloqueio RBAC para outro usuário
+    const cross = await setMarketingPreference(service, sessionFor('user-2'), true, 'user-1');
+    assert.equal(cross.status, 403);
   });
 
   it('aplica revogação imediatamente e mantém todas as manifestações para auditoria', async () => {
     const { repository, service, setCurrentTime } = createService();
-    await setMarketingPreference(service, 'user-2', true);
+    await setMarketingPreference(service, sessionFor('user-2'), true);
     assert.equal(await service.isMarketingAllowed('user-2'), true);
 
     setCurrentTime('2026-02-02T09:30:00.000Z');
-    const result = await revokeMarketingPreference(service, 'user-2');
+    const result = await revokeMarketingPreference(service, sessionFor('user-2'));
 
+    assert.equal(result.status, 200);
+    assert.ok('granted' in result.body);
     assert.equal(result.body.granted, false);
     assert.equal(result.body.revokedAt?.toISOString(), '2026-02-02T09:30:00.000Z');
     assert.equal(await service.isMarketingAllowed('user-2'), false);

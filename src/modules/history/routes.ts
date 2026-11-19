@@ -3,6 +3,7 @@ import type { AuthenticatedSession } from '../identity/types.ts';
 import {
   DuplicateTicketReviewError,
   InvalidReviewRatingError,
+  NoticeNotFoundError,
   ReviewEligibilityError,
   ReviewNotFoundError,
   TicketForReviewNotFoundError,
@@ -10,7 +11,9 @@ import {
 } from './service.ts';
 import type {
   CreateReviewInput,
+  HistoryNoticeRecord,
   PrivateUserHistory,
+  PublicCommunityReview,
   SessionReview,
   UpdateReviewInput,
 } from './types.ts';
@@ -113,4 +116,31 @@ export async function deleteReviewRoute(
     }
     throw error;
   }
+}
+
+/** PATCH /user/notices/:noticeId/read — Marca aviso interno como lido (RF-11). */
+export async function patchNoticeReadRoute(
+  service: HistoryService,
+  session: AuthenticatedSession,
+  noticeId: string,
+): Promise<HttpResult<HistoryNoticeRecord | { error: string }>> {
+  try {
+    return { status: 200, body: await service.markNoticeAsRead(session, noticeId) };
+  } catch (error) {
+    if (error instanceof ForbiddenError) {
+      return { status: 403, body: { error: error.message } };
+    }
+    if (error instanceof NoticeNotFoundError) {
+      return { status: 404, body: { error: error.message } };
+    }
+    throw error;
+  }
+}
+
+/** GET /community/reviews — Comentários verificados da rede sem expor PII (RF-13). */
+export async function getPublicCommunityReviewsRoute(
+  service: HistoryService,
+  movieTitle?: string,
+): Promise<HttpResult<PublicCommunityReview[]>> {
+  return { status: 200, body: await service.listPublicCommunityReviews(movieTitle) };
 }

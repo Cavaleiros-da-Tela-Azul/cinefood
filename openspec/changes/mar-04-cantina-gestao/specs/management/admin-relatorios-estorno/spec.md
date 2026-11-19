@@ -17,10 +17,10 @@ O sistema DEVE calcular a ocupação dividindo os ingressos ativos pelos assento
 
 #### Scenario: Sessão com 10 assentos, 3 ingressos ativos e 1 cancelado
 - **WHEN** gestor consulta a ocupação de uma sessão com 10 assentos comercializáveis, 3 ingressos ativos e 1 ingresso cancelado
-- **THEN** sistema exibe exatamente 30% de ocupação
+- **THEN** sistema exibe exatamente 30% de ocupação (e exibe `'não aplicável'` caso `sellableSeats <= 0`)
 
 ### Requirement: Cancelamento e estorno conforme CDC e janela operacional
-O sistema DEVE aprovar solicitações de cancelamento dentro de 7 dias da compra até 2 horas antes da sessão para ingressos não utilizados, disparando estorno idempotente.
+O sistema DEVE aprovar solicitações de cancelamento dentro de 7 dias da compra até 2 horas antes da sessão para ingressos não utilizados, disparando estorno idempotente com restauração de estoque/invalidação de QR ou marcação `PENDENTE_CONCILIACAO` em caso de falha do gateway.
 
 #### Scenario: Solicitação de cancelamento elegível e bloqueio de repetição de estorno
 - **WHEN** titular solicita cancelamento dentro do prazo elegível com ingresso não utilizado

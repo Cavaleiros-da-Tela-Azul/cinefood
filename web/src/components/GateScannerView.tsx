@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react';
+import { motion } from 'motion/react';
 import {
   CheckCircle2,
+  ClipboardList,
   QrCode,
   ScanLine,
   ShieldAlert,
-  Sparkles,
   UtensilsCrossed,
   Volume2,
   VolumeX,
@@ -75,6 +76,7 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
   const [formKey, setFormKey] = useState(0);
   const [cameraActive, setCameraActive] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [offlineSim, setOfflineSim] = useState(false);
   const [lastResult, setLastResult] = useState<{
     outcome: GateScanRecord['outcome'];
     title: string;
@@ -129,6 +131,17 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
     if (!cleaned) return;
     setTokenInput(cleaned);
     setFormKey((k) => k + 1);
+
+    if (offlineSim || (typeof navigator !== 'undefined' && navigator.onLine === false)) {
+      commitScanResult({
+        outcome: 'INVALIDO',
+        title: 'Portaria Offline — Validação Bloqueada',
+        detail:
+          'Operação offline recusada (RST-02 / RF-06): validação de QR Code requer conexão online ativa com a API.',
+        triggeredKitchenPrep: false,
+      });
+      return;
+    }
 
     const matchedOrder = orders.find(
       (o) =>
@@ -223,18 +236,18 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
         {/* Scanner + Validation Panel */}
-        <section className="lg:col-span-7 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-5 sm:p-6 space-y-5">
+        <section className="space-y-5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)]/95 p-5 shadow-xl sm:p-6 lg:col-span-7">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="font-mono text-xs uppercase tracking-[0.2em] text-amber-400">
-                RF-06 · RN-02 · Check-in Atômico
+                RN-02 · Check-in Atômico
               </p>
-              <h2 className="font-display text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[var(--text-primary)] mt-1">
+              <h2 className="font-display mt-1 text-2xl font-bold uppercase tracking-tight text-[var(--text-primary)] sm:text-3xl">
                 Portaria &amp; Leitor QR
               </h2>
-              <p className="text-xs text-[var(--text-secondary)] mt-1">
+              <p className="mt-1 text-xs text-[var(--text-secondary)]">
                 Validação single-use por QR do pedido ou QR individual do assento em sessões{' '}
                 <span className="font-mono text-emerald-300">ATIVA</span>. Ao liberar combo na
                 poltrona, a Cantina KDS inicia o preparo (<span className="font-mono">RN-02</span>).
@@ -243,18 +256,31 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
+                onClick={() => setOfflineSim((prev) => !prev)}
+                aria-pressed={offlineSim}
+                className={`cine-press inline-flex min-h-[44px] cursor-pointer items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-semibold transition ${
+                  offlineSim
+                    ? 'border-red-400/50 bg-red-500/20 text-red-200'
+                    : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]'
+                }`}
+              >
+                <ShieldAlert className="h-4 w-4" aria-hidden="true" />
+                <span>{offlineSim ? 'Modo Offline (Bloqueado)' : 'Simular Offline'}</span>
+              </button>
+              <button
+                type="button"
                 onClick={() => setSoundEnabled((prev) => !prev)}
                 aria-pressed={soundEnabled}
-                className={`min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border transition cursor-pointer ${
+                className={`cine-press inline-flex min-h-[44px] cursor-pointer items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-semibold transition ${
                   soundEnabled
-                    ? 'bg-[var(--bg-elevated)] border-[var(--border-strong)] text-[var(--text-primary)]'
-                    : 'bg-[var(--bg-elevated)] border-[var(--border-subtle)] text-[var(--text-muted)]'
+                    ? 'border-[var(--border-strong)] bg-[var(--bg-elevated)] text-[var(--text-primary)]'
+                    : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-muted)]'
                 }`}
               >
                 {soundEnabled ? (
-                  <Volume2 className="w-4 h-4 text-emerald-300" aria-hidden="true" />
+                  <Volume2 className="h-4 w-4 text-emerald-300" aria-hidden="true" />
                 ) : (
-                  <VolumeX className="w-4 h-4" aria-hidden="true" />
+                  <VolumeX className="h-4 w-4" aria-hidden="true" />
                 )}
                 <span>{soundEnabled ? 'Som Ativo' : 'Som Mudo'}</span>
               </button>
@@ -262,34 +288,42 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
                 type="button"
                 onClick={() => setCameraActive((prev) => !prev)}
                 aria-pressed={cameraActive}
-                className={`min-h-[44px] inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold border transition cursor-pointer ${
+                className={`cine-press inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-semibold transition ${
                   cameraActive
-                    ? 'bg-emerald-500/20 border-emerald-400/50 text-emerald-200'
-                    : 'bg-[var(--bg-elevated)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]'
+                    ? 'border-emerald-400/50 bg-emerald-500/20 text-emerald-200'
+                    : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]'
                 }`}
               >
-                <ScanLine className="w-4 h-4" />
+                <ScanLine className="h-4 w-4" aria-hidden="true" />
                 {cameraActive ? 'Leitor Óptico Ativo' : 'Simular Câmera'}
               </button>
             </div>
           </div>
 
+          {/* Optical Reticle Viewfinder */}
           {cameraActive && (
-            <div className="relative overflow-hidden rounded-xl border border-emerald-400/35 bg-black p-4 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg border-2 border-dashed border-emerald-400/70 flex items-center justify-center bg-emerald-500/10 shrink-0">
-                  <QrCode className="w-6 h-6 text-emerald-300" />
+            <div className="relative flex flex-wrap items-center justify-between gap-4 overflow-hidden rounded-2xl border border-emerald-400/40 bg-[#050709] p-5 shadow-inner">
+              <div className="gate-scan-line" aria-hidden="true" />
+              {/* Reticle Corner Brackets */}
+              <div className="flex items-center gap-4">
+                <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10">
+                  <span className="absolute left-0 top-0 h-3 w-3 rounded-tl border-l-2 border-t-2 border-emerald-400" />
+                  <span className="absolute right-0 top-0 h-3 w-3 rounded-tr border-r-2 border-t-2 border-emerald-400" />
+                  <span className="absolute bottom-0 left-0 h-3 w-3 rounded-bl border-b-2 border-l-2 border-emerald-400" />
+                  <span className="absolute bottom-0 right-0 h-3 w-3 rounded-br border-b-2 border-r-2 border-emerald-400" />
+                  <QrCode className="h-7 w-7 text-emerald-300" aria-hidden="true" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-emerald-200">
+                  <p className="text-xs font-bold uppercase tracking-wider text-emerald-200">
                     Mira de captura simulada pronta
                   </p>
-                  <p className="text-xs text-[var(--text-secondary)]">
+                  <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
                     Selecione um QR da fila rápida abaixo ou digite o token individual do assento.
                   </p>
                 </div>
               </div>
-              <span className="font-mono text-xs px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-200">
+              <span className="font-mono inline-flex items-center gap-1.5 rounded-full border border-emerald-400/35 bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-200">
+                <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden="true" />
                 CAM · 60 FPS
               </span>
             </div>
@@ -299,7 +333,7 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
             <div>
               <label
                 htmlFor="gate-session-filter"
-                className="block text-xs uppercase tracking-[0.16em] text-[var(--text-secondary)] font-semibold mb-1.5"
+                className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)]"
               >
                 Sessão / Portaria em Operação (opcional)
               </label>
@@ -307,7 +341,7 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
                 id="gate-session-filter"
                 value={selectedSessionId}
                 onChange={(e) => setSelectedSessionId(e.target.value)}
-                className="w-full min-h-[44px] rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] px-3 py-2 text-base sm:text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)]"
+                className="min-h-[44px] w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3.5 py-2 text-base text-[var(--text-primary)] focus:border-[var(--focus-ring)] focus:outline-none sm:text-xs"
               >
                 <option value="ALL">Todas as sessões ATIVAS</option>
                 {allSessions.map(({ movie, session }) => (
@@ -322,11 +356,11 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
           <form key={formKey} onSubmit={handleSubmit} className="space-y-3">
             <label
               htmlFor="gate-qr-token"
-              className="block text-xs uppercase tracking-[0.16em] text-[var(--text-secondary)] font-semibold"
+              className="block text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)]"
             >
               Código do QR Code / Token Individual do Assento
             </label>
-            <div className="flex flex-col sm:flex-row gap-2.5">
+            <div className="flex flex-col gap-2.5 sm:flex-row">
               <input
                 id="gate-qr-token"
                 type="text"
@@ -337,21 +371,21 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
                 value={tokenInput}
                 onChange={(e) => setTokenInput(e.target.value)}
                 placeholder="Ex: CF-QR-8492-NE ou CF-QR-8492-NE-G7"
-                className="cine-input flex-1 min-h-[44px] rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] px-3.5 py-2.5 font-mono text-base sm:text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--focus-ring)]"
+                className="cine-input min-h-[44px] flex-1 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3.5 py-2.5 font-mono text-base text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--focus-ring)] focus:outline-none sm:text-sm"
               />
               <button
                 type="submit"
-                className="min-h-[44px] inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--brand-red)] hover:bg-[var(--brand-red-hover)] text-white text-xs font-bold uppercase tracking-[0.14em] transition cursor-pointer shrink-0"
+                className="cine-press inline-flex min-h-[44px] shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--brand-red)] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-white shadow-lg transition hover:bg-[var(--brand-red-hover)]"
               >
-                <QrCode className="w-4 h-4" />
+                <QrCode className="h-4 w-4" aria-hidden="true" />
                 Validar Entrada
               </button>
             </div>
           </form>
 
-          {/* Quick-test chips synced live with orders & seatQrTokens */}
+          {/* Quick-test chips */}
           <div className="space-y-2 pt-1">
-            <p className="text-xs uppercase tracking-[0.16em] text-[var(--text-secondary)] font-semibold">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)]">
               Ingressos &amp; QR individuais na fila de leitura
             </p>
             <div className="flex flex-wrap gap-2">
@@ -360,13 +394,13 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
                   <button
                     type="button"
                     onClick={() => handleScan(order.qrToken)}
-                    className="min-h-[38px] inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] text-left transition cursor-pointer"
+                    className="cine-press inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-1.5 text-left transition hover:border-[var(--border-strong)]"
                   >
-                    <span className="font-mono text-xs text-[var(--text-primary)] font-semibold">
+                    <span className="font-mono text-xs font-semibold text-[var(--text-primary)]">
                       {order.qrToken}
                     </span>
                     <span
-                      className={`text-xs font-bold uppercase px-1.5 py-0.5 rounded ${
+                      className={`rounded-full px-2 py-0.5 text-[11px] font-bold uppercase ${
                         order.status === 'CANCELADO'
                           ? 'bg-red-500/20 text-red-300'
                           : order.checkedIn
@@ -386,12 +420,12 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
                       key={sq.qrToken}
                       type="button"
                       onClick={() => handleScan(sq.qrToken)}
-                      className="min-h-[38px] inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--bg-base)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] text-left transition cursor-pointer"
+                      className="cine-press inline-flex min-h-[44px] cursor-pointer items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-base)] px-3 py-1.5 text-left transition hover:border-[var(--border-strong)]"
                     >
                       <span className="font-mono text-[11px] text-[var(--text-secondary)]">
                         {sq.qrToken}
                       </span>
-                      <span className="font-mono text-[10px] px-1 py-0.5 rounded bg-white/5 text-amber-200">
+                      <span className="font-mono rounded bg-white/8 px-1.5 py-0.5 text-[10px] font-bold text-amber-200">
                         {sq.seatId}
                       </span>
                     </button>
@@ -401,7 +435,7 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
               <button
                 type="button"
                 onClick={() => handleScan('CF-QR-9999-XX')}
-                className="min-h-[38px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--bg-elevated)] border border-red-400/25 hover:border-red-400/50 font-mono text-xs text-red-200 transition cursor-pointer"
+                className="cine-press inline-flex min-h-[44px] cursor-pointer items-center gap-1.5 rounded-xl border border-red-400/25 bg-[var(--bg-elevated)] px-3 py-1.5 font-mono text-xs text-red-200 transition hover:border-red-400/50"
               >
                 CF-QR-9999-XX (Inválido)
               </button>
@@ -410,107 +444,113 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
 
           {/* Atomic Validation Feedback */}
           {lastResult && (
-            <div
+            <motion.div
+              key={`${lastResult.outcome}-${lastResult.title}`}
+              initial={{ opacity: 0, y: 8, scale: 0.99 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
               role={lastResult.outcome === 'LIBERADO' ? 'status' : 'alert'}
               aria-live={lastResult.outcome === 'LIBERADO' ? 'polite' : 'assertive'}
               data-audio-feedback={soundEnabled ? lastResult.outcome : 'muted'}
-              className={`rounded-xl border p-4 space-y-2.5 ${
+              className={`space-y-3 rounded-2xl border p-4 shadow-lg ${
                 lastResult.outcome === 'LIBERADO'
-                  ? 'bg-emerald-500/12 border-emerald-400/40 text-emerald-100'
+                  ? 'border-emerald-400/45 bg-emerald-500/12 text-emerald-100'
                   : lastResult.outcome === 'DUPLICADO'
-                    ? 'bg-amber-500/14 border-amber-400/45 text-amber-100'
-                    : 'bg-red-500/14 border-red-400/45 text-red-100'
+                    ? 'border-amber-400/45 bg-amber-500/14 text-amber-100'
+                    : 'border-red-400/45 bg-red-500/14 text-red-100'
               }`}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2.5">
                   {lastResult.outcome === 'LIBERADO' ? (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-300 shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-300" aria-hidden="true" />
                   ) : lastResult.outcome === 'DUPLICADO' ? (
-                    <ShieldAlert className="w-5 h-5 text-amber-300 shrink-0" />
+                    <ShieldAlert className="h-5 w-5 shrink-0 text-amber-300" aria-hidden="true" />
                   ) : (
-                    <XCircle className="w-5 h-5 text-red-300 shrink-0" />
+                    <XCircle className="h-5 w-5 shrink-0 text-red-300" aria-hidden="true" />
                   )}
                   <h3 className="text-sm font-bold uppercase tracking-[0.08em]">
                     {lastResult.title}
                   </h3>
                 </div>
-                <span className="font-mono text-xs px-2 py-0.5 rounded bg-black/30">
+                <span className="font-mono rounded-full bg-black/40 px-2.5 py-0.5 text-xs font-bold">
                   {lastResult.outcome}
                 </span>
               </div>
               <p className="text-xs leading-relaxed opacity-90">{lastResult.detail}</p>
 
               {lastResult.order && (
-                <div className="pt-2 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/15 pt-2.5 text-xs">
                   <span>
-                    <strong className="text-[var(--text-primary)]">{lastResult.order.movieTitle}</strong> ·{' '}
-                    {lastResult.order.room} · Poltronas:{' '}
+                    <strong className="text-[var(--text-primary)]">
+                      {lastResult.order.movieTitle}
+                    </strong>{' '}
+                    · {lastResult.order.room} · Poltronas:{' '}
                     <span className="font-mono text-[var(--text-primary)]">
                       {lastResult.order.seatsLabel.join(', ')}
                     </span>
                   </span>
                   {lastResult.triggeredKitchenPrep && (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-400/20 border border-emerald-300/40 text-emerald-100 font-semibold">
-                      <UtensilsCrossed className="w-3.5 h-3.5" />
+                    <span className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-300/40 bg-emerald-400/20 px-2.5 py-1 font-semibold text-emerald-100">
+                      <UtensilsCrossed className="h-3.5 w-3.5" aria-hidden="true" />
                       RN-02: Cantina KDS liberada (EM_PREPARO)
                     </span>
                   )}
                 </div>
               )}
-            </div>
+            </motion.div>
           )}
         </section>
 
         {/* Live Telemetry & Recent Gate Log */}
-        <aside className="lg:col-span-5 space-y-4">
+        <aside className="space-y-4 lg:col-span-5">
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-4">
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)]/95 p-4 shadow-md">
               <p className="text-xs uppercase tracking-[0.14em] text-[var(--text-secondary)]">
                 Aguardando entrada
               </p>
-              <p className="font-mono text-2xl font-bold text-[var(--text-primary)] mt-1 tabular-nums">
+              <p className="font-mono-tabular mt-1 text-3xl font-bold text-[var(--text-primary)]">
                 {pendingOrders.length}
               </p>
             </div>
-            <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-4">
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)]/95 p-4 shadow-md">
               <p className="text-xs uppercase tracking-[0.14em] text-[var(--text-secondary)]">
                 Check-ins hoje
               </p>
-              <p className="font-mono text-2xl font-bold text-emerald-300 mt-1 tabular-nums">
+              <p className="font-mono-tabular mt-1 text-3xl font-bold text-emerald-300">
                 {checkedInCount}
               </p>
             </div>
           </div>
 
-          <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-5 space-y-3">
+          <div className="space-y-3 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)]/95 p-5 shadow-md">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-secondary)] flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-secondary)]">
+                <ClipboardList className="h-3.5 w-3.5 text-amber-400" aria-hidden="true" />
                 Log da Portaria
               </h3>
-              <span className="font-mono text-xs text-[var(--text-muted)]">
+              <span className="font-mono-tabular text-xs text-[var(--text-muted)]">
                 {scanLog.length} leituras
               </span>
             </div>
 
             {scanLog.length === 0 ? (
-              <p className="text-xs text-[var(--text-muted)] py-6 text-center border border-dashed border-[var(--border-subtle)] rounded-lg">
+              <p className="rounded-xl border border-dashed border-[var(--border-subtle)] py-6 text-center text-xs text-[var(--text-muted)]">
                 Nenhuma leitura realizada nesta sessão de portaria.
               </p>
             ) : (
-              <ul className="space-y-2.5 max-h-[360px] overflow-y-auto pr-1">
+              <ul className="max-h-[380px] space-y-2.5 overflow-y-auto pr-1">
                 {scanLog.map((entry) => (
                   <li
                     key={entry.id}
-                    className="rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] p-3 space-y-1"
+                    className="space-y-1 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-3"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-mono text-xs font-semibold text-[var(--text-primary)]">
                         {entry.qrToken}
                       </span>
                       <span
-                        className={`text-xs font-bold uppercase px-2 py-0.5 rounded ${
+                        className={`rounded-full px-2 py-0.5 text-[11px] font-bold uppercase ${
                           entry.outcome === 'LIBERADO'
                             ? 'bg-emerald-500/20 text-emerald-300'
                             : entry.outcome === 'DUPLICADO'

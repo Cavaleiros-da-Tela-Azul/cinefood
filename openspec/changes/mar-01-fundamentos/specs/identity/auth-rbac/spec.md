@@ -20,8 +20,15 @@ O sistema DEVE permitir cadastro com e-mail único e autenticar usuários gerand
 - **WHEN** novo cadastro submete e-mail que já existe na base
 - **THEN** sistema bloqueia o cadastro e retorna erro HTTP 409 informando indisponibilidade do e-mail
 
+### Requirement: Cadastro, autenticação, recuperação de senha e edição de perfil
+O sistema DEVE permitir cadastro com e-mail único, autenticar usuários gerando token seguro de sessão com hash de senha protegido, oferecer recuperação de senha com token expirável de uso único e permitir edição do perfil pelo próprio titular (`patchMyProfile`).
+
+#### Scenario: Recuperação de senha e atualização de perfil pelo titular
+- **WHEN** usuário solicita recuperação de senha, redefine com token válido de uso único e edita seu nome/telefone
+- **THEN** sistema invalida o token após o uso e atualiza os dados exclusivamente do próprio titular (bloqueando edição cruzada com HTTP 403)
+
 ### Requirement: Controle de Acesso Baseado em Papéis (RBAC)
-O sistema DEVE validar o papel atribuído ao usuário (CLIENTE, OPERADOR_PORTARIA, OPERADOR_CANTINA, RUNNER, ADMIN_CINEMA) antes de autorizar a execução de operações protegidas.
+O sistema DEVE validar o papel atribuído ao usuário (CLIENTE, OPERADOR_BILHETERIA, OPERADOR_PORTARIA, OPERADOR_CANTINA, RUNNER, ADMIN_CINEMA) antes de autorizar a execução de operações protegidas.
 
 #### Scenario: Acesso autorizado ao perfil correto
 - **WHEN** operador com papel OPERADOR_PORTARIA solicita validação de ingresso

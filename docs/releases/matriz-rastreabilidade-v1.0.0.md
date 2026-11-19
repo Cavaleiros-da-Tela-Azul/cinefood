@@ -10,7 +10,7 @@
 
 | ID | Requisito Funcional | OpenSpec Change | Módulos de Implementação | Suítes de Teste / Evidência |
 | :--- | :--- | :--- | :--- | :--- |
-| **RF-01** | Autenticação e Controle de Acesso (RBAC 5 papéis) | `mar-01-fundamentos` | `src/modules/identity/{rbac,routes,types}.ts` | `tests/identity/auth.test.ts`, `tests/identity/rbac.test.ts` |
+| **RF-01** | Autenticação, Cadastro, Recuperação de Senha, Perfil e RBAC (6 papéis) | `mar-01-fundamentos` | `src/modules/identity/{rbac,repository,service,routes,types}.ts`, `web/src/components/AuthView.tsx` | `tests/identity/auth.test.ts`, `tests/identity/rbac.test.ts`, `web/tests/prototype.spec.ts` (Testes 5, 6) |
 | **RF-02** | Catálogo de Sessões e Mapa de Assentos (96 poltronas, PCD 1.5×) | `mar-01-fundamentos`, `catalogo-e-ux-sessoes` | `src/modules/catalog/{repository,service,routes,types}.ts`, `web/src/components/{HeroCatalogView,MovieDetailView,SeatSelectionView}.tsx` | `tests/catalog/programacao.test.ts`, `tests/catalog/assentos.test.ts`, `web/tests/prototype.spec.ts` (Testes 1, 2, 4) |
 | **RF-03** | Trava Temporária Concorrente de Assento (10 min) | `mar-02-ingressos-reserva` | `src/modules/booking/{repository,service,routes,types}.ts` | `tests/booking/reserva.test.ts` |
 | **RF-04** | Checkout Idempotente e Compensação Pix Tardio (`RN-01`) | `mar-02-ingressos-reserva` | `src/modules/payments/{gateway,repository,service,routes,types}.ts` | `tests/payments/checkout.test.ts` |
@@ -22,9 +22,9 @@
 | **RF-10** | Administração de Filmes, Salas, Sessões e Preços (`ADMIN_CINEMA`) | `mar-04-cantina-gestao` | `src/modules/management/{repository,service,routes,types}.ts`, `web/src/components/AdminOccupancyView.tsx` | `tests/management/ocupacao-estorno.test.ts`, `web/tests/prototype.spec.ts` (Teste 6) |
 | **RF-11** | Histórico Privado Consolidado do Titular e Avisos Internos | `mar-03-acesso-historico` | `src/modules/history/{repository,service,routes,types}.ts`, `web/src/components/ClientOrdersView.tsx` | `tests/history/avaliacao.test.ts`, `web/tests/prototype.spec.ts` (Teste 2) |
 | **RF-12** | Arrependimento CDC (7 dias) e Janela de 2h antes da Sessão (`RN-04`) | `mar-04-cantina-gestao` | `src/modules/management/{cdc-cancellation,routes}.ts` | `tests/management/ocupacao-estorno.test.ts`, `web/tests/prototype.spec.ts` (Teste 2) |
-| **RF-13** | Avaliação Pós-Sessão Verificada (1..5 estrelas após portaria + fim) | `mar-03-acesso-historico` | `src/modules/history/{service,routes}.ts`, `web/src/components/CommunityReviewsView.tsx` | `tests/history/avaliacao.test.ts`, `web/tests/prototype.spec.ts` (Teste 4) |
-| **RF-14** | Venda Assistida em Bilheteria com Operador Identificado | `mar-02-ingressos-reserva` | `src/modules/booking/{service,routes}.ts`, `web/src/components/BoxOfficeView.tsx` | `tests/booking/venda-assistida.test.ts`, `web/tests/prototype.spec.ts` (Teste 6) |
-| **RF-15** | Relatório Gerencial de Ocupação Real (`%` sobre ativos) | `mar-04-cantina-gestao` | `src/modules/management/{service,routes}.ts` | `tests/management/ocupacao-estorno.test.ts` |
+| **RF-13** | Avaliação Pós-Sessão Verificada (1..5 estrelas após portaria + fim, 1 por usuário/sessão, mural público sem PII + histórico) | `mar-03-acesso-historico` | `src/modules/history/{repository,service,routes}.ts`, `web/src/components/CommunityReviewsView.tsx` | `tests/history/avaliacao.test.ts`, `web/tests/prototype.spec.ts` (Teste 4) |
+| **RF-14** | Venda Assistida em Bilheteria com Operador Identificado (Pix/Cartão Sandbox, sem dinheiro) | `mar-02-ingressos-reserva` | `src/modules/booking/{service,routes}.ts`, `web/src/components/BoxOfficeView.tsx` | `tests/booking/venda-assistida.test.ts`, `web/tests/prototype.spec.ts` (Teste 6) |
+| **RF-15** | Relatório Gerencial de Ocupação Real (`%` sobre ativos, `"não aplicável"` se 0 assentos) | `mar-04-cantina-gestao` | `src/modules/management/{service,routes}.ts`, `web/src/components/AdminOccupancyView.tsx` | `tests/management/ocupacao-estorno.test.ts` |
 | **RF-16** | Categorias de Meia-Entrada e Documento Comprobatório Obrigatório | `mar-02-ingressos-reserva` | `src/modules/booking/service.ts`, `web/src/components/{SeatSelectionView,BoxOfficeView}.tsx` | `tests/booking/venda-assistida.test.ts`, `web/tests/prototype.spec.ts` (Testes 2, 6) |
 | **RF-17** | Aviso Versionado de Privacidade LGPD e Opt-in Promocional Granular | `mar-01-fundamentos` | `src/modules/privacy/{repository,service,routes,types}.ts`, `web/src/components/AuthView.tsx` | `tests/privacy/transparencia.test.ts`, `web/tests/prototype.spec.ts` (Teste 5) |
 | **RF-18** | Direitos do Titular LGPD (Confirmação, Acesso, Retificação, Eliminação c/ Retenção Legal) | `mar-04-cantina-gestao` | `src/modules/privacy/{service,routes}.ts`, `web/src/components/AuthView.tsx` | `tests/privacy/direitos-titular.test.ts`, `web/tests/prototype.spec.ts` (Teste 5) |
@@ -41,7 +41,7 @@
 | **RNF-03** | Integridade Transacional Absoluta sob Disputa | 0 venda dupla / estoque < 0 / reuso QR | `tests/quality/rnf-integridade.test.ts` (`AC-2`), `tests/booking/reserva.test.ts`, `tests/canteen/estoque.test.ts`, `tests/tickets/qrcode.test.ts` |
 | **RNF-04** | Usabilidade e Acessibilidade WCAG 2.2 AA | `>= 80%` conclusão sem ajuda + contraste `>= 4.5:1` | `docs/testes/auditoria-wcag-usabilidade.md`, `web/tests/prototype.spec.ts` (Teste 9) |
 | **RNF-05** | Backup e Recuperabilidade (RPO/RTO + WAL replay) | `RPO = 0` pós-WAL / `RTO <= 15 min` | `docs/testes/ensaio-backup-rpo-rto.md`, `scripts/verify-backup-restore.mjs` |
-| **RNF-06** | Qualidade de Código, Cobertura e Cadeia de Contrato | Cobertura `>= 70%` (`90.26%` atingido) | `npm run test:coverage` + `npm run check:spec` (`scripts/spec-guard.py`) |
+| **RNF-06** | Qualidade de Código, Cobertura e Cadeia de Contrato | Cobertura `>= 70%` (`90.62%` linhas atingido) | `npm run test:coverage` + `npm run check:spec` (`scripts/spec-guard.py`) |
 
 ---
 
@@ -49,12 +49,12 @@
 
 | Código | Descrição | Onde Está Enforçado e Validado |
 | :--- | :--- | :--- |
-| **RST-01** | Escopo em Unidade Piloto Única | `src/modules/operations/service.ts`, `tests/operations/smoke-piloto.test.ts`, `docs/operacao/checklist-prontidao-piloto.md` |
-| **RST-02** | API Centralizada Única em Monólito Modular | `src/modules/*`, `scripts/spec-guard.py`, `docs/testes/ensaio-backup-rpo-rto.md` |
+| **RST-01** | Escopo em Unidade Piloto Única (4 salas) | `src/modules/operations/service.ts`, `web/src/data/cinemaData.ts`, `tests/operations/smoke-piloto.test.ts`, `docs/operacao/checklist-prontidao-piloto.md` |
+| **RST-02** | API Centralizada Única em Monólito Modular (sem HTTP de produção no protótipo estático) | `src/modules/*`, `scripts/spec-guard.py`, `docs/testes/ensaio-backup-rpo-rto.md` |
 | **RST-03** | Operação Estrita em Sandbox Sem Homologação Comercial | `src/modules/payments/gateway.ts`, `src/modules/operations/{service,routes}.ts`, `tests/operations/smoke-piloto.test.ts` (`AC-2`) |
-| **RST-04** | Entrega no Assento Condicionada à Portaria (`RN-02`) | `src/modules/canteen/service.ts` (`assertSeatDeliveryAuthorized`), `tests/canteen/entrega.test.ts` (`AC-3`) |
+| **RST-04** | Entrega no Assento Condicionada à Portaria (`RN-02`) | `src/modules/canteen/service.ts` (`assertSeatDeliveryAuthorized`), `web/src/components/{CanteenCatalogView,KdsRunnerView}.tsx`, `tests/canteen/entrega.test.ts` (`AC-3`) |
 | **ADR-001** | Monólito Modular Orientado a Contratos (*Spec-Anchored*) | `openspec/changes/*`, `scripts/spec-guard.py`, `src/modules/*` |
 | **ADR-002** | Lock Atômico Transacional Unificado de Assentos e Estoque | `src/modules/booking/repository.ts`, `src/modules/canteen/repository.ts`, `tests/quality/rnf-integridade.test.ts` |
 | **ADR-003** | Gateway Sandbox + Idempotência + Webhook HMAC-SHA256 | `src/modules/payments/{gateway,service,routes}.ts`, `tests/payments/checkout.test.ts` |
-| **ADR-004** | Tokens Opacos HMAC/CSPRNG para QR Code de Uso Único | `src/modules/tickets/{service,repository}.ts`, `tests/tickets/qrcode.test.ts` |
-| **ADR-005** | Cantina Autônoma (Balcão) + Esteira Guiada Pós-Ingresso (`RN-05`) | `src/modules/canteen/service.ts`, `web/src/components/{CanteenCatalogView,TicketPassView}.tsx`, `web/tests/prototype.spec.ts` (Testes 3, 8) |
+| **ADR-004** | Fonte Transacional Única entre Canais Digitais e Presenciais (`RST-02`) + Tokens Opacos HMAC/CSPRNG | `src/modules/{booking,canteen,tickets}/{service,repository}.ts`, `tests/tickets/qrcode.test.ts` |
+| **ADR-005** | Checkouts Independentes entre Ingresso e Alimentação (Balcão Autônomo + Pré-Vínculo Pós-Ingresso) | `src/modules/canteen/service.ts`, `web/src/components/{SeatSelectionView,CanteenCatalogView,CheckoutView,TicketPassView}.tsx`, `web/tests/prototype.spec.ts` (Testes 2, 3, 8) |

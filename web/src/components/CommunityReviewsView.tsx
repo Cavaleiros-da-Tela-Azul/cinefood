@@ -11,6 +11,7 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  Clapperboard,
   Clock,
   Film,
   Loader2,
@@ -20,7 +21,6 @@ import {
   Search,
   ShieldCheck,
   SlidersHorizontal,
-  Sparkles,
   Star,
   Ticket,
   Trash2,
@@ -486,6 +486,15 @@ export function CommunityReviewsView({
     return (sum / filmReviews.length).toFixed(1);
   }, [filmReviews]);
 
+  const ratingHistogram = useMemo(() => {
+    const total = filmReviews.length;
+    return [5, 4, 3, 2, 1].map((stars) => {
+      const count = filmReviews.filter((r) => Math.round(r.rating) === stars).length;
+      const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+      return { stars, count, pct };
+    });
+  }, [filmReviews]);
+
   const userOrders = useMemo(
     () => (currentUser ? orders.filter((o) => o.userId === currentUser.id) : []),
     [currentUser, orders],
@@ -583,7 +592,7 @@ export function CommunityReviewsView({
     setCreateSuccess(null);
 
     if (!currentUser) {
-      setCreateError('Faça login para publicar uma avaliação verificada (RF-13).');
+      setCreateError('Faça login para publicar uma avaliação verificada.');
       return;
     }
 
@@ -646,24 +655,42 @@ export function CommunityReviewsView({
       matchedTheaterMovie?.synopsis ||
       'Sinopse detalhada indisponível para este título no momento.';
 
+    const level2Backdrop =
+      selectedEntry.backdropSrc || matchedTheaterMovie?.backdropSrc || selectedEntry.posterSrc;
+
     return (
       <section
-        className="mx-auto max-w-[1200px] px-4 py-6 sm:px-8 sm:py-10"
+        className="relative min-h-[calc(100dvh-68px)] overflow-x-hidden"
         aria-label={`Ficha do filme ${selectedEntry.title}`}
       >
+        {/* Full-bleed atmospheric backdrop matching MovieDetailView */}
+        {level2Backdrop && (
+          <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+            <img
+              src={level2Backdrop}
+              alt=""
+              decoding="async"
+              className="h-full w-full object-cover object-center opacity-40"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-base)]/95 via-[var(--bg-base)]/78 to-[var(--bg-base)]/92" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-base)] via-transparent to-[var(--bg-base)]/75" />
+          </div>
+        )}
+
+        <div className="relative z-10 mx-auto max-w-[1200px] px-4 py-6 sm:px-8 sm:py-10">
         {/* Top back bar */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <button
             type="button"
             onClick={handleBackToGrid}
-            className={`inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/15 bg-[var(--bg-elevated)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)] transition-colors hover:border-white/35 hover:text-[var(--text-primary)] ${FOCUS_RING_CLASS}`}
+            className={`cine-press inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/15 bg-[var(--bg-elevated)]/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)] backdrop-blur-md transition-colors hover:border-white/35 hover:text-[var(--text-primary)] ${FOCUS_RING_CLASS}`}
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             <span>Voltar ao Catálogo</span>
           </button>
 
           {matchedTheaterMovie && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--brand-red)]/50 bg-[var(--brand-red)]/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--brand-red)]/50 bg-[var(--brand-red)]/20 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-md">
               <Ticket className="h-3.5 w-3.5 text-[#FCA5A5]" aria-hidden="true" />
               Em Cartaz na Rede CineFood
             </span>
@@ -671,10 +698,10 @@ export function CommunityReviewsView({
         </div>
 
         {/* Movie Hero / Technical Header */}
-        <div className="relative mt-5 overflow-hidden rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5 sm:p-7">
+        <div className="relative mt-5 overflow-hidden rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/78 p-5 backdrop-blur-md shadow-2xl sm:p-7">
           <div className="grid gap-6 md:grid-cols-[220px_1fr] lg:grid-cols-[240px_1fr]">
             {/* Poster */}
-            <div className="mx-auto w-44 shrink-0 overflow-hidden rounded-2xl border border-white/15 bg-[var(--bg-surface)] md:mx-0 md:w-full">
+            <div className="mx-auto w-44 shrink-0 self-start overflow-hidden rounded-2xl border border-white/15 bg-[var(--bg-surface)] shadow-xl md:mx-0 md:w-full">
               {selectedEntry.posterSrc && !posterBroken ? (
                 <img
                   src={selectedEntry.posterSrc}
@@ -744,7 +771,7 @@ export function CommunityReviewsView({
                   )}
                   {(selectedEntry.director || matchedTheaterMovie?.director) && (
                     <span className="inline-flex items-center gap-1.5">
-                      <Sparkles className="h-3.5 w-3.5 text-[var(--text-muted)]" aria-hidden="true" />
+                      <Clapperboard className="h-3.5 w-3.5 text-[var(--text-muted)]" aria-hidden="true" />
                       Dir. {selectedEntry.director || matchedTheaterMovie?.director}
                     </span>
                   )}
@@ -755,77 +782,110 @@ export function CommunityReviewsView({
                 </p>
               </div>
 
-              {/* 3-Rating Comparative Panel */}
-              <div
-                className="grid grid-cols-1 gap-3 sm:grid-cols-3"
-                aria-label="Comparativo de notas do filme"
-              >
-                {/* IMDb */}
-                <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3.5">
-                  <span className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--text-muted)]">
-                    IMDb
-                  </span>
-                  <div className="mt-1.5 flex items-baseline gap-2">
-                    {isLoadingRatings && !externalRatings ? (
-                      <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--text-secondary)]">
-                        <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                        Consultando...
-                      </span>
-                    ) : (
-                      <span className="font-mono-tabular text-2xl font-extrabold text-[#FCD34D]">
-                        {externalRatings?.imdbScore ?? 'N/D'}
-                      </span>
-                    )}
-                    {externalRatings?.imdbVotes && (
-                      <span className="text-[11px] text-[var(--text-muted)]">
-                        ({externalRatings.imdbVotes})
-                      </span>
-                    )}
+              {/* 3-Rating Comparative Panel + Letterboxd Distribution Histogram (04_ref1 + 04_ref5) */}
+              <div className="space-y-3">
+                <div
+                  className="grid grid-cols-3 gap-2 sm:gap-3"
+                  aria-label="Comparativo de notas do filme"
+                >
+                  {/* IMDb */}
+                  <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)]/85 px-2.5 py-2.5 backdrop-blur-md sm:rounded-2xl sm:px-4 sm:py-3.5">
+                    <span className="block truncate text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--text-muted)] sm:text-[11px] sm:tracking-[0.14em]">
+                      IMDb
+                    </span>
+                    <div className="mt-1 flex flex-wrap items-baseline gap-1.5 sm:mt-1.5 sm:gap-2">
+                      {isLoadingRatings && !externalRatings ? (
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--text-secondary)] sm:text-sm">
+                          <Loader2 className="h-3.5 w-3.5 animate-spin sm:h-4 sm:w-4" aria-hidden="true" />
+                          <span className="hidden sm:inline">Consultando...</span>
+                        </span>
+                      ) : (
+                        <span className="font-mono-tabular text-lg font-extrabold text-[#FCD34D] sm:text-2xl">
+                          {externalRatings?.imdbScore ?? 'N/D'}
+                        </span>
+                      )}
+                      {externalRatings?.imdbVotes && (
+                        <span className="hidden text-[11px] text-[var(--text-muted)] sm:inline">
+                          ({externalRatings.imdbVotes})
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Rotten Tomatoes */}
+                  <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)]/85 px-2.5 py-2.5 backdrop-blur-md sm:rounded-2xl sm:px-4 sm:py-3.5">
+                    <span className="block truncate text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--text-muted)] sm:text-[11px] sm:tracking-[0.14em]">
+                      Rotten Tomatoes
+                    </span>
+                    <div className="mt-1 flex items-baseline gap-1.5 sm:mt-1.5 sm:gap-2">
+                      {isLoadingRatings && !externalRatings ? (
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--text-secondary)] sm:text-sm">
+                          <Loader2 className="h-3.5 w-3.5 animate-spin sm:h-4 sm:w-4" aria-hidden="true" />
+                          <span className="hidden sm:inline">Consultando...</span>
+                        </span>
+                      ) : (
+                        <span className="font-mono-tabular inline-flex items-center gap-1 text-lg font-extrabold text-[var(--text-primary)] sm:gap-1.5 sm:text-2xl">
+                          <Award className="h-3.5 w-3.5 shrink-0 text-[var(--brand-red)] sm:h-4 sm:w-4" aria-hidden="true" />
+                          {externalRatings?.rottenTomatoes ?? 'N/D'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Usuários CineFood */}
+                  <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)]/85 px-2.5 py-2.5 backdrop-blur-md sm:rounded-2xl sm:px-4 sm:py-3.5">
+                    <span className="block truncate text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--text-muted)] sm:text-[11px] sm:tracking-[0.14em]">
+                      <span className="hidden sm:inline">Usuários </span>CineFood
+                    </span>
+                    <div className="mt-1 flex flex-wrap items-baseline gap-1 sm:mt-1.5 sm:gap-2">
+                      {cinefoodAverageRating ? (
+                        <>
+                          <span className="font-mono-tabular inline-flex items-center gap-1 text-lg font-extrabold text-[var(--success-emerald)] sm:text-2xl">
+                            <Star className="h-3.5 w-3.5 fill-current sm:h-4 sm:w-4" aria-hidden="true" />
+                            {cinefoodAverageRating}
+                          </span>
+                          <span className="hidden text-xs text-[var(--text-secondary)] sm:inline">
+                            / 5 ({filmReviews.length}{' '}
+                            {filmReviews.length === 1 ? 'nota' : 'notas'})
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-sm font-bold text-[var(--text-secondary)] sm:text-base">
+                          Sem notas
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                {/* Rotten Tomatoes */}
-                <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3.5">
-                  <span className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--text-muted)]">
-                    Rotten Tomatoes
-                  </span>
-                  <div className="mt-1.5 flex items-baseline gap-2">
-                    {isLoadingRatings && !externalRatings ? (
-                      <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--text-secondary)]">
-                        <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                        Consultando...
-                      </span>
-                    ) : (
-                      <span className="font-mono-tabular inline-flex items-center gap-1.5 text-2xl font-extrabold text-[var(--text-primary)]">
-                        <Award className="h-4 w-4 text-[var(--brand-red)]" aria-hidden="true" />
-                        {externalRatings?.rottenTomatoes ?? 'N/D'}
-                      </span>
-                    )}
+                {/* Letterboxd-style 5->1 star distribution bars */}
+                <div className="rounded-2xl border border-[var(--border-subtle)] bg-black/30 px-4 py-3 backdrop-blur-md">
+                  <div className="mb-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">
+                    <span>Distribuição das Notas Verificadas</span>
+                    <span className="font-mono-tabular text-[var(--text-secondary)]">
+                      {filmReviews.length} {filmReviews.length === 1 ? 'avaliação' : 'avaliações'}
+                    </span>
                   </div>
-                </div>
-
-                {/* Usuários CineFood */}
-                <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3.5">
-                  <span className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--text-muted)]">
-                    Usuários CineFood
-                  </span>
-                  <div className="mt-1.5 flex flex-wrap items-baseline gap-2">
-                    {cinefoodAverageRating ? (
-                      <>
-                        <span className="font-mono-tabular inline-flex items-center gap-1 text-2xl font-extrabold text-[var(--success-emerald)]">
-                          <Star className="h-4 w-4 fill-current" aria-hidden="true" />
-                          {cinefoodAverageRating}
-                        </span>
-                        <span className="text-xs text-[var(--text-secondary)]">
-                          / 5 ({filmReviews.length}{' '}
-                          {filmReviews.length === 1 ? 'nota' : 'notas'})
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-base font-bold text-[var(--text-secondary)]">
-                        Sem notas
-                      </span>
-                    )}
+                  <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-5 sm:gap-3">
+                    {ratingHistogram.map((bucket) => (
+                      <div key={bucket.stars} className="flex items-center gap-2 sm:flex-col sm:items-stretch sm:gap-1">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="font-mono-tabular inline-flex items-center gap-0.5 font-bold text-[#FCD34D]">
+                            {bucket.stars}
+                            <Star className="h-3 w-3 fill-current" aria-hidden="true" />
+                          </span>
+                          <span className="font-mono-tabular text-[var(--text-muted)]">
+                            {bucket.count}
+                          </span>
+                        </div>
+                        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10 sm:flex-none">
+                          <div
+                            className="h-full rounded-full bg-[var(--amber-progress)] transition-[width] duration-300"
+                            style={{ width: `${bucket.pct}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -1003,7 +1063,7 @@ export function CommunityReviewsView({
                         Quer compartilhar sua opinião sobre este filme?
                       </h2>
                       <p className="mt-1 text-sm text-[var(--text-secondary)]">
-                        Para comentar, é necessário entrar na conta CineFood, possuir ingresso validado na portaria e sessão encerrada na rede CineFood (RF-13).
+                        Para comentar, é necessário entrar na sua conta CineFood, possuir ingresso validado na portaria e sessão encerrada no cinema.
                       </p>
                     </div>
                   </div>
@@ -1145,7 +1205,7 @@ export function CommunityReviewsView({
                   </div>
                   <div className="min-w-0">
                     <h2 className="text-base font-bold text-[var(--text-primary)]">
-                      Pré-requisito de entrada validada na portaria (RF-13)
+                      Pré-requisito de entrada validada na portaria
                     </h2>
                     <p className="mt-1 text-sm leading-relaxed text-[var(--text-secondary)]">
                       Para comentar, é necessário ingresso validado na portaria e sessão encerrada na rede CineFood.
@@ -1423,6 +1483,7 @@ export function CommunityReviewsView({
             )}
           </div>
         )}
+        </div>
       </section>
     );
   }
@@ -1432,47 +1493,57 @@ export function CommunityReviewsView({
   // =========================================================================
   return (
     <section
-      className="mx-auto max-w-[1320px] px-4 py-6 sm:px-8 sm:py-10"
+      className="relative min-h-[calc(100dvh-68px)] overflow-x-hidden"
       aria-label="Catálogo extenso de filmes CineFood"
     >
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 z-0 opacity-75"
+        style={{
+          background:
+            'radial-gradient(circle at 14% 10%, rgba(196, 10, 20, 0.14) 0%, transparent 40%), radial-gradient(circle at 86% 18%, rgba(245, 158, 11, 0.11) 0%, transparent 42%)',
+        }}
+      />
+
+      <div className="relative z-10 mx-auto max-w-[1320px] px-4 py-6 sm:px-8 sm:py-10">
       {/* Top Header */}
       <div
         ref={catalogTopRef}
-        className="flex flex-wrap items-start justify-between gap-4 border-b border-[var(--border-subtle)] pb-6"
+        className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--border-subtle)] pb-4 sm:gap-4 sm:pb-6"
       >
         <div className="min-w-0">
           <button
             type="button"
             onClick={onBackToCatalog}
-            className={`inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/15 bg-[var(--bg-elevated)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)] transition-colors hover:border-white/35 hover:text-[var(--text-primary)] ${FOCUS_RING_CLASS}`}
+            className={`cine-press inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/15 bg-[var(--bg-elevated)]/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)] backdrop-blur-md transition-colors hover:border-white/35 hover:text-[var(--text-primary)] ${FOCUS_RING_CLASS}`}
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             <span>Voltar ao Cartaz</span>
           </button>
 
-          <p className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-[var(--amber-progress)]">
-            Vitrine Completa · IMDb · Rotten Tomatoes · RF-13
+          <p className="mt-3 text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--amber-progress)] sm:mt-4 sm:text-xs sm:tracking-[0.18em]">
+            Vitrine Completa · IMDb · Rotten Tomatoes · Comunidade Verificada
           </p>
-          <h1 className="font-display mt-1 text-4xl font-extrabold uppercase tracking-tight text-[var(--text-primary)] sm:text-5xl">
+          <h1 className="font-display mt-1 text-3xl font-extrabold uppercase tracking-tight text-[var(--text-primary)] sm:text-5xl">
             Catálogo de Filmes
           </h1>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--text-secondary)]">
+          <p className="mt-1.5 line-clamp-2 max-w-2xl text-xs leading-relaxed text-[var(--text-secondary)] sm:mt-2 sm:line-clamp-none sm:text-sm">
             Explore lançamentos e acervo completo, compare notas do IMDb, Rotten Tomatoes e espectadores verificados da rede CineFood.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <span
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-semibold ${
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold backdrop-blur-md sm:px-3.5 sm:py-1.5 sm:text-xs ${
               sourceInfo.isOfflineFallback || catalogError
                 ? 'border-[var(--amber-progress)]/40 bg-[var(--amber-progress)]/15 text-[#FCD34D]'
-                : 'border-white/15 bg-[var(--bg-elevated)] text-[var(--text-secondary)]'
+                : 'border-white/15 bg-[var(--bg-elevated)]/75 text-[var(--text-secondary)]'
             }`}
           >
             {sourceInfo.isOfflineFallback || catalogError ? (
               <WifiOff className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
             ) : (
-              <Sparkles className="h-3.5 w-3.5 shrink-0 text-[var(--amber-progress)]" aria-hidden="true" />
+              <Film className="h-3.5 w-3.5 shrink-0 text-[var(--amber-progress)]" aria-hidden="true" />
             )}
             <span>{sourceInfo.label}</span>
           </span>
@@ -1482,14 +1553,14 @@ export function CommunityReviewsView({
       {/* Unified Search, Category Dropdown, Page-Size & In-Theaters Controls */}
       <div
         ref={filterToolbarRef}
-        className="mt-6 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4 sm:p-5"
+        className="relative z-30 mt-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/85 p-3 backdrop-blur-md sm:mt-6 sm:p-5"
       >
-        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-[1fr_240px_175px_auto]">
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5 lg:grid-cols-[1fr_240px_175px_auto]">
           {/* Input 1: Search by title */}
-          <form onSubmit={handleSearchSubmit} className="min-w-0">
+          <form onSubmit={handleSearchSubmit} className="col-span-2 min-w-0 lg:col-span-1">
             <label
               htmlFor="catalog-search-input"
-              className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]"
+              className="sr-only sm:not-sr-only sm:mb-1.5 sm:block sm:text-[11px] sm:font-semibold sm:uppercase sm:tracking-[0.14em] sm:text-[var(--text-muted)]"
             >
               Buscar Filme
             </label>
@@ -1504,7 +1575,7 @@ export function CommunityReviewsView({
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Digite o título do filme..."
-                className={`min-h-[44px] w-full rounded-xl border border-white/15 bg-[var(--bg-surface)] py-2.5 pl-10 pr-10 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] transition-colors hover:border-white/30 focus:border-[var(--brand-red)] ${FOCUS_RING_CLASS}`}
+                className={`min-h-[44px] w-full rounded-xl border border-white/15 bg-[var(--bg-surface)] py-2.5 pl-10 pr-10 text-base text-[var(--text-primary)] placeholder:text-[var(--text-muted)] transition-colors hover:border-white/30 focus:border-[var(--brand-red)] sm:text-sm ${FOCUS_RING_CLASS}`}
               />
               {searchInput && (
                 <button
@@ -1523,8 +1594,8 @@ export function CommunityReviewsView({
           </form>
 
           {/* Input 2: Category Select Dropdown (opens on click) */}
-          <div className="relative min-w-0">
-            <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">
+          <div className="relative col-span-1 min-w-0">
+            <span className="sr-only sm:not-sr-only sm:mb-1.5 sm:block sm:text-[11px] sm:font-semibold sm:uppercase sm:tracking-[0.14em] sm:text-[var(--text-muted)]">
               Categoria / Gênero
             </span>
             <button
@@ -1536,15 +1607,15 @@ export function CommunityReviewsView({
                 setGenreDropdownOpen((prev) => !prev);
                 setPageSizeDropdownOpen(false);
               }}
-              className={`flex min-h-[44px] w-full items-center justify-between gap-2 rounded-xl border px-3.5 py-2.5 text-left text-sm font-medium transition-colors ${FOCUS_RING_CLASS} ${
+              className={`flex min-h-[44px] w-full items-center justify-between gap-1.5 rounded-xl border px-3 py-2 text-left text-xs font-medium transition-colors sm:gap-2 sm:px-3.5 sm:py-2.5 sm:text-sm ${FOCUS_RING_CLASS} ${
                 selectedGenreId !== 'ALL'
                   ? 'border-[var(--brand-red)]/70 bg-[var(--brand-red)]/15 text-white'
                   : 'border-white/15 bg-[var(--bg-surface)] text-[var(--text-primary)] hover:border-white/30'
               }`}
             >
-              <span className="inline-flex min-w-0 items-center gap-2 truncate">
+              <span className="inline-flex min-w-0 items-center gap-1.5 truncate sm:gap-2">
                 <SlidersHorizontal
-                  className={`h-4 w-4 shrink-0 ${
+                  className={`h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4 ${
                     selectedGenreId !== 'ALL'
                       ? 'text-[var(--brand-red)]'
                       : 'text-[var(--text-muted)]'
@@ -1621,8 +1692,8 @@ export function CommunityReviewsView({
             )}
           </div>
 
-          {/* Input 3: Movies per Page Select Dropdown (opens on click) */}
-          <div className="relative min-w-0">
+          {/* Input 3: Movies per Page Select Dropdown (hidden on narrow mobile to keep posters above fold) */}
+          <div className="relative hidden min-w-0 sm:block">
             <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">
               Filmes por página
             </span>
@@ -1685,8 +1756,8 @@ export function CommunityReviewsView({
           </div>
 
           {/* Input 4: Quick Filter for Movies Currently in Theaters ("Em Cartaz") */}
-          <div className="min-w-0">
-            <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">
+          <div className="col-span-1 min-w-0">
+            <span className="sr-only sm:not-sr-only sm:mb-1.5 sm:block sm:text-[11px] sm:font-semibold sm:uppercase sm:tracking-[0.14em] sm:text-[var(--text-muted)]">
               Sessões no Cinema
             </span>
             <button
@@ -1697,23 +1768,23 @@ export function CommunityReviewsView({
                 setGenreDropdownOpen(false);
                 setPageSizeDropdownOpen(false);
               }}
-              className={`flex min-h-[44px] w-full items-center justify-between gap-2.5 rounded-xl border px-3.5 py-2.5 text-left text-sm font-semibold transition-all ${FOCUS_RING_CLASS} ${
+              className={`flex min-h-[44px] w-full items-center justify-between gap-1.5 rounded-xl border px-3 py-2 text-left text-xs font-semibold transition-all sm:gap-2.5 sm:px-3.5 sm:py-2.5 sm:text-sm ${FOCUS_RING_CLASS} ${
                 onlyInTheaters
                   ? 'border-[var(--brand-red)] bg-[var(--brand-red)] text-white shadow-[0_10px_24px_rgba(229,9,20,0.32)]'
                   : 'border-white/15 bg-[var(--bg-surface)] text-[var(--text-primary)] hover:border-[var(--brand-red)]/60 hover:bg-white/5'
               }`}
             >
-              <span className="inline-flex items-center gap-2 whitespace-nowrap">
+              <span className="inline-flex min-w-0 items-center gap-1.5 truncate sm:gap-2">
                 <Ticket
-                  className={`h-4 w-4 shrink-0 ${
+                  className={`h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4 ${
                     onlyInTheaters ? 'text-white' : 'text-[var(--brand-red)]'
                   }`}
                   aria-hidden="true"
                 />
-                <span>Filmes em Cartaz</span>
+                <span className="truncate">Em Cartaz</span>
               </span>
               <span
-                className={`inline-flex min-w-[26px] items-center justify-center rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                className={`inline-flex min-w-[24px] shrink-0 items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] font-bold sm:min-w-[26px] sm:px-2 ${
                   onlyInTheaters
                     ? 'bg-white/25 text-white'
                     : 'bg-[var(--brand-red)]/20 text-[#FCA5A5]'
@@ -2052,6 +2123,7 @@ export function CommunityReviewsView({
           })()}
         </>
       )}
+      </div>
     </section>
   );
 }

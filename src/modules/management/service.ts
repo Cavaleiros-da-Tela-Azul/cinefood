@@ -4,9 +4,11 @@ import type { ManagementRepository } from './repository.ts';
 import type {
   ManagedCanteenItem,
   ManagedMovie,
+  ManagedOperator,
   ManagedRoom,
   ManagedScreening,
   ManagementSalesSummary,
+  RoomSeatMapConfig,
   ScreeningOccupancyReport,
   ScreeningStatus,
 } from './types.ts';
@@ -56,12 +58,58 @@ export class ManagementService {
     input: ManagedRoom,
   ): Promise<ManagedRoom> {
     authorize({ session, operation: 'ADMINISTRATION' });
-    if (!input.roomId.trim() || !input.name.trim() || input.sellableSeats <= 0) {
+    if (!input.roomId.trim() || !input.name.trim() || input.sellableSeats < 0) {
       throw new InvalidManagementInputError(
-        'Sala exige identificador, nome válido e quantidade positiva de assentos comercializáveis.',
+        'Sala exige identificador, nome válido e quantidade de assentos não negativa.',
       );
     }
     return this.repository.upsertRoom(input);
+  }
+
+  async updateRoomSeatMap(
+    session: AuthenticatedSession,
+    roomId: string,
+    seatMapConfig: RoomSeatMapConfig,
+  ): Promise<ManagedRoom> {
+    authorize({ session, operation: 'ADMINISTRATION' });
+    const room = await this.repository.findRoomById(roomId);
+    if (!room) {
+      throw new ManagementEntityNotFoundError(`Sala ${roomId} não encontrada.`);
+    }
+    const totalSeats = seatMapConfig.rows.length * seatMapConfig.seatsPerRow;
+    const blockedCount = seatMapConfig.blockedSeats?.length ?? 0;
+    const sellableSeats = Math.max(0, totalSeats - blockedCount);
+    return this.repository.upsertRoom({
+      ...room,
+      sellableSeats,
+      seatMapConfig,
+    });
+  }
+
+  async upsertOperator(
+    session: AuthenticatedSession,
+    input: Omit<ManagedOperator, 'updatedAt'>,
+  ): Promise<ManagedOperator> {
+    authorize({ session, operation: 'ADMINISTRATION' });
+    if (
+      !input.operatorId.trim() ||
+      !input.fullName.trim() ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email.trim())
+    ) {
+      throw new InvalidManagementInputError(
+        'Operador exige identificador, nome completo e e-mail válidos.',
+      );
+    }
+    return this.repository.upsertOperator({
+      ...input,
+      email: input.email.trim().toLowerCase(),
+      updatedAt: this.now().toISOString(),
+    });
+  }
+
+  async listOperators(session: AuthenticatedSession): Promise<ManagedOperator[]> {
+    authorize({ session, operation: 'ADMINISTRATION' });
+    return this.repository.listOperators();
   }
 
   async createScreening(
@@ -254,10 +302,10 @@ export class ManagementService {
     ).length;
 
     const sellableSeats = screening.sellableSeats;
-    const occupancyPercent =
+    const occupancyPercent: number | 'não aplicável' =
       sellableSeats > 0
         ? Number(((activeTickets.length / sellableSeats) * 100).toFixed(2))
-        : 0;
+        : 'não aplicável';
 
     const grossRevenueCents = activeTickets.reduce(
       (sum, record) => sum + record.paidUnitPriceCents,

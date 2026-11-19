@@ -78,3 +78,15 @@ export interface UpdateReviewInput {
   rating: number;
   comment?: string;
 }
+
+export interface PublicCommunityReview {
+  reviewId: string;
+  movieTitle: string;
+  screeningId: string;
+  authorDisplayName: string;
+  rating: 1 | 2 | 3 | 4 | 5;
+  comment?: string;
+  verifiedEntry: true;
+  createdAt: string;
+  updatedAt: string;
+}

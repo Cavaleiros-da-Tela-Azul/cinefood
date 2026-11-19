@@ -32,6 +32,7 @@ import {
   SessionSlot,
   SessionStatus,
   STAFF_PROFILES,
+  StaffOperatorProfile,
   StaffRoleGroup,
   TicketTier,
 } from './data/cinemaData';
@@ -244,6 +245,11 @@ export function App() {
   const [paymentMethod, setPaymentMethod] = useState<'pix' | 'card'>('pix');
 
   const [currentUser, setCurrentUser] = useState<CustomerUser | null>(INITIAL_CUSTOMER);
+  const [registeredUsers, setRegisteredUsers] = useState<CustomerUser[]>([INITIAL_CUSTOMER]);
+  const [recoveryTokens, setRecoveryTokens] = useState<
+    Record<string, { email: string; expiresAtMs: number; used: boolean }>
+  >({});
+  const [staffOperators, setStaffOperators] = useState<StaffOperatorProfile[]>(STAFF_PROFILES);
   const [marketingUpdatedAt, setMarketingUpdatedAt] = useState<string | null>(null);
   const [notices, setNotices] = useState<InternalNoticeItem[]>(INITIAL_NOTICES);
   const [communityReviews, setCommunityReviews] = useState<CommunityReviewItem[]>(
@@ -254,8 +260,10 @@ export function App() {
   const [reviewsViewKey, setReviewsViewKey] = useState(0);
   const [savedMovieIds, setSavedMovieIds] = useState<string[]>([]);
   const [lgpdRequests, setLgpdRequests] = useState<LgpdRequestItem[]>(INITIAL_LGPD_REQUESTS);
+  const [clientOrdersTab, setClientOrdersTab] = useState<'orders' | 'reviews' | 'lgpd'>('orders');
 
   const [lastOrderId, setLastOrderId] = useState<string | null>(null);
+  const [activeTicketOrderId, setActiveTicketOrderId] = useState<string | null>(null);
   const [orderSessionIdMap, setOrderSessionIdMap] = useState<Record<string, string>>({});
   const [orderCartItemsMap, setOrderCartItemsMap] = useState<
     Record<string, { itemId: string; quantity: number }[]>
@@ -311,8 +319,17 @@ export function App() {
       setReviewsSubTab('overview');
       setReviewsViewKey((k) => k + 1);
     }
+    if (next === 'orders') {
+      setClientOrdersTab('orders');
+    }
     setStep(next);
     syncHashForStep(next);
+  };
+
+  const handleOpenOrdersTab = (tab: 'orders' | 'reviews' | 'lgpd') => {
+    setClientOrdersTab(tab);
+    setStep('orders');
+    syncHashForStep('orders');
   };
 
   const handleSelectStaffRole = (role: StaffRoleGroup) => {
@@ -469,6 +486,26 @@ export function App() {
     );
   };
 
+  const linkedTicketForCanteen = useMemo(() => {
+    const isEligibleTicket = (o: ClientTicketOrder | undefined | null) =>
+      Boolean(
+        o &&
+          o.orderKind !== 'canteen-only' &&
+          (o.status === 'ATIVO' || o.status === 'UTILIZADO') &&
+          o.seatsLabel.length > 0 &&
+          (!currentUser || o.userId === currentUser.id),
+      );
+    if (activeTicketOrderId) {
+      const explicit = orders.find((o) => o.id === activeTicketOrderId);
+      if (isEligibleTicket(explicit)) return explicit!;
+    }
+    if (lastOrderId) {
+      const last = orders.find((o) => o.id === lastOrderId);
+      if (isEligibleTicket(last)) return last!;
+    }
+    return null;
+  }, [activeTicketOrderId, lastOrderId, orders, currentUser]);
+
   const handleCreateOrderFromCheckout = (method: 'pix' | 'card') => {
     setPaymentMethod(method);
     const canteenSum = cart.reduce((acc, line) => {
@@ -486,32 +523,47 @@ export function App() {
 
     if (canteenOnlyMode || selectedSeats.length === 0) {
       const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+      const seatDeliveryTicket = deliveryMode === 'seat' ? linkedTicketForCanteen : null;
+      const resolvedDeliveryMode: DeliveryMode = seatDeliveryTicket ? 'seat' : 'counter';
       const newOrder: ClientTicketOrder = {
         id: `ORD-${orderNum}`,
         userId: currentUser?.id ?? 'usr-guest',
         qrToken: `CF-CNT-${orderNum}-${rand}`,
         seatQrTokens: [],
         orderKind: 'canteen-only',
-        movieId: 'canteen-only',
-        movieTitle: 'Retirada na Cantina',
-        posterSrc: cart[0]?.item.imageSrc ?? canteenCatalog[0]?.imageSrc ?? '/assets/combo-cinema.jpg',
-        complex:
-          selectedComplex !== COMPLEX_OPTIONS[0] ? selectedComplex : 'CineFood Paulista IMAX',
-        room: 'Balcão Cantina',
-        format: 'Cantina Express',
-        dateLabel: DATE_OPTIONS.find((d) => d.id === selectedDateId)?.label ?? 'Hoje',
-        time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-        seatsLabel: [],
+        ...(seatDeliveryTicket ? { linkedTicketOrderId: seatDeliveryTicket.id } : {}),
+        movieId: seatDeliveryTicket ? seatDeliveryTicket.movieId : 'canteen-only',
+        movieTitle: seatDeliveryTicket
+          ? `${seatDeliveryTicket.movieTitle} · Cantina`
+          : 'Retirada na Cantina',
+        posterSrc:
+          cart[0]?.item.imageSrc ?? canteenCatalog[0]?.imageSrc ?? '/assets/combo-cinema.jpg',
+        complex: seatDeliveryTicket?.complex ?? 'CineFood Operações Piloto Ltda.',
+        room: seatDeliveryTicket?.room ?? 'Balcão Cantina',
+        format: seatDeliveryTicket ? 'Cantina (Assento)' : 'Cantina Express',
+        dateLabel:
+          seatDeliveryTicket?.dateLabel ??
+          DATE_OPTIONS.find((d) => d.id === selectedDateId)?.label ??
+          'Hoje',
+        time:
+          seatDeliveryTicket?.time ??
+          new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        seatsLabel: seatDeliveryTicket ? [...seatDeliveryTicket.seatsLabel] : [],
         totalAmount: canteenSum,
         paymentMethod: method,
         salesChannel: 'web',
         purchasedAt: nowIso,
         status: 'ATIVO',
         canteenSummary,
-        canteenStatus: 'EM_PREPARO',
-        deliveryMode: 'counter',
-        hoursUntilSession: 0,
-        checkedIn: false,
+        canteenStatus:
+          resolvedDeliveryMode === 'seat'
+            ? seatDeliveryTicket?.checkedIn
+              ? 'EM_PREPARO'
+              : 'AGUARDANDO_CHEGADA'
+            : 'EM_PREPARO',
+        deliveryMode: resolvedDeliveryMode,
+        hoursUntilSession: seatDeliveryTicket?.hoursUntilSession ?? 0,
+        checkedIn: Boolean(seatDeliveryTicket?.checkedIn),
         sessionEnded: false,
       };
       deductCanteenStock(cart);
@@ -538,7 +590,13 @@ export function App() {
       qrToken: `CF-QR-${orderNum}-${seat.seatId}-${rand}`,
       status: 'ATIVO',
     }));
+    const sessionStartsMs = Date.parse(selectedSession.startsAt);
+    const computedHoursUntil =
+      !Number.isNaN(sessionStartsMs) && sessionStartsMs > Date.now()
+        ? Number(((sessionStartsMs - Date.now()) / 3_600_000).toFixed(1))
+        : 5.0;
 
+    // ADR 005: checkout exclusivo de ingressos (sem somar cantina no mesmo pagamento)
     const newOrder: ClientTicketOrder = {
       id: `ORD-${orderNum}`,
       userId: currentUser?.id ?? 'usr-guest',
@@ -554,36 +612,31 @@ export function App() {
       dateLabel: selectedSession.dateLabel,
       time: selectedSession.time,
       seatsLabel: selectedSeats.map((s) => s.seatId),
-      totalAmount: ticketsSum + canteenSum,
+      seatTierDetails: [...selectedSeats],
+      totalAmount: ticketsSum,
       paymentMethod: method,
       salesChannel: 'web',
       meiaCategory: firstMeia?.meiaCategory,
       meiaDoc: firstMeia?.meiaDoc,
       purchasedAt: nowIso,
       status: 'ATIVO',
-      canteenSummary,
-      canteenStatus:
-        cart.length > 0
-          ? deliveryMode === 'seat'
-            ? 'AGUARDANDO_CHEGADA'
-            : 'EM_PREPARO'
-          : 'NENHUM',
-      deliveryMode,
-      hoursUntilSession: 5.0,
+      canteenSummary: null,
+      canteenStatus: 'NENHUM',
+      deliveryMode: 'counter',
+      hoursUntilSession: computedHoursUntil,
       checkedIn: false,
       sessionEnded: false,
     };
 
-    deductCanteenStock(cart);
     setOccupiedBySession((prev) => {
       const currentSeats = new Set(prev[selectedSession.id] ?? []);
       selectedSeats.forEach((s) => currentSeats.add(s.seatId));
       return { ...prev, [selectedSession.id]: Array.from(currentSeats) };
     });
     setOrderSessionIdMap((prev) => ({ ...prev, [newOrder.id]: selectedSession.id }));
-    setOrderCartItemsMap((prev) => ({ ...prev, [newOrder.id]: cartSnapshot }));
     setOrders((prev) => [newOrder, ...prev]);
     setLastOrderId(newOrder.id);
+    setActiveTicketOrderId(newOrder.id);
     setSelectedSeats([]);
     setCart([]);
     setSecondsLeft(0);
@@ -635,6 +688,13 @@ export function App() {
     const eligibility = isCdcCancelEligible(targetOrder);
     if (!eligibility.eligible) return;
 
+    const canteenAlreadyInPrep =
+      targetOrder.canteenStatus === 'EM_PREPARO' ||
+      targetOrder.canteenStatus === 'PRONTO' ||
+      targetOrder.canteenStatus === 'SAIU_PARA_ENTREGA' ||
+      targetOrder.canteenStatus === 'ENTREGUE';
+    if (canteenAlreadyInPrep) return;
+
     setOrders((prev) =>
       prev.map((o) =>
         o.id === orderId
@@ -649,7 +709,7 @@ export function App() {
       ),
     );
 
-    if (targetOrder.seatsLabel.length > 0) {
+    if (targetOrder.seatsLabel.length > 0 && targetOrder.orderKind !== 'canteen-only') {
       const resolved = findSessionForOrder(targetOrder);
       if (resolved) {
         const released = new Set(targetOrder.seatsLabel);
@@ -664,9 +724,16 @@ export function App() {
       }
     }
 
-    const itemsToRestore =
-      orderCartItemsMap[orderId] ??
-      parseCanteenSummaryQuantities(targetOrder.canteenSummary, canteenCatalog);
+    const canRestoreStock =
+      targetOrder.canteenStatus === 'AGUARDANDO_CHEGADA' ||
+      targetOrder.canteenStatus === 'PENDENTE_PAGAMENTO';
+    if (activeTicketOrderId === orderId) {
+      setActiveTicketOrderId(null);
+    }
+    const itemsToRestore = canRestoreStock
+      ? orderCartItemsMap[orderId] ??
+        parseCanteenSummaryQuantities(targetOrder.canteenSummary, canteenCatalog)
+      : [];
     if (itemsToRestore.length > 0) {
       setCanteenCatalog((prev) =>
         prev.map((item) => {
@@ -888,21 +955,101 @@ export function App() {
     syncHashForStep('detail');
   };
 
+  const handleAuthenticateCredentials = (email: string, password: string) => {
+    const normalized = email.trim().toLowerCase();
+    const matched = registeredUsers.find((u) => u.email.trim().toLowerCase() === normalized);
+    if (!matched || (matched.password && matched.password !== password)) {
+      return { ok: false as const, error: 'E-mail ou senha inválidos.' };
+    }
+    return { ok: true as const, user: matched };
+  };
+
+  const handleRegisterUser = (newUser: CustomerUser) => {
+    const normalized = newUser.email.trim().toLowerCase();
+    if (registeredUsers.some((u) => u.email.trim().toLowerCase() === normalized)) {
+      return { ok: false as const, error: `Já existe uma conta cadastrada para ${normalized}.` };
+    }
+    const stored: CustomerUser = { ...newUser, email: normalized };
+    setRegisteredUsers((prev) => [...prev, stored]);
+    return { ok: true as const, user: stored };
+  };
+
+  const handleUpdateProfile = (patch: { name: string; email: string; newPassword?: string }) => {
+    if (!currentUser) return { ok: false as const, error: 'Usuário não autenticado.' };
+    const normalized = patch.email.trim().toLowerCase();
+    const conflict = registeredUsers.find(
+      (u) => u.email.trim().toLowerCase() === normalized && u.id !== currentUser.id,
+    );
+    if (conflict) {
+      return { ok: false as const, error: 'E-mail já utilizado por outra conta.' };
+    }
+    const updatedUser: CustomerUser = {
+      ...currentUser,
+      name: patch.name.trim(),
+      email: normalized,
+      ...(patch.newPassword ? { password: patch.newPassword } : {}),
+    };
+    setCurrentUser(updatedUser);
+    setRegisteredUsers((prev) => {
+      const exists = prev.some((u) => u.id === updatedUser.id);
+      return exists
+        ? prev.map((u) => (u.id === updatedUser.id ? updatedUser : u))
+        : [...prev, updatedUser];
+    });
+    return { ok: true as const };
+  };
+
+  const handleRequestPasswordRecovery = (email: string) => {
+    const normalized = email.trim().toLowerCase();
+    const found = registeredUsers.find((u) => u.email.trim().toLowerCase() === normalized);
+    if (!found) {
+      return { ok: true };
+    }
+    const token = `CF-REC-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+    setRecoveryTokens((prev) => ({
+      ...prev,
+      [token]: { email: normalized, expiresAtMs: Date.now() + 15 * 60 * 1000, used: false },
+    }));
+    return { ok: true, token };
+  };
+
+  const handleConfirmPasswordReset = (token: string, newPassword: string) => {
+    const record = recoveryTokens[token];
+    if (!record || record.used || Date.now() > record.expiresAtMs) {
+      return { ok: false, error: 'Token de recuperação inválido, expirado ou já utilizado.' };
+    }
+    setRecoveryTokens((prev) => ({ ...prev, [token]: { ...record, used: true } }));
+    setRegisteredUsers((prev) =>
+      prev.map((u) =>
+        u.email.trim().toLowerCase() === record.email ? { ...u, password: newPassword } : u,
+      ),
+    );
+    return { ok: true };
+  };
+
   const handleSubmitLgpdRequest = (type: LgpdRequestType, details: string) => {
+    const activeUserId = currentUser?.id ?? 'usr-guest';
     const proto = `LGPD-2026-${49100 + lgpdRequests.length}`;
     const newReq: LgpdRequestItem = {
       id: `lgpd-${Date.now()}`,
+      userId: activeUserId,
       protocol: proto,
       type,
       details,
       createdAt: formatNowPtBr(),
-      status: 'REGISTRADO',
+      status: type === 'ELIMINACAO' ? 'CONCLUIDO' : 'REGISTRADO',
       legalRetentionNote:
         type === 'ELIMINACAO'
           ? 'Dados pessoais dispensáveis desassociados; registros fiscais preservados em cofre legal (CTN Art. 173).'
           : 'Solicitação recebida com SLA legal de atendimento em até 15 dias (LGPD Art. 19).',
     };
     setLgpdRequests((prev) => [newReq, ...prev]);
+    if (type === 'ELIMINACAO' && currentUser) {
+      setCurrentUser((prev) => (prev ? { ...prev, marketingOptIn: false } : null));
+      setRegisteredUsers((prev) =>
+        prev.map((u) => (u.id === currentUser.id ? { ...u, marketingOptIn: false } : u)),
+      );
+    }
   };
 
   const handleValidateQr = (token: string, expectedSessionId?: string) => {
@@ -1066,17 +1213,38 @@ export function App() {
     });
 
     const triggersKitchen =
-      matched.deliveryMode === 'seat' && matched.canteenStatus === 'AGUARDANDO_CHEGADA';
+      (matched.deliveryMode === 'seat' && matched.canteenStatus === 'AGUARDANDO_CHEGADA') ||
+      orders.some(
+        (o) =>
+          o.linkedTicketOrderId === matched.id &&
+          o.deliveryMode === 'seat' &&
+          o.canteenStatus === 'AGUARDANDO_CHEGADA',
+      );
 
     const updatedOrder: ClientTicketOrder = {
       ...matched,
       checkedIn: true,
       status: 'UTILIZADO',
       seatQrTokens: updatedSeatTokens,
-      canteenStatus: triggersKitchen ? 'EM_PREPARO' : matched.canteenStatus,
+      canteenStatus:
+        matched.deliveryMode === 'seat' && matched.canteenStatus === 'AGUARDANDO_CHEGADA'
+          ? 'EM_PREPARO'
+          : matched.canteenStatus,
     };
 
-    setOrders((prev) => prev.map((o) => (o.id === matched.id ? updatedOrder : o)));
+    setOrders((prev) =>
+      prev.map((o) => {
+        if (o.id === matched.id) return updatedOrder;
+        if (
+          o.linkedTicketOrderId === matched.id &&
+          o.deliveryMode === 'seat' &&
+          o.canteenStatus === 'AGUARDANDO_CHEGADA'
+        ) {
+          return { ...o, checkedIn: true, canteenStatus: 'EM_PREPARO' };
+        }
+        return o;
+      }),
+    );
 
     const seatText = matchedSeatToken
       ? `poltrona ${matchedSeatToken.seatId}`
@@ -1088,7 +1256,7 @@ export function App() {
       orderId: matched.id,
       outcome: 'LIBERADO',
       detail: triggersKitchen
-        ? `Check-in confirmado para ${matched.room} (${seatText}). Cantina KDS notificada (RN-02 → EM_PREPARO).`
+        ? `Check-in confirmado para ${matched.room} (${seatText}). Cantina KDS notificada (RN-02: EM_PREPARO).`
         : `Check-in confirmado para ${matched.room} (${seatText}).`,
       triggeredKitchenPrep: triggersKitchen,
       timestamp: nowLabel,
@@ -1217,6 +1385,24 @@ export function App() {
     );
   };
 
+  const handleAddMovie = (movie: MovieItem) => {
+    setMoviesCatalog((prev) => [movie, ...prev]);
+  };
+
+  const handleAddCanteenItem = (item: CanteenItem) => {
+    setCanteenCatalog((prev) => [item, ...prev]);
+  };
+
+  const handleUpsertOperator = (op: StaffOperatorProfile) => {
+    setStaffOperators((prev) => {
+      const idx = prev.findIndex((p) => p.role === op.role);
+      if (idx >= 0) {
+        return prev.map((p, i) => (i === idx ? op : p));
+      }
+      return [...prev, op];
+    });
+  };
+
   const latestCreatedOrder = useMemo(
     () => (lastOrderId ? orders.find((o) => o.id === lastOrderId) ?? orders[0] : null),
     [lastOrderId, orders],
@@ -1339,7 +1525,10 @@ export function App() {
                 setStep('detail');
               }}
               onBack={() => setStep('detail')}
-              onNext={() => setCanteenOpen(true)}
+              onNext={() => {
+                setCanteenOnlyMode(false);
+                setStep('checkout');
+              }}
             />
           )}
 
@@ -1348,39 +1537,19 @@ export function App() {
               items={canteenCatalog}
               cart={canteenCatalogCart}
               deliveryMode={deliveryMode}
-              hasActiveTicket={
-                selectedSeats.length > 0 ||
-                Boolean(
-                  latestCreatedOrder &&
-                    latestCreatedOrder.orderKind !== 'canteen-only' &&
-                    latestCreatedOrder.status === 'ATIVO' &&
-                    latestCreatedOrder.seatsLabel.length > 0,
-                )
-              }
+              hasActiveTicket={Boolean(linkedTicketForCanteen)}
               activeTicketLabel={
-                selectedSeats.length > 0
-                  ? `${activeMovie.title} · ${selectedSession.time} (${selectedSeats.map((s) => s.seatId).join(', ')})`
-                  : latestCreatedOrder &&
-                      latestCreatedOrder.orderKind !== 'canteen-only' &&
-                      latestCreatedOrder.status === 'ATIVO' &&
-                      latestCreatedOrder.seatsLabel.length > 0
-                    ? `${latestCreatedOrder.movieTitle} · ${latestCreatedOrder.time} (${latestCreatedOrder.seatsLabel.join(', ')})`
-                    : undefined
+                linkedTicketForCanteen
+                  ? `${linkedTicketForCanteen.movieTitle} · ${linkedTicketForCanteen.time} (${linkedTicketForCanteen.seatsLabel.join(', ')})`
+                  : undefined
               }
               onUpdateQty={handleUpdateComboQtyById}
               onToggleAddon={handleToggleAddon}
               onChangeDeliveryMode={setDeliveryMode}
               onCheckoutCanteenOnly={() => {
-                const hasLinkedOrder =
-                  latestCreatedOrder &&
-                  latestCreatedOrder.orderKind !== 'canteen-only' &&
-                  latestCreatedOrder.status === 'ATIVO' &&
-                  latestCreatedOrder.seatsLabel.length > 0;
-                if ((selectedSeats.length === 0 && !hasLinkedOrder) || deliveryMode === 'counter') {
-                  setCanteenOnlyMode(true);
+                setCanteenOnlyMode(true);
+                if (!linkedTicketForCanteen) {
                   setDeliveryMode('counter');
-                } else {
-                  setCanteenOnlyMode(false);
                 }
                 setStep('checkout');
               }}
@@ -1413,19 +1582,18 @@ export function App() {
               movie={canteenOnlyMode ? null : activeMovie}
               session={canteenOnlyMode ? null : selectedSession}
               selectedSeats={canteenOnlyMode ? [] : selectedSeats}
-              cart={cart}
-              deliveryMode={canteenOnlyMode ? 'counter' : deliveryMode}
+              cart={canteenOnlyMode ? cart : []}
+              deliveryMode={canteenOnlyMode ? (linkedTicketForCanteen ? deliveryMode : 'counter') : 'counter'}
+              linkedTicketLabel={
+                canteenOnlyMode && deliveryMode === 'seat' && linkedTicketForCanteen
+                  ? `${linkedTicketForCanteen.movieTitle} (${linkedTicketForCanteen.seatsLabel.join(', ')})`
+                  : undefined
+              }
               defaultBuyer={effectiveBuyer}
               secondsLeft={secondsLeft}
               isCanteenOnly={canteenOnlyMode}
               onBackToSeats={() => setStep(canteenOnlyMode ? 'canteen' : 'seats')}
-              onOpenCanteen={() => {
-                if (canteenOnlyMode) {
-                  setStep('canteen');
-                } else {
-                  setCanteenOpen(true);
-                }
-              }}
+              onOpenCanteen={() => setStep('canteen')}
               onConfirmPayment={handleCreateOrderFromCheckout}
               onLatePixRefund={handleLatePixRefund}
             />
@@ -1450,6 +1618,7 @@ export function App() {
                 setCart([]);
                 setSelectedSeats([]);
                 setLastOrderId(null);
+                setActiveTicketOrderId(null);
                 setCanteenOnlyMode(false);
                 setSecondsLeft(600);
                 setOverrideMovieId(null);
@@ -1461,10 +1630,29 @@ export function App() {
           {step === 'auth' && (
             <AuthView
               currentUser={currentUser}
+              userOrders={currentUser ? orders.filter((o) => o.userId === currentUser.id) : []}
+              userNotices={currentUser ? notices.filter((n) => n.userId === currentUser.id) : []}
+              savedMovies={moviesCatalog.filter((m) => savedMovieIds.includes(m.id))}
+              lgpdRequestsCount={
+                currentUser
+                  ? lgpdRequests.filter((r) => r.userId === currentUser.id).length
+                  : 0
+              }
               onLogin={(user) => setCurrentUser(user)}
-              onLogout={() => setCurrentUser(null)}
+              onAuthenticateCredentials={handleAuthenticateCredentials}
+              onRegisterUser={handleRegisterUser}
+              onUpdateProfile={handleUpdateProfile}
+              onRequestPasswordRecovery={handleRequestPasswordRecovery}
+              onConfirmPasswordReset={handleConfirmPasswordReset}
+              onLogout={() => {
+                setCurrentUser(null);
+                setActiveTicketOrderId(null);
+              }}
               onBack={() => navigateStep('home')}
-              onGoToOrders={() => navigateStep('orders')}
+              onGoToOrders={() => handleOpenOrdersTab('orders')}
+              onGoToOrdersTab={handleOpenOrdersTab}
+              onSelectSavedMovie={handleSelectMovieForSessions}
+              onOpenReviewsForMovie={handleOpenReviewsForMovie}
               onToggleMarketingOptIn={handleToggleMarketingOptIn}
             />
           )}
@@ -1475,6 +1663,7 @@ export function App() {
               orders={orders}
               notices={notices}
               lgpdRequests={lgpdRequests}
+              initialTab={clientOrdersTab}
               onGoToAuth={() => navigateStep('auth')}
               onGoToHome={() => navigateStep('home')}
               onCancelOrder={handleCancelOrder}
@@ -1511,6 +1700,10 @@ export function App() {
               onAddSession={handleAddSession}
               onToggleSessionStatus={handleToggleSessionStatus}
               onUpdateCanteenStock={handleUpdateCanteenStock}
+              operators={staffOperators}
+              onAddMovie={handleAddMovie}
+              onAddCanteenItem={handleAddCanteenItem}
+              onUpsertOperator={handleUpsertOperator}
             />
           )}
         </main>

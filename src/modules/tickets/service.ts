@@ -68,8 +68,6 @@ export class TicketSessionExpiredError extends Error {
   }
 }
 
-const DEFAULT_TOKEN_SECRET = 'cinefood-qr-opaque-hmac-secret-v1';
-
 /**
  * Gera token opaco criptograficamente seguro (HMAC-SHA256 + 128 bits CSPRNG),
  * sem padrão sequencial ou enumerável (RF-05 / RNF-02).
@@ -106,7 +104,10 @@ export class TicketsService {
     options: TicketsServiceOptions = {},
   ) {
     this.repository = repository;
-    this.tokenSecret = options.tokenSecret ?? DEFAULT_TOKEN_SECRET;
+    this.tokenSecret =
+      options.tokenSecret ??
+      process.env.CINEFOOD_QR_TOKEN_SECRET ??
+      randomBytes(32).toString('hex');
     this.now = options.now ?? (() => new Date());
     this.onTicketValidated = options.onTicketValidated;
   }

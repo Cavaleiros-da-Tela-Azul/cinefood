@@ -27,6 +27,7 @@ export interface TicketRepository {
   findById(ticketId: string): Promise<IssuedTicket | undefined>;
   listByBuyer(buyerUserId: string): Promise<IssuedTicket[]>;
   markCancelledByPurchase(purchaseId: string, cancelledAt: string): Promise<IssuedTicket[]>;
+  markCancelledByTicketId(ticketId: string, cancelledAt: string): Promise<IssuedTicket | undefined>;
   consumeTokenAtomically(input: AtomicConsumeInput): Promise<AtomicConsumeResult>;
 }
 
@@ -101,6 +102,21 @@ export class InMemoryTicketRepository implements TicketRepository {
       updated.push({ ...next });
     }
     return updated;
+  }
+
+  async markCancelledByTicketId(
+    ticketId: string,
+    cancelledAt: string,
+  ): Promise<IssuedTicket | undefined> {
+    const current = this.byId.get(ticketId);
+    if (!current) return undefined;
+    const next: IssuedTicket = {
+      ...current,
+      status: 'CANCELADO',
+      cancelledAt,
+    };
+    this.byId.set(ticketId, next);
+    return { ...next };
   }
 
   /**
