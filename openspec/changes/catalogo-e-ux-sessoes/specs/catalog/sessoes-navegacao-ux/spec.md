@@ -13,16 +13,16 @@ O sistema DEVE exibir no topo da aba "Sessões" uma faixa horizontal de minicard
 - **WHEN** o usuário acessa a aba "Sessões" e clica em outro minicard de filme ou utiliza as setas laterais de navegação
 - **THEN** o sistema atualiza imediatamente o filme em foco (título, backdrop, metadados e grade de sessões), preservando os filtros ativos de data, unidade e formato
 
-### Requirement: Agrupamento hierárquico de sessões por Unidade -> Data -> Horário
-O sistema DEVE organizar os cards de sessão na aba "Sessões" hierarquicamente primeiro por Unidade (Complexo) e, dentro de cada unidade, por Dia/Data, exibindo em cada card o horário, formato, sala, preço-base e ocupação em tempo real.
+### Requirement: Agrupamento hierárquico de sessões por Unidade Piloto -> Data -> Horário (`RST-01`)
+O sistema DEVE organizar os cards de sessão na aba "Sessões" hierarquicamente dentro da **Unidade Piloto Única (`CineFood Operações Piloto Ltda. · Salas 01 a 04`)** subdivididos por Dia/Data e Horário, exibindo formato, sala, preço-base e ocupação em tempo real sem filtros de múltiplos complexos (`RST-01`).
 
-#### Scenario: Visualização com "Todas as datas" e "Todos os complexos"
-- **WHEN** o usuário mantém os filtros em "Todas as datas" e "Todos os complexos" na aba "Sessões"
-- **THEN** o sistema exibe blocos separados por Unidade (Complexo), subdivididos por Data, permitindo comparar imediatamente em qual local, dia e horário cada sessão ocorre
+#### Scenario: Visualização com "Todas as datas" na Unidade Piloto Única
+- **WHEN** o usuário mantém o filtro em "Todas as datas" na aba "Sessões"
+- **THEN** o sistema exibe os blocos da unidade `CineFood Operações Piloto Ltda.` subdivididos por Data (`14 DEZ`, `15 DEZ`, etc.) com as sessões das Salas 01 a 04
 
-#### Scenario: Afunilamento por filtros de Unidade, Data ou Formato
-- **WHEN** o usuário seleciona uma unidade, data ou formato específico nos filtros
-- **THEN** o sistema mantém o agrupamento exibindo apenas as unidades e datas correspondentes ou apresenta estado vazio com ação rápida para limpar filtros
+#### Scenario: Afunilamento por filtros de Data ou Formato
+- **WHEN** o usuário seleciona uma data ou formato específico nos filtros
+- **THEN** o sistema mantém o agrupamento exibindo apenas as datas e formatos correspondentes ou apresenta estado vazio com ação rápida para limpar filtros
 
 ## Acceptance Criteria
 

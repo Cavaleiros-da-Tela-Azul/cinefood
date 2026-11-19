@@ -136,6 +136,8 @@ describe('Direitos do Titular LGPD (RF-18 / MAR-04)', () => {
     // Verifica persistência: dados opcionais eliminados + marketing revogado + registro fiscal intacto
     const profileAfterErasure = await repo.findUserProfile('usr_alice');
     assert.ok(profileAfterErasure);
+    assert.equal(profileAfterErasure.fullName, 'Titular Anonimizado');
+    assert.equal(profileAfterErasure.email, 'anon-usr_alice@redacted.invalid');
     assert.equal(profileAfterErasure.phone, undefined);
     assert.equal(profileAfterErasure.nickname, undefined);
     assert.deepEqual(profileAfterErasure.optionalPreferences.favoriteGenres, []);

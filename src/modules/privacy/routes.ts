@@ -1,4 +1,4 @@
-import { ForbiddenError } from '../identity/rbac.ts';
+import { authenticatedUserId, authorize, ForbiddenError } from '../identity/rbac.ts';
 import type { AuthenticatedSession } from '../identity/types.ts';
 import {
   DataSubjectProfileNotFoundError,
@@ -20,19 +20,41 @@ export async function getPrivacyNotice(service: PrivacyService): Promise<HttpRes
   return { status: 200, body: await service.getCurrentNotice() };
 }
 
+/** POST /privacy/preferences — Define preferência opcional de marketing para o titular autenticado (RF-17 / RNF-02). */
 export async function setMarketingPreference(
   service: PrivacyService,
-  userId: string,
+  session: AuthenticatedSession,
   granted: boolean,
-): Promise<HttpResult<ConsentRecord>> {
-  return { status: 200, body: await service.recordMarketingPreference(userId, granted) };
+  targetUserId?: string,
+): Promise<HttpResult<ConsentRecord | { error: string }>> {
+  try {
+    const effectiveUserId = targetUserId ?? authenticatedUserId(session);
+    authorize({ session, operation: 'CLIENT_ACCOUNT', resourceOwnerUserId: effectiveUserId });
+    return { status: 200, body: await service.recordMarketingPreference(effectiveUserId, granted) };
+  } catch (error) {
+    if (error instanceof ForbiddenError) {
+      return { status: 403, body: { error: error.message } };
+    }
+    throw error;
+  }
 }
 
+/** DELETE /privacy/preferences/marketing — Revoga consentimento promocional do titular autenticado (RF-17 / RNF-02). */
 export async function revokeMarketingPreference(
   service: PrivacyService,
-  userId: string,
-): Promise<HttpResult<ConsentRecord>> {
-  return { status: 200, body: await service.revokeMarketingConsent(userId) };
+  session: AuthenticatedSession,
+  targetUserId?: string,
+): Promise<HttpResult<ConsentRecord | { error: string }>> {
+  try {
+    const effectiveUserId = targetUserId ?? authenticatedUserId(session);
+    authorize({ session, operation: 'CLIENT_ACCOUNT', resourceOwnerUserId: effectiveUserId });
+    return { status: 200, body: await service.revokeMarketingConsent(effectiveUserId) };
+  } catch (error) {
+    if (error instanceof ForbiddenError) {
+      return { status: 403, body: { error: error.message } };
+    }
+    throw error;
+  }
 }
 
 /**

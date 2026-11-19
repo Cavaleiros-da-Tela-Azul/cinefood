@@ -23,6 +23,10 @@ O sistema DEVE permitir que apenas a primeira leitura válida na portaria consum
 - **WHEN** operador da portaria valida ingresso que possui pedido de cantina com entrega no assento em AGUARDANDO_CHEGADA
 - **THEN** sistema atualiza o ingresso para UTILIZADO e transiciona automaticamente o pedido vinculado para EM_PREPARO
 
+#### Scenario: Bloqueio offline e rejeição de QR inexistente na portaria
+- **WHEN** leitor da portaria está sem conexão ou recebe token QR inexistente/adulterado
+- **THEN** sistema bloqueia o check-in sinalizando estado `INVALIDO` sem liberar acesso nem preparo na cantina
+
 ## Acceptance Criteria
 - **AC-1.** Compra confirmada gera um QR Code opaco distinto por assento e impede emissão antes do pagamento.
   @test:tests/tickets/qrcode.test.ts

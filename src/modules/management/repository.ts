@@ -2,6 +2,7 @@ import type {
   ConfirmedTicketPurchaseRecord,
   ManagedCanteenItem,
   ManagedMovie,
+  ManagedOperator,
   ManagedRoom,
   ManagedScreening,
   ScreeningHoldRecord,
@@ -12,6 +13,8 @@ export interface ManagementRepository {
   findMovieById(movieId: string): Promise<ManagedMovie | undefined>;
   upsertRoom(room: ManagedRoom): Promise<ManagedRoom>;
   findRoomById(roomId: string): Promise<ManagedRoom | undefined>;
+  upsertOperator(operator: ManagedOperator): Promise<ManagedOperator>;
+  listOperators(): Promise<ManagedOperator[]>;
   saveScreening(screening: ManagedScreening): Promise<ManagedScreening>;
   findScreeningById(screeningId: string): Promise<ManagedScreening | undefined>;
   listScreenings(): Promise<ManagedScreening[]>;
@@ -41,6 +44,7 @@ function cloneTicketPurchase(
 export class InMemoryManagementRepository implements ManagementRepository {
   private readonly movies = new Map<string, ManagedMovie>();
   private readonly rooms = new Map<string, ManagedRoom>();
+  private readonly operators = new Map<string, ManagedOperator>();
   private readonly screenings = new Map<string, ManagedScreening>();
   private readonly canteenItems = new Map<string, ManagedCanteenItem>();
   private readonly ticketPurchases = new Map<string, ConfirmedTicketPurchaseRecord>();
@@ -66,6 +70,16 @@ export class InMemoryManagementRepository implements ManagementRepository {
   async findRoomById(roomId: string): Promise<ManagedRoom | undefined> {
     const room = this.rooms.get(roomId);
     return room ? { ...room } : undefined;
+  }
+
+  async upsertOperator(operator: ManagedOperator): Promise<ManagedOperator> {
+    const copy = { ...operator };
+    this.operators.set(copy.operatorId, copy);
+    return { ...copy };
+  }
+
+  async listOperators(): Promise<ManagedOperator[]> {
+    return Array.from(this.operators.values()).map((op) => ({ ...op }));
   }
 
   async saveScreening(screening: ManagedScreening): Promise<ManagedScreening> {

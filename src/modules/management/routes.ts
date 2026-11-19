@@ -13,9 +13,11 @@ import {
 import type {
   ManagedCanteenItem,
   ManagedMovie,
+  ManagedOperator,
   ManagedRoom,
   ManagedScreening,
   ManagementSalesSummary,
+  RoomSeatMapConfig,
   ScreeningOccupancyReport,
   ScreeningStatus,
 } from './types.ts';
@@ -54,6 +56,42 @@ export async function putAdminRoom(
 ): Promise<HttpResult<ManagedRoom | { error: string }>> {
   try {
     return { status: 200, body: await service.upsertRoom(session, input) };
+  } catch (error) {
+    return handleManagementError(error);
+  }
+}
+
+export async function putAdminRoomSeatMap(
+  service: ManagementService,
+  session: AuthenticatedSession,
+  roomId: string,
+  seatMapConfig: RoomSeatMapConfig,
+): Promise<HttpResult<ManagedRoom | { error: string }>> {
+  try {
+    return { status: 200, body: await service.updateRoomSeatMap(session, roomId, seatMapConfig) };
+  } catch (error) {
+    return handleManagementError(error);
+  }
+}
+
+export async function putAdminOperator(
+  service: ManagementService,
+  session: AuthenticatedSession,
+  input: Omit<ManagedOperator, 'updatedAt'>,
+): Promise<HttpResult<ManagedOperator | { error: string }>> {
+  try {
+    return { status: 200, body: await service.upsertOperator(session, input) };
+  } catch (error) {
+    return handleManagementError(error);
+  }
+}
+
+export async function getAdminOperators(
+  service: ManagementService,
+  session: AuthenticatedSession,
+): Promise<HttpResult<ManagedOperator[] | { error: string }>> {
+  try {
+    return { status: 200, body: await service.listOperators(session) };
   } catch (error) {
     return handleManagementError(error);
   }

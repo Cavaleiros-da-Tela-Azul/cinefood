@@ -184,6 +184,7 @@ export class DefaultPrivacyService implements PrivacyService {
       if (
         !patch ||
         (patch.fullName === undefined &&
+          patch.email === undefined &&
           patch.phone === undefined &&
           patch.nickname === undefined &&
           patch.favoriteGenres === undefined)
@@ -196,10 +197,14 @@ export class DefaultPrivacyService implements PrivacyService {
       if (patch.fullName !== undefined && !patch.fullName.trim()) {
         throw new InvalidDataSubjectRequestError('Nome completo retificado não pode ser vazio.');
       }
+      if (patch.email !== undefined && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(patch.email.trim())) {
+        throw new InvalidDataSubjectRequestError('E-mail retificado inválido.');
+      }
 
       const updatedProfile: UserPrivacyProfile = {
         ...profile,
         ...(patch.fullName !== undefined ? { fullName: patch.fullName.trim() } : {}),
+        ...(patch.email !== undefined ? { email: patch.email.trim().toLowerCase() } : {}),
         ...(patch.phone !== undefined ? { phone: patch.phone.trim() || undefined } : {}),
         ...(patch.nickname !== undefined ? { nickname: patch.nickname.trim() || undefined } : {}),
         optionalPreferences: {
@@ -230,6 +235,8 @@ export class DefaultPrivacyService implements PrivacyService {
     await this.revokeMarketingConsent(effectiveUserId);
     const sanitizedProfile: UserPrivacyProfile = {
       ...profile,
+      fullName: 'Titular Anonimizado',
+      email: `anon-${effectiveUserId}@redacted.invalid`,
       phone: undefined,
       nickname: undefined,
       optionalPreferences: {
@@ -252,6 +259,7 @@ export class DefaultPrivacyService implements PrivacyService {
       createdAt: timestamp,
       completedAt: timestamp,
       eliminatedCategories: [
+        'Nome e e-mail identificáveis do perfil público',
         'Preferências opcionais e gêneros favoritos',
         'Consentimentos de cookies opcionais',
         'Histórico de navegação',

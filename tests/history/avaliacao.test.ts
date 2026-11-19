@@ -5,7 +5,9 @@ import { InMemoryHistoryRepository } from '../../src/modules/history/repository.
 import { HistoryService } from '../../src/modules/history/service.ts';
 import {
   deleteReviewRoute,
+  getPublicCommunityReviewsRoute,
   getUserHistoryRoute,
+  patchNoticeReadRoute,
   postReviewRoute,
   putReviewRoute,
 } from '../../src/modules/history/routes.ts';
@@ -242,5 +244,85 @@ describe('Histórico Privado e Avaliação Pós-Sessão (RF-11, RF-13 / MAR-03)'
     const ownerDelete = await deleteReviewRoute(service, client('usr-joana'), reviewId);
     assert.equal(ownerDelete.status, 204);
     assert.equal(await repo.findReviewById(reviewId), undefined);
+  });
+
+  it('RF-11 e RF-13: garante 1 avaliação por usuário/sessão, leitura de avisos e vitrine verificada', async () => {
+    const repo = new InMemoryHistoryRepository();
+    const service = new HistoryService(repo, {
+      now: () => new Date('2026-12-15T01:00:00.000Z'),
+    });
+
+    repo.seedTicket({
+      ticketId: 'tkt-s1-a',
+      purchaseId: 'pur-s1',
+      ownerUserId: 'usr-joana',
+      screeningId: 'scr-unicidade',
+      movieTitle: 'NO LIMITE DA JUSTIÇA',
+      cinemaName: 'CineFood Operações Piloto Ltda.',
+      roomName: 'Sala 01 · IMAX',
+      seatId: 'D1',
+      startsAt: '2026-12-14T21:00:00.000Z',
+      endsAt: '2026-12-14T23:00:00.000Z',
+      status: 'UTILIZADO',
+    });
+    repo.seedTicket({
+      ticketId: 'tkt-s1-b',
+      purchaseId: 'pur-s1',
+      ownerUserId: 'usr-joana',
+      screeningId: 'scr-unicidade',
+      movieTitle: 'NO LIMITE DA JUSTIÇA',
+      cinemaName: 'CineFood Operações Piloto Ltda.',
+      roomName: 'Sala 01 · IMAX',
+      seatId: 'D2',
+      startsAt: '2026-12-14T21:00:00.000Z',
+      endsAt: '2026-12-14T23:00:00.000Z',
+      status: 'UTILIZADO',
+    });
+
+    const first = await postReviewRoute(service, client('usr-joana'), {
+      ticketId: 'tkt-s1-a',
+      rating: 5,
+      comment: 'Som e projeção excelentes!',
+    });
+    assert.equal(first.status, 201);
+
+    // Mesmo com 2 ingressos validados na mesma sessão, 2ª avaliação do mesmo usuário/sessão é bloqueada (409)
+    const secondSameSession = await postReviewRoute(service, client('usr-joana'), {
+      ticketId: 'tkt-s1-b',
+      rating: 4,
+    });
+    assert.equal(secondSameSession.status, 409);
+
+    // Vitrine pública verificada sem expor PII
+    const communityRes = await getPublicCommunityReviewsRoute(service, 'NO LIMITE DA JUSTIÇA');
+    assert.equal(communityRes.status, 200);
+    assert.equal(communityRes.body.length, 1);
+    assert.equal(communityRes.body[0].verifiedEntry, true);
+    assert.ok(!JSON.stringify(communityRes.body[0]).includes('usr-joana'));
+
+    // Marcação de aviso interno como lido (RF-11)
+    const noticeOutcome = await service.recordInternalNoticeBestEffort({
+      ownerUserId: 'usr-joana',
+      type: 'INFO',
+      title: 'Aviso teste',
+      message: 'Pedido pronto',
+    });
+    assert.ok(noticeOutcome.notice);
+    const foreignRead = await patchNoticeReadRoute(
+      service,
+      client('usr-carlos'),
+      noticeOutcome.notice.noticeId,
+    );
+    assert.equal(foreignRead.status, 403);
+
+    const ownerRead = await patchNoticeReadRoute(
+      service,
+      client('usr-joana'),
+      noticeOutcome.notice.noticeId,
+    );
+    assert.equal(ownerRead.status, 200);
+    if (!('error' in ownerRead.body)) {
+      assert.equal(ownerRead.body.read, true);
+    }
   });
 });

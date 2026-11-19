@@ -1,3 +1,5 @@
+import type { UserRole } from '../identity/types.ts';
+
 export type ScreeningStatus = 'ATIVA' | 'INATIVA';
 
 export type ManagedCanteenOrderStatus =
@@ -19,12 +21,30 @@ export interface ManagedMovie {
   active: boolean;
 }
 
+export interface RoomSeatMapConfig {
+  rows: string[];
+  seatsPerRow: number;
+  pcdSeats: string[];
+  pcdPlusSeats: string[];
+  blockedSeats?: string[];
+}
+
 export interface ManagedRoom {
   roomId: string;
   cinemaName: string;
   name: string;
   sellableSeats: number;
   active: boolean;
+  seatMapConfig?: RoomSeatMapConfig;
+}
+
+export interface ManagedOperator {
+  operatorId: string;
+  fullName: string;
+  email: string;
+  role: Exclude<UserRole, 'CLIENTE'>;
+  active: boolean;
+  updatedAt: string;
 }
 
 export interface ManagedScreening {
@@ -67,7 +87,7 @@ export interface ConfirmedTicketPurchaseRecord {
   screeningId: string;
   seatId: string;
   paidUnitPriceCents: number;
-  paymentStatus: 'APROVADO' | 'ESTORNADO';
+  paymentStatus: 'APROVADO' | 'ESTORNADO' | 'PENDENTE_ESTORNO';
   ticketStatus: 'EMITIDO' | 'UTILIZADO' | 'CANCELADO';
   purchasedAt: string;
   cancelledAt?: string;
@@ -95,7 +115,7 @@ export interface ScreeningOccupancyReport {
   cancelledTicketsCount: number;
   expiredHoldsCount: number;
   activeHoldsCount: number;
-  occupancyPercent: number;
+  occupancyPercent: number | 'não aplicável';
   grossRevenueCents: number;
   cancelledRevenueCents: number;
 }

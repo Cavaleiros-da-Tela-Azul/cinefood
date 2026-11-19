@@ -1,6 +1,8 @@
 import { authorize } from '../identity/rbac.ts';
 import type { AuthenticatedSession } from '../identity/types.ts';
+import type { CanteenRepository } from '../canteen/repository.ts';
 import type { PaymentGatewayAdapter } from '../payments/gateway.ts';
+import type { TicketRepository } from '../tickets/repository.ts';
 import type { ManagementRepository } from './repository.ts';
 import { ManagementEntityNotFoundError } from './service.ts';
 import type { ConfirmedTicketPurchaseRecord } from './types.ts';
@@ -19,6 +21,9 @@ export interface CdcCancellationResult {
   idempotentReplay: boolean;
   ticket: ConfirmedTicketPurchaseRecord;
   seatReleased: boolean;
+  canteenStockRestored: boolean;
+  ticketQrInvalidated: boolean;
+  refundStatus: 'ESTORNADO' | 'PENDENTE_CONCILIACAO';
   cancelledCanteenOrderId?: string;
   refundId: string;
   refundAmountCents: number;
@@ -27,6 +32,8 @@ export interface CdcCancellationResult {
 export interface CdcCancellationServiceOptions {
   now?: () => Date;
   gateway: PaymentGatewayAdapter;
+  canteenRepository?: CanteenRepository;
+  ticketRepository?: TicketRepository;
   onSeatReleased?: (screeningId: string, seatId: string, ticketId: string) => Promise<void>;
 }
 
@@ -36,6 +43,8 @@ export interface CdcCancellationServiceOptions {
 export class CdcCancellationService {
   private readonly repository: ManagementRepository;
   private readonly gateway: PaymentGatewayAdapter;
+  private readonly canteenRepository?: CanteenRepository;
+  private readonly ticketRepository?: TicketRepository;
   private readonly now: () => Date;
   private readonly onSeatReleased?: (
     screeningId: string,
@@ -50,6 +59,8 @@ export class CdcCancellationService {
   ) {
     this.repository = repository;
     this.gateway = options.gateway;
+    this.canteenRepository = options.canteenRepository;
+    this.ticketRepository = options.ticketRepository;
     this.now = options.now ?? (() => new Date());
     this.onSeatReleased = options.onSeatReleased;
   }
@@ -90,13 +101,19 @@ export class CdcCancellationService {
 
     if (
       record.ticketStatus === 'CANCELADO' &&
-      record.paymentStatus === 'ESTORNADO' &&
+      (record.paymentStatus === 'ESTORNADO' || record.paymentStatus === 'PENDENTE_ESTORNO') &&
       record.refundId
     ) {
       return {
         idempotentReplay: true,
         ticket: record,
         seatReleased: true,
+        canteenStockRestored: Boolean(record.linkedCanteenOrder),
+        ticketQrInvalidated: true,
+        refundStatus:
+          record.paymentStatus === 'PENDENTE_ESTORNO'
+            ? 'PENDENTE_CONCILIACAO'
+            : 'ESTORNADO',
         ...(record.linkedCanteenOrder
           ? { cancelledCanteenOrderId: record.linkedCanteenOrder.orderId }
           : {}),
@@ -162,25 +179,70 @@ export class CdcCancellationService {
     }
 
     const idempotencyKey = `refund:cdc:${record.ticketId}`;
-    const refundOutput = await this.gateway.refundSandboxCharge({
-      gatewayChargeId: record.gatewayChargeId ?? `sbx_chg_${record.purchaseId}`,
-      amountCents: refundAmountCents,
-      idempotencyKey,
-      reason: 'Arrependimento CDC / Janela de Corte 2h (RF-12)',
-    });
+    let refundId = `pending_refund_${record.ticketId}`;
+    let refundStatus: 'ESTORNADO' | 'PENDENTE_CONCILIACAO' = 'ESTORNADO';
+    try {
+      const refundOutput = await this.gateway.refundSandboxCharge({
+        gatewayChargeId: record.gatewayChargeId ?? `sbx_chg_${record.purchaseId}`,
+        amountCents: refundAmountCents,
+        idempotencyKey,
+        reason: 'Arrependimento CDC / Janela de Corte 2h (RF-12)',
+      });
+      refundId = refundOutput.refundId;
+    } catch {
+      // CA-F12: falha externa do gateway mantém estorno pendente de conciliação sem antecipar confirmação
+      refundStatus = 'PENDENTE_CONCILIACAO';
+    }
 
+    const cancelledAt = this.now().toISOString();
     await this.repository.releaseSeatHoldForCancellation(record.screeningId, record.seatId);
+
+    let ticketQrInvalidated = false;
+    if (this.ticketRepository) {
+      const invalidated = await this.ticketRepository.markCancelledByTicketId(
+        record.ticketId,
+        cancelledAt,
+      );
+      ticketQrInvalidated = Boolean(invalidated);
+    }
+
+    let canteenStockRestored = false;
+    if (cancelledCanteenOrder && this.canteenRepository) {
+      const canteenOrder = await this.canteenRepository.findOrderById(
+        cancelledCanteenOrder.orderId,
+      );
+      if (canteenOrder && canteenOrder.status !== 'CANCELADO') {
+        if (
+          canteenOrder.stockStatus === 'RESERVADO' ||
+          canteenOrder.stockStatus === 'BAIXADO'
+        ) {
+          await this.canteenRepository.releaseStockAtomically(
+            canteenOrder.items.map((item) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+            })),
+          );
+          canteenStockRestored = true;
+        }
+        await this.canteenRepository.updateOrder({
+          ...canteenOrder,
+          status: 'CANCELADO',
+          stockStatus: canteenStockRestored ? 'DEVOLVIDO' : canteenOrder.stockStatus,
+          updatedAt: cancelledAt,
+        });
+      }
+    }
+
     if (this.onSeatReleased) {
       await this.onSeatReleased(record.screeningId, record.seatId, record.ticketId);
     }
 
-    const cancelledAt = this.now().toISOString();
     const updated = await this.repository.updateTicketPurchase({
       ...record,
       ticketStatus: 'CANCELADO',
-      paymentStatus: 'ESTORNADO',
+      paymentStatus: refundStatus === 'ESTORNADO' ? 'ESTORNADO' : 'PENDENTE_ESTORNO',
       cancelledAt,
-      refundId: refundOutput.refundId,
+      refundId,
       refundAmountCents,
       ...(cancelledCanteenOrder ? { linkedCanteenOrder: cancelledCanteenOrder } : {}),
     });
@@ -189,10 +251,13 @@ export class CdcCancellationService {
       idempotentReplay: false,
       ticket: updated,
       seatReleased: true,
+      canteenStockRestored,
+      ticketQrInvalidated,
+      refundStatus,
       ...(cancelledCanteenOrder
         ? { cancelledCanteenOrderId: cancelledCanteenOrder.orderId }
         : {}),
-      refundId: refundOutput.refundId,
+      refundId,
       refundAmountCents,
     };
   }

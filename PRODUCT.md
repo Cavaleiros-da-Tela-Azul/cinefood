@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-React + Vite + TypeScript + Tailwind CSS v4 + Motion (`motion/react`) + Lucide Icons in `cinefood/web/`, verified with Playwright.
+Protótipo acadêmico estático em React + Vite + TypeScript + Tailwind CSS v4 + Motion (`motion/react`) + Lucide Icons em `cinefood/web/` (hospedável na Vercel), apoiado por módulos de domínio em memória (`cinefood/src/modules/`) validados com `node --test` e E2E com Playwright.
 
 ## Users
 
@@ -30,29 +30,28 @@ Diferente de bilheterias genéricas separadas da cantina, o CineFood vincula a p
 
 ## Capabilities and Constraints
 
-- Catálogo por filme e por complexo com faixa de datas e formatos (`IMAX 3D`, `Dolby Atmos`, `2D`) e indicador de ocupação por sessão.
-- Detalhes editoriais do filme com ficha técnica e modal de trailer.
-- Mapa interativo de assentos (fileiras A–J) com trava regressiva de 10 minutos, seleção de categoria (`Inteira` / `Meia-Entrada` Lei 12.933/2013) e poltronas PCD (Cadeirante e Obeso 1.5×).
-- Cantina Dine-In com opção explícita de pular alimentação, escolha entre entrega no assento (condicionada à validação na portaria — `RST-04`) ou retirada no balcão.
-- Checkout Sandbox (`Pix` / `Cartão`) e Ingresso Digital com QR Code opaco simulado.
+- Catálogo na **Unidade Piloto Única (`CineFood Operações Piloto Ltda.`)** com 4 salas (`Sala 01 · IMAX`, `Sala 02 · Atmos`, `Sala 03 · Atmos`, `Sala 04 · 2D` — `RST-01`), faixa de datas, formatos (`IMAX 3D`, `Dolby Atmos`, `2D`) e indicador de ocupação por sessão (`"não aplicável"` quando 0 assentos comercializáveis).
+- Detalhes editoriais do filme com ficha técnica, modal de trailer e mural de comentários verificados da rede (`RF-13`).
+- Mapa interativo de assentos (96 poltronas nas fileiras `A–H`) com trava regressiva de 10 minutos, seleção de categoria (`Inteira` / `Meia-Entrada` Lei 12.933/2013) e poltronas PCD (Cadeirante e Obeso 1.5×).
+- Checkouts independentes (`ADR-005`): compra direta de ingressos (`SeatSelectionView -> CheckoutView`) e compra autônoma ou pós-ingresso da cantina (`CanteenCatalogView -> CheckoutView`) com entrega no assento condicionada à portaria (`RST-04`) ou retirada no balcão.
+- Checkout Sandbox (`Pix` / `Cartão`, sem dinheiro em `RF-14`), Ingresso Digital com QR Code opaco simulado e portal Backstage `#/ops` (6 perfis RBAC).
 - Modo Sala Escura OLED (`#000000`) alternável a qualquer momento.
 
 ## Brand Commitments
 
 - Nome: **CineFood** (Organização Cavaleiros da Tela Azul).
-- Identidade visual Dark-First inspirada nas referências fornecidas pelo usuário: Hero carrossel com expansão fluida *card-to-hero* (Ref 3 + vídeo), detalhe editorial imersivo (Ref 2) e mapa de assentos escuro com destaque vermelho cinema `#E50914` (Ref 1), aliado a `#F59E0B` (barra de progresso/alertas), `#2563EB` (PCD) e `#60A5FA` (anel de foco).
+- Identidade visual Dark-First inspirada nas referências fornecidas pelo usuário: Hero carrossel com expansão fluida *card-to-hero*, detalhe editorial imersivo e mapa de assentos escuro com destaque vermelho cinema `#C40A14` (hover `#DC111D`, WCAG 2.2 AA), aliado a `#F59E0B` (barra de progresso/alertas), `#2563EB` (PCD) e `#60A5FA` (anel de foco).
 
 ## Evidence on Hand
 
-- Especificação de produto: `ai-memory/projects/cinefood/PROD-001-cinefood.md`
+- Especificação de produto: `ai-memory/projects/cinefood/PROD-001-cinefood.md` e `openspec/`
 - Protótipo de referência anterior: `cinefood/docs/prototipo/README.md` e `cinefood/docs/prototipo/index.html`
-- Imagens e vídeo de referência fornecidos pelo usuário na sessão.
-- **Lacunas declaradas:** API HTTP do monólito modular (`cinefood/src/modules/`) ainda sem servidor de borda conectado; dados de catálogo, sessões, combos e QR Code neste protótipo são demonstrativos locais.
+- **Escopo acadêmico declarado (Vercel):** Não há servidor HTTP de produção, PostgreSQL nem containers Docker ativos; o projeto web (`cinefood/web/`) opera como aplicação estática demonstrativa em Vercel com regras e concorrência verificadas nos módulos de domínio em memória (`cinefood/src/modules/`) via `node --test`.
 
 ## Product Principles
 
 1. **Imersão cinematográfica com clareza operacional:** Impacto visual de cinema no catálogo/detalhes e precisão absoluta no mapa de assentos, preços e cronômetro.
-2. **Fluxo sem atrito entre ingresso e cantina:** Encadear a bomboniere após a seleção de poltronas sem bloquear quem só quer o ingresso.
+2. **Checkouts independentes entre ingresso e cantina (`ADR-005`):** Permitir compra isolada de ingresso, pedido avulso no balcão ou pré-vínculo guiado pós-ingresso para entrega na poltrona.
 3. **Conforto visual na sala escura:** Dark-First por padrão com opção OLED puro (`#000000`) sem elementos ofuscantes.
 4. **Acessibilidade e verdade transacional:** Codificação multimodal (cor + forma + ícone) em poltronas e aviso transparente de modo Sandbox.
 

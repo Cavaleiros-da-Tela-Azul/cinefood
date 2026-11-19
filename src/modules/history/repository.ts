@@ -12,10 +12,17 @@ export interface HistoryRepository {
   listCanteenOrdersByOwner(ownerUserId: string): Promise<HistoryCanteenOrderRecord[]>;
   listRefundsByOwner(ownerUserId: string): Promise<HistoryRefundRecord[]>;
   listNoticesByOwner(ownerUserId: string): Promise<HistoryNoticeRecord[]>;
+  findNoticeById(noticeId: string): Promise<HistoryNoticeRecord | undefined>;
+  markNoticeAsRead(noticeId: string): Promise<HistoryNoticeRecord | undefined>;
   saveNotice(notice: HistoryNoticeRecord): Promise<HistoryNoticeRecord>;
   listReviewsByOwner(ownerUserId: string): Promise<SessionReview[]>;
+  listAllReviews(): Promise<SessionReview[]>;
   findReviewById(reviewId: string): Promise<SessionReview | undefined>;
   findReviewByTicketId(ticketId: string): Promise<SessionReview | undefined>;
+  findReviewByUserAndScreening(
+    ownerUserId: string,
+    screeningId: string,
+  ): Promise<SessionReview | undefined>;
   createReview(review: SessionReview): Promise<SessionReview>;
   updateReview(review: SessionReview): Promise<SessionReview>;
   deleteReview(reviewId: string): Promise<boolean>;
@@ -32,6 +39,7 @@ export class InMemoryHistoryRepository implements HistoryRepository {
   private readonly notices = new Map<string, HistoryNoticeRecord>();
   private readonly reviews = new Map<string, SessionReview>();
   private readonly reviewIdByTicket = new Map<string, string>();
+  private readonly reviewIdByUserScreening = new Map<string, string>();
   public failNoticeWrite: boolean;
 
   constructor(options: InMemoryHistoryRepositoryOptions = {}) {
@@ -81,6 +89,19 @@ export class InMemoryHistoryRepository implements HistoryRepository {
       .map((n) => ({ ...n }));
   }
 
+  async findNoticeById(noticeId: string): Promise<HistoryNoticeRecord | undefined> {
+    const notice = this.notices.get(noticeId);
+    return notice ? { ...notice } : undefined;
+  }
+
+  async markNoticeAsRead(noticeId: string): Promise<HistoryNoticeRecord | undefined> {
+    const existing = this.notices.get(noticeId);
+    if (!existing) return undefined;
+    const updated: HistoryNoticeRecord = { ...existing, read: true };
+    this.notices.set(noticeId, updated);
+    return { ...updated };
+  }
+
   async saveNotice(notice: HistoryNoticeRecord): Promise<HistoryNoticeRecord> {
     if (this.failNoticeWrite) {
       throw new Error('Falha simulada no canal de notificações internas');
@@ -96,6 +117,10 @@ export class InMemoryHistoryRepository implements HistoryRepository {
       .map((r) => ({ ...r }));
   }
 
+  async listAllReviews(): Promise<SessionReview[]> {
+    return Array.from(this.reviews.values()).map((r) => ({ ...r }));
+  }
+
   async findReviewById(reviewId: string): Promise<SessionReview | undefined> {
     const review = this.reviews.get(reviewId);
     return review ? { ...review } : undefined;
@@ -107,10 +132,20 @@ export class InMemoryHistoryRepository implements HistoryRepository {
     return this.findReviewById(reviewId);
   }
 
+  async findReviewByUserAndScreening(
+    ownerUserId: string,
+    screeningId: string,
+  ): Promise<SessionReview | undefined> {
+    const reviewId = this.reviewIdByUserScreening.get(`${ownerUserId}::${screeningId}`);
+    if (!reviewId) return undefined;
+    return this.findReviewById(reviewId);
+  }
+
   async createReview(review: SessionReview): Promise<SessionReview> {
     const copy = { ...review };
     this.reviews.set(copy.reviewId, copy);
     this.reviewIdByTicket.set(copy.ticketId, copy.reviewId);
+    this.reviewIdByUserScreening.set(`${copy.ownerUserId}::${copy.screeningId}`, copy.reviewId);
     return { ...copy };
   }
 
@@ -125,6 +160,7 @@ export class InMemoryHistoryRepository implements HistoryRepository {
     if (!existing) return false;
     this.reviews.delete(reviewId);
     this.reviewIdByTicket.delete(existing.ticketId);
+    this.reviewIdByUserScreening.delete(`${existing.ownerUserId}::${existing.screeningId}`);
     return true;
   }
 }

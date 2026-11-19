@@ -5,6 +5,7 @@ import { ManagementService } from '../../src/modules/management/service.ts';
 import { CdcCancellationService } from '../../src/modules/management/cdc-cancellation.ts';
 import {
   getAdminOccupancyReport,
+  getAdminOperators,
   getAdminSalesDashboard,
   getPublicScreeningQuote,
   patchAdminCanteenItemPrice,
@@ -13,8 +14,12 @@ import {
   postCancelTicketCdc,
   putAdminCanteenItem,
   putAdminMovie,
+  putAdminOperator,
   putAdminRoom,
+  putAdminRoomSeatMap,
 } from '../../src/modules/management/routes.ts';
+import { InMemoryCanteenRepository } from '../../src/modules/canteen/repository.ts';
+import { InMemoryTicketRepository } from '../../src/modules/tickets/repository.ts';
 import { SandboxPaymentGatewayAdapter } from '../../src/modules/payments/gateway.ts';
 import type { AuthenticatedSession } from '../../src/modules/identity/types.ts';
 
@@ -367,5 +372,171 @@ describe('Administração, Ocupação e Cancelamento CDC (RF-10, RF-12, RF-15 / 
     });
     assert.equal((await postCancelTicketCdc(cdcService, alice, 'tkt_acima_7d')).status, 422);
     assert.equal(gateway.refundCalls, 1);
+  });
+
+  it('RF-10, RF-12 e RF-15: retorna "não aplicável" para 0 assentos, gerencia mapa/operadores e restitui estoque/QR no cancelamento', async () => {
+    const now = () => new Date('2026-11-20T14:00:00.000Z');
+    const repo = new InMemoryManagementRepository();
+    const adminService = new ManagementService(repo, { now });
+    const admin = sessionFor('adm_1', 'ADMIN_CINEMA');
+    const alice = sessionFor('usr_alice', 'CLIENTE');
+
+    await putAdminMovie(adminService, admin, {
+      movieId: 'mov_zero',
+      title: 'Sessão Manutenção',
+      synopsis: 'Teste borda',
+      durationMinutes: 90,
+      ageRating: 'L',
+      active: true,
+    });
+    await putAdminRoom(adminService, admin, {
+      roomId: 'room_zero',
+      cinemaName: 'CineFood Operações Piloto Ltda.',
+      name: 'Sala 04 · 2D',
+      sellableSeats: 0,
+      active: true,
+    });
+    await postAdminScreening(adminService, admin, {
+      screeningId: 'scr_zero',
+      movieId: 'mov_zero',
+      roomId: 'room_zero',
+      startsAt: '2026-11-20T20:00:00.000Z',
+      endsAt: '2026-11-20T21:30:00.000Z',
+      format: '2D',
+      basePriceCents: 3000,
+    });
+
+    const zeroReport = await getAdminOccupancyReport(adminService, admin, 'scr_zero');
+    assert.equal(zeroReport.status, 200);
+    if ('error' in zeroReport.body) {
+      throw new Error(zeroReport.body.error);
+    }
+    assert.equal(zeroReport.body.occupancyPercent, 'não aplicável');
+
+    // Mapa de assentos e operadores (RF-10)
+    const mapRes = await putAdminRoomSeatMap(adminService, admin, 'room_zero', {
+      rows: ['A', 'B'],
+      seatsPerRow: 10,
+      pcdSeats: ['A1'],
+      pcdPlusSeats: ['A10'],
+      blockedSeats: ['B10'],
+    });
+    assert.equal(mapRes.status, 200);
+    if (!('error' in mapRes.body)) {
+      assert.equal(mapRes.body.sellableSeats, 19);
+    }
+
+    const opRes = await putAdminOperator(adminService, admin, {
+      operatorId: 'op_bil_1',
+      fullName: 'Marcos Bilheteria',
+      email: 'marcos@cinefood.piloto',
+      role: 'OPERADOR_BILHETERIA',
+      active: true,
+    });
+    assert.equal(opRes.status, 200);
+    const opsList = await getAdminOperators(adminService, admin);
+    assert.equal(opsList.status, 200);
+    if (!('error' in opsList.body)) {
+      assert.equal(opsList.body.length, 1);
+      assert.equal(opsList.body[0].role, 'OPERADOR_BILHETERIA');
+    }
+
+    // Cancelamento CDC integrado devolve estoque na cantina e invalida QR Code (RF-12 / RF-08)
+    const canteenRepo = new InMemoryCanteenRepository(
+      [
+        {
+          productId: 'prod_pipoca',
+          name: 'Pipoca G',
+          description: 'Pipoca amanteigada',
+          category: 'PIPOCA',
+          unitPriceCents: 2800,
+          availableStock: 9,
+          active: true,
+          isCombo: false,
+          allowedAddonIds: [],
+        },
+      ],
+      [],
+    );
+    await canteenRepo.saveOrder({
+      orderId: 'cnt_restore_1',
+      ownerUserId: 'usr_alice',
+      deliveryChannel: 'ENTREGA_ASSENTO',
+      linkedTicketId: 'tkt_restore_1',
+      items: [
+        {
+          productId: 'prod_pipoca',
+          productName: 'Pipoca G',
+          quantity: 2,
+          unitPriceCents: 2800,
+          addons: [],
+          lineTotalCents: 5600,
+        },
+      ],
+      totalCents: 5600,
+      status: 'AGUARDANDO_CHEGADA',
+      paymentStatus: 'APROVADO',
+      stockStatus: 'BAIXADO',
+      createdAt: '2026-11-18T12:00:00.000Z',
+      updatedAt: '2026-11-18T12:00:00.000Z',
+    });
+
+    const ticketRepo = new InMemoryTicketRepository();
+    await ticketRepo.saveBatch([
+      {
+        ticketId: 'tkt_restore_1',
+        purchaseId: 'pur_restore_1',
+        reservationId: 'res_restore_1',
+        buyerUserId: 'usr_alice',
+        screeningId: 'scr_zero',
+        movieTitle: 'Sessão Manutenção',
+        cinemaName: 'CineFood Operações Piloto Ltda.',
+        roomName: 'Sala 04 · 2D',
+        startsAt: '2026-11-20T20:00:00.000Z',
+        endsAt: '2026-11-20T21:30:00.000Z',
+        seatId: 'A2',
+        row: 'A',
+        number: 2,
+        category: 'INTEIRA',
+        qrToken: 'cf_qr_restore_token_1',
+        status: 'EMITIDO',
+        issuedAt: '2026-11-18T12:00:00.000Z',
+      },
+    ]);
+
+    await repo.saveTicketPurchase({
+      ticketId: 'tkt_restore_1',
+      purchaseId: 'pur_restore_1',
+      ownerUserId: 'usr_alice',
+      screeningId: 'scr_zero',
+      seatId: 'A2',
+      paidUnitPriceCents: 3000,
+      paymentStatus: 'APROVADO',
+      ticketStatus: 'EMITIDO',
+      purchasedAt: '2026-11-18T12:00:00.000Z',
+      linkedCanteenOrder: {
+        orderId: 'cnt_restore_1',
+        status: 'AGUARDANDO_CHEGADA',
+        totalCents: 5600,
+      },
+    });
+
+    const gateway = new SandboxPaymentGatewayAdapter();
+    const cdcService = new CdcCancellationService(repo, {
+      now,
+      gateway,
+      canteenRepository: canteenRepo,
+      ticketRepository: ticketRepo,
+    });
+    const res = await postCancelTicketCdc(cdcService, alice, 'tkt_restore_1');
+    assert.equal(res.status, 200);
+    if ('error' in res.body) {
+      throw new Error(res.body.error);
+    }
+    assert.equal(res.body.canteenStockRestored, true);
+    assert.equal(res.body.ticketQrInvalidated, true);
+    assert.equal((await canteenRepo.findProductById('prod_pipoca'))?.availableStock, 11);
+    assert.equal((await canteenRepo.findOrderById('cnt_restore_1'))?.status, 'CANCELADO');
+    assert.equal((await ticketRepo.findById('tkt_restore_1'))?.status, 'CANCELADO');
   });
 });

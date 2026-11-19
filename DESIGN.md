@@ -7,7 +7,7 @@
 Estética **Dark-First Cinematográfica** que une três registros complementares em uma jornada única:
 1. **Descoberta Imersiva (Home Hero):** Carrossel em tela cheia com expansão fluida *card-to-hero* (`layoutId`), barra de progresso superior âmbar (`#F59E0B`), tipografia display condensada (`Barlow Condensed`) e deck de pôsteres verticais.
 2. **Detalhe Editorial (Filme & Sessões):** Composição aberta sobre *still* cinematográfico com vinheta profunda, coluna lateral direita de ficha técnica (`Estreia`, `Direção`, `Trilha`, `Gênero`, `Trailer`) e pílulas de horário com micro-barra de ocupação.
-3. **Precisão Transacional (Assentos, Cantina e Ingresso):** Header sobre o backdrop do filme, pôster ancorado à esquerda, stepper de 4 etapas, mapa de assentos com tela angulada e *screen glow*, seleção em Vermelho Cinema (`#E50914`), PCD em Azul (`#2563EB`) e modo opcional **Sala Escura OLED (`#000000`)**.
+3. **Precisão Transacional (Assentos, Cantina e Ingresso):** Header sobre o backdrop do filme, pôster ancorado à esquerda, stepper de 3 etapas (`Assentos → Pagamento → Ingresso` ou `Cantina → Pagamento → Pedido`), mapa de assentos com tela angulada e *screen glow*, seleção em Vermelho Cinema (`#C40A14`), PCD em Azul (`#2563EB`) e modo opcional **Sala Escura OLED (`#000000`)**.
 
 ## Tokens de Cor
 
