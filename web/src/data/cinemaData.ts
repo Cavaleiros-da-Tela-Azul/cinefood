@@ -106,7 +106,9 @@ export const DATE_OPTIONS = [
   { id: '18-dez', day: '18', month: 'DEZ', weekday: 'Qua', label: '18 Dez' },
 ];
 
-export const COMPLEX_OPTIONS = ['Todos os Complexos', 'CineFood Paulista IMAX', 'CineFood Jardins Atmos'];
+export const PILOT_UNIT_NAME = 'CineFood Operações Piloto Ltda.';
+export const PILOT_ROOMS = ['Sala 01 · IMAX', 'Sala 02 · Atmos', 'Sala 03 · Atmos', 'Sala 04 · 2D'] as const;
+export const COMPLEX_OPTIONS = ['Todas as Salas', PILOT_UNIT_NAME];
 
 export const MOVIES: MovieItem[] = [
   {
@@ -124,7 +126,7 @@ export const MOVIES: MovieItem[] = [
     duration: '2h 18min',
     rating: '14 anos',
     ratingAvg: 4.8,
-    complexes: ['CineFood Paulista IMAX', 'CineFood Jardins Atmos'],
+    complexes: ['CineFood Operações Piloto Ltda.'],
     tone: 'amber',
     backdropSrc: '/assets/horizon-backdrop.jpg',
     posterSrc: '/assets/horizon-poster.jpg',
@@ -133,7 +135,7 @@ export const MOVIES: MovieItem[] = [
     sessions: [
       {
         id: 'cf-imax-2140',
-        complex: 'CineFood Paulista IMAX',
+        complex: 'CineFood Operações Piloto Ltda.',
         room: 'Sala 01 · IMAX',
         format: 'IMAX 3D',
         dateId: '14-dez',
@@ -148,7 +150,7 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'cf-atmos-1915',
-        complex: 'CineFood Jardins Atmos',
+        complex: 'CineFood Operações Piloto Ltda.',
         room: 'Sala 03 · Atmos',
         format: 'Dolby Atmos',
         dateId: '14-dez',
@@ -163,8 +165,8 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'cf-2d-1630',
-        complex: 'CineFood Paulista IMAX',
-        room: 'Sala 04',
+        complex: 'CineFood Operações Piloto Ltda.',
+        room: 'Sala 04 · 2D',
         format: '2D',
         dateId: '15-dez',
         dateLabel: '15 DEZ',
@@ -178,7 +180,7 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'cf-imax-17d',
-        complex: 'CineFood Paulista IMAX',
+        complex: 'CineFood Operações Piloto Ltda.',
         room: 'Sala 01 · IMAX',
         format: 'IMAX 3D',
         dateId: '17-dez',
@@ -208,7 +210,7 @@ export const MOVIES: MovieItem[] = [
     duration: '2h 04min',
     rating: '16 anos',
     ratingAvg: 4.6,
-    complexes: ['CineFood Jardins Atmos', 'CineFood Paulista IMAX'],
+    complexes: ['CineFood Operações Piloto Ltda.'],
     tone: 'emerald',
     backdropSrc: '/assets/nocturne-backdrop.jpg',
     posterSrc: '/assets/nocturne-poster.jpg',
@@ -217,7 +219,7 @@ export const MOVIES: MovieItem[] = [
     sessions: [
       {
         id: 'ne-atmos-2030',
-        complex: 'CineFood Jardins Atmos',
+        complex: 'CineFood Operações Piloto Ltda.',
         room: 'Sala 02 · Atmos',
         format: 'Dolby Atmos',
         dateId: '14-dez',
@@ -232,8 +234,8 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'ne-2d-2215',
-        complex: 'CineFood Paulista IMAX',
-        room: 'Sala 05',
+        complex: 'CineFood Operações Piloto Ltda.',
+        room: 'Sala 03 · Atmos',
         format: '2D',
         dateId: '14-dez',
         dateLabel: '14 DEZ',
@@ -247,7 +249,7 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'ne-atmos-16d',
-        complex: 'CineFood Jardins Atmos',
+        complex: 'CineFood Operações Piloto Ltda.',
         room: 'Sala 02 · Atmos',
         format: 'Dolby Atmos',
         dateId: '16-dez',
@@ -277,7 +279,7 @@ export const MOVIES: MovieItem[] = [
     duration: '2h 26min',
     rating: '12 anos',
     ratingAvg: 4.9,
-    complexes: ['CineFood Paulista IMAX'],
+    complexes: ['CineFood Operações Piloto Ltda.'],
     tone: 'crimson',
     backdropSrc: '/assets/solaris-backdrop.jpg',
     posterSrc: '/assets/solaris-poster.jpg',
@@ -286,7 +288,7 @@ export const MOVIES: MovieItem[] = [
     sessions: [
       {
         id: 'oe-imax-2200',
-        complex: 'CineFood Paulista IMAX',
+        complex: 'CineFood Operações Piloto Ltda.',
         room: 'Sala 01 · IMAX',
         format: 'IMAX 3D',
         dateId: '14-dez',
@@ -301,7 +303,7 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'oe-imax-1800',
-        complex: 'CineFood Paulista IMAX',
+        complex: 'CineFood Operações Piloto Ltda.',
         room: 'Sala 01 · IMAX',
         format: 'IMAX 3D',
         dateId: '15-dez',
@@ -331,7 +333,7 @@ export const MOVIES: MovieItem[] = [
     duration: '1h 56min',
     rating: '10 anos',
     ratingAvg: 4.7,
-    complexes: ['CineFood Jardins Atmos'],
+    complexes: ['CineFood Operações Piloto Ltda.'],
     tone: 'slate',
     backdropSrc: '/assets/veredas-backdrop.jpg',
     posterSrc: '/assets/veredas-poster.jpg',
@@ -340,8 +342,8 @@ export const MOVIES: MovieItem[] = [
     sessions: [
       {
         id: 'vn-2d-1845',
-        complex: 'CineFood Jardins Atmos',
-        room: 'Sala 04',
+        complex: 'CineFood Operações Piloto Ltda.',
+        room: 'Sala 04 · 2D',
         format: '2D',
         dateId: '14-dez',
         dateLabel: '14 DEZ',
@@ -355,8 +357,8 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'vn-2d-16d',
-        complex: 'CineFood Jardins Atmos',
-        room: 'Sala 04',
+        complex: 'CineFood Operações Piloto Ltda.',
+        room: 'Sala 04 · 2D',
         format: '2D',
         dateId: '16-dez',
         dateLabel: '16 DEZ',
@@ -385,7 +387,7 @@ export const MOVIES: MovieItem[] = [
     duration: '2h 12min',
     rating: 'A14 · 14 anos',
     ratingAvg: 4.7,
-    complexes: ['CineFood Paulista IMAX', 'CineFood Jardins Atmos'],
+    complexes: ['CineFood Operações Piloto Ltda.'],
     tone: 'crimson',
     backdropSrc: '/assets/solaris-backdrop.jpg',
     posterSrc: '/assets/solaris-poster.jpg',
@@ -394,7 +396,7 @@ export const MOVIES: MovieItem[] = [
     sessions: [
       {
         id: 'hc-imax-1900',
-        complex: 'CineFood Paulista IMAX',
+        complex: 'CineFood Operações Piloto Ltda.',
         room: 'Sala 01 · IMAX',
         format: 'IMAX 3D',
         dateId: '14-dez',
@@ -409,7 +411,7 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'hc-atmos-15d',
-        complex: 'CineFood Jardins Atmos',
+        complex: 'CineFood Operações Piloto Ltda.',
         room: 'Sala 02 · Atmos',
         format: 'Dolby Atmos',
         dateId: '15-dez',
@@ -424,8 +426,8 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'hc-2d-18d',
-        complex: 'CineFood Paulista IMAX',
-        room: 'Sala 04',
+        complex: 'CineFood Operações Piloto Ltda.',
+        room: 'Sala 04 · 2D',
         format: '2D',
         dateId: '18-dez',
         dateLabel: '18 DEZ',
@@ -454,7 +456,7 @@ export const MOVIES: MovieItem[] = [
     duration: '1h 42min',
     rating: 'Livre',
     ratingAvg: 4.9,
-    complexes: ['CineFood Jardins Atmos', 'CineFood Paulista IMAX'],
+    complexes: ['CineFood Operações Piloto Ltda.'],
     tone: 'amber',
     backdropSrc: '/assets/horizon-backdrop.jpg',
     posterSrc: '/assets/horizon-poster.jpg',
@@ -463,8 +465,8 @@ export const MOVIES: MovieItem[] = [
     sessions: [
       {
         id: 'av-2d-1715',
-        complex: 'CineFood Jardins Atmos',
-        room: 'Sala 04',
+        complex: 'CineFood Operações Piloto Ltda.',
+        room: 'Sala 04 · 2D',
         format: '2D',
         dateId: '14-dez',
         dateLabel: '14 DEZ',
@@ -478,7 +480,7 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'av-atmos-15d',
-        complex: 'CineFood Paulista IMAX',
+        complex: 'CineFood Operações Piloto Ltda.',
         room: 'Sala 03 · Atmos',
         format: 'Dolby Atmos',
         dateId: '15-dez',
@@ -493,8 +495,8 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'av-2d-17d',
-        complex: 'CineFood Jardins Atmos',
-        room: 'Sala 04',
+        complex: 'CineFood Operações Piloto Ltda.',
+        room: 'Sala 04 · 2D',
         format: '2D',
         dateId: '17-dez',
         dateLabel: '17 DEZ',
@@ -523,7 +525,7 @@ export const MOVIES: MovieItem[] = [
     duration: '2h 09min',
     rating: '18 anos',
     ratingAvg: 4.7,
-    complexes: ['CineFood Paulista IMAX', 'CineFood Jardins Atmos'],
+    complexes: ['CineFood Operações Piloto Ltda.'],
     tone: 'emerald',
     backdropSrc: '/assets/nocturne-backdrop.jpg',
     posterSrc: '/assets/nocturne-poster.jpg',
@@ -532,7 +534,7 @@ export const MOVIES: MovieItem[] = [
     sessions: [
       {
         id: 'pm-atmos-2230',
-        complex: 'CineFood Paulista IMAX',
+        complex: 'CineFood Operações Piloto Ltda.',
         room: 'Sala 03 · Atmos',
         format: 'Dolby Atmos',
         dateId: '14-dez',
@@ -547,7 +549,7 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'pm-imax-16d',
-        complex: 'CineFood Paulista IMAX',
+        complex: 'CineFood Operações Piloto Ltda.',
         room: 'Sala 01 · IMAX',
         format: 'IMAX 3D',
         dateId: '16-dez',
@@ -562,7 +564,7 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'pm-atmos-18d',
-        complex: 'CineFood Jardins Atmos',
+        complex: 'CineFood Operações Piloto Ltda.',
         room: 'Sala 02 · Atmos',
         format: 'Dolby Atmos',
         dateId: '18-dez',
@@ -592,7 +594,7 @@ export const MOVIES: MovieItem[] = [
     duration: '2h 31min',
     rating: 'A12 · 12 anos',
     ratingAvg: 4.8,
-    complexes: ['CineFood Paulista IMAX', 'CineFood Jardins Atmos'],
+    complexes: ['CineFood Operações Piloto Ltda.'],
     tone: 'slate',
     backdropSrc: '/assets/veredas-backdrop.jpg',
     posterSrc: '/assets/veredas-poster.jpg',
@@ -601,7 +603,7 @@ export const MOVIES: MovieItem[] = [
     sessions: [
       {
         id: 'cv-imax-1800',
-        complex: 'CineFood Paulista IMAX',
+        complex: 'CineFood Operações Piloto Ltda.',
         room: 'Sala 01 · IMAX',
         format: 'IMAX 3D',
         dateId: '14-dez',
@@ -616,8 +618,8 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'cv-2d-15d',
-        complex: 'CineFood Jardins Atmos',
-        room: 'Sala 04',
+        complex: 'CineFood Operações Piloto Ltda.',
+        room: 'Sala 04 · 2D',
         format: '2D',
         dateId: '15-dez',
         dateLabel: '15 DEZ',
@@ -631,7 +633,7 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'cv-imax-17d',
-        complex: 'CineFood Paulista IMAX',
+        complex: 'CineFood Operações Piloto Ltda.',
         room: 'Sala 01 · IMAX',
         format: 'IMAX 3D',
         dateId: '17-dez',
@@ -661,7 +663,7 @@ export const MOVIES: MovieItem[] = [
     duration: '2h 02min',
     rating: '14 anos',
     ratingAvg: 4.6,
-    complexes: ['CineFood Jardins Atmos', 'CineFood Paulista IMAX'],
+    complexes: ['CineFood Operações Piloto Ltda.'],
     tone: 'amber',
     backdropSrc: '/assets/horizon-backdrop.jpg',
     posterSrc: '/assets/horizon-poster.jpg',
@@ -670,7 +672,7 @@ export const MOVIES: MovieItem[] = [
     sessions: [
       {
         id: 'et-atmos-15d',
-        complex: 'CineFood Jardins Atmos',
+        complex: 'CineFood Operações Piloto Ltda.',
         room: 'Sala 02 · Atmos',
         format: 'Dolby Atmos',
         dateId: '15-dez',
@@ -685,8 +687,8 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'et-2d-16d',
-        complex: 'CineFood Paulista IMAX',
-        room: 'Sala 05',
+        complex: 'CineFood Operações Piloto Ltda.',
+        room: 'Sala 03 · Atmos',
         format: '2D',
         dateId: '16-dez',
         dateLabel: '16 DEZ',
@@ -700,7 +702,7 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'et-atmos-18d',
-        complex: 'CineFood Jardins Atmos',
+        complex: 'CineFood Operações Piloto Ltda.',
         room: 'Sala 03 · Atmos',
         format: 'Dolby Atmos',
         dateId: '18-dez',
@@ -730,7 +732,7 @@ export const MOVIES: MovieItem[] = [
     duration: '1h 58min',
     rating: '10 anos',
     ratingAvg: 4.8,
-    complexes: ['CineFood Jardins Atmos', 'CineFood Paulista IMAX'],
+    complexes: ['CineFood Operações Piloto Ltda.'],
     tone: 'emerald',
     backdropSrc: '/assets/nocturne-backdrop.jpg',
     posterSrc: '/assets/nocturne-poster.jpg',
@@ -739,8 +741,8 @@ export const MOVIES: MovieItem[] = [
     sessions: [
       {
         id: 'so-2d-15d',
-        complex: 'CineFood Jardins Atmos',
-        room: 'Sala 04',
+        complex: 'CineFood Operações Piloto Ltda.',
+        room: 'Sala 04 · 2D',
         format: '2D',
         dateId: '15-dez',
         dateLabel: '15 DEZ',
@@ -754,7 +756,7 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'so-atmos-17d',
-        complex: 'CineFood Jardins Atmos',
+        complex: 'CineFood Operações Piloto Ltda.',
         room: 'Sala 02 · Atmos',
         format: 'Dolby Atmos',
         dateId: '17-dez',
@@ -769,8 +771,8 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'so-2d-18d',
-        complex: 'CineFood Paulista IMAX',
-        room: 'Sala 05',
+        complex: 'CineFood Operações Piloto Ltda.',
+        room: 'Sala 03 · Atmos',
         format: '2D',
         dateId: '18-dez',
         dateLabel: '18 DEZ',
@@ -799,7 +801,7 @@ export const MOVIES: MovieItem[] = [
     duration: '2h 24min',
     rating: '12 anos',
     ratingAvg: 4.9,
-    complexes: ['CineFood Paulista IMAX', 'CineFood Jardins Atmos'],
+    complexes: ['CineFood Operações Piloto Ltda.'],
     tone: 'crimson',
     backdropSrc: '/assets/solaris-backdrop.jpg',
     posterSrc: '/assets/solaris-poster.jpg',
@@ -808,7 +810,7 @@ export const MOVIES: MovieItem[] = [
     sessions: [
       {
         id: 'etitan-imax-16d',
-        complex: 'CineFood Paulista IMAX',
+        complex: 'CineFood Operações Piloto Ltda.',
         room: 'Sala 01 · IMAX',
         format: 'IMAX 3D',
         dateId: '16-dez',
@@ -823,7 +825,7 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'etitan-atmos-17d',
-        complex: 'CineFood Jardins Atmos',
+        complex: 'CineFood Operações Piloto Ltda.',
         room: 'Sala 03 · Atmos',
         format: 'Dolby Atmos',
         dateId: '17-dez',
@@ -838,7 +840,7 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'etitan-imax-18d',
-        complex: 'CineFood Paulista IMAX',
+        complex: 'CineFood Operações Piloto Ltda.',
         room: 'Sala 01 · IMAX',
         format: 'IMAX 3D',
         dateId: '18-dez',
@@ -868,7 +870,7 @@ export const MOVIES: MovieItem[] = [
     duration: '1h 48min',
     rating: '6 anos',
     ratingAvg: 4.7,
-    complexes: ['CineFood Paulista IMAX', 'CineFood Jardins Atmos'],
+    complexes: ['CineFood Operações Piloto Ltda.'],
     tone: 'slate',
     backdropSrc: '/assets/veredas-backdrop.jpg',
     posterSrc: '/assets/veredas-poster.jpg',
@@ -877,8 +879,8 @@ export const MOVIES: MovieItem[] = [
     sessions: [
       {
         id: 'lsd-2d-14d',
-        complex: 'CineFood Paulista IMAX',
-        room: 'Sala 05',
+        complex: 'CineFood Operações Piloto Ltda.',
+        room: 'Sala 03 · Atmos',
         format: '2D',
         dateId: '14-dez',
         dateLabel: '14 DEZ',
@@ -892,8 +894,8 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'lsd-2d-17d',
-        complex: 'CineFood Jardins Atmos',
-        room: 'Sala 04',
+        complex: 'CineFood Operações Piloto Ltda.',
+        room: 'Sala 04 · 2D',
         format: '2D',
         dateId: '17-dez',
         dateLabel: '17 DEZ',
@@ -907,8 +909,8 @@ export const MOVIES: MovieItem[] = [
       },
       {
         id: 'lsd-2d-18d',
-        complex: 'CineFood Paulista IMAX',
-        room: 'Sala 04',
+        complex: 'CineFood Operações Piloto Ltda.',
+        room: 'Sala 04 · 2D',
         format: '2D',
         dateId: '18-dez',
         dateLabel: '18 DEZ',
@@ -1100,7 +1102,7 @@ export const WORST_CASE_MOVIES: MovieItem[] = MOVIES.map((movie, idx) =>
     ? {
         ...movie,
         title: 'A INTERMINÁVEL TRAVESSIA NOTURNA PELO ARQUIPÉLAGO SUBMERSO (ED. ESTENDIDA)',
-        kickerLocation: 'Sala 01 Laser IMAX 70mm · Complexo Paulista Jardins Sul · 14 Dez · 21:40',
+        kickerLocation: 'Sala 01 Laser IMAX 70mm · CineFood Operações Piloto · 14 Dez · 21:40',
         tagline:
           'Quando os oceanos recuam sobre as antigas catedrais de ferro, uma equipe internacional multidisciplinar conduz uma travessia de alto risco sem cobertura de rádio.',
         director: 'J.',
@@ -1214,6 +1216,7 @@ export interface CustomerUser {
   id: string;
   name: string;
   email: string;
+  password?: string;
   lgpdAcceptedAt: string;
   marketingOptIn: boolean;
 }
@@ -1254,6 +1257,7 @@ export interface ClientTicketOrder {
   qrToken: string;
   seatQrTokens: SeatQrToken[];
   orderKind?: 'ticket' | 'canteen-only';
+  linkedTicketOrderId?: string;
   movieId: string;
   movieTitle: string;
   posterSrc: string;
@@ -1263,8 +1267,9 @@ export interface ClientTicketOrder {
   dateLabel: string;
   time: string;
   seatsLabel: string[];
+  seatTierDetails?: SelectedSeat[];
   totalAmount: number;
-  paymentMethod: 'pix' | 'card' | 'cash';
+  paymentMethod: 'pix' | 'card';
   salesChannel?: 'web' | 'boxoffice';
   operatorName?: string;
   meiaCategory?: MeiaCategory;
@@ -1329,6 +1334,7 @@ export const LGPD_REQUEST_LABELS: Record<LgpdRequestType, { title: string; desc:
 
 export interface LgpdRequestItem {
   id: string;
+  userId: string;
   protocol: string;
   type: LgpdRequestType;
   details: string;
@@ -1361,6 +1367,7 @@ export const INITIAL_CUSTOMER: CustomerUser = {
   id: 'usr-joana',
   name: 'Joana Silva',
   email: 'joana.silva@cinefood.app',
+  password: 'CineFood123!',
   lgpdAcceptedAt: '12/11/2026 às 14:20',
   marketingOptIn: false,
 };
@@ -1378,7 +1385,7 @@ export const INITIAL_ORDERS: ClientTicketOrder[] = [
     movieId: 'noturno-esmeralda',
     movieTitle: 'NOTURNO ESMERALDA',
     posterSrc: '/assets/nocturne-poster.jpg',
-    complex: 'CineFood Jardins Atmos',
+    complex: 'CineFood Operações Piloto Ltda.',
     room: 'Sala 02 · Atmos',
     format: 'Dolby Atmos',
     dateLabel: '14 DEZ',
@@ -1405,7 +1412,7 @@ export const INITIAL_ORDERS: ClientTicketOrder[] = [
     movieId: 'cidade-ferro',
     movieTitle: 'CIDADE DE FERRO',
     posterSrc: '/assets/horizon-poster.jpg',
-    complex: 'CineFood Paulista IMAX',
+    complex: 'CineFood Operações Piloto Ltda.',
     room: 'Sala 01 · IMAX',
     format: 'IMAX 3D',
     dateLabel: '14 DEZ',
@@ -1435,7 +1442,7 @@ export const INITIAL_ORDERS: ClientTicketOrder[] = [
     movieId: 'orbita-escarlate',
     movieTitle: 'ÓRBITA ESCARLATE',
     posterSrc: '/assets/solaris-poster.jpg',
-    complex: 'CineFood Paulista IMAX',
+    complex: 'CineFood Operações Piloto Ltda.',
     room: 'Sala 01 · IMAX',
     format: 'IMAX 3D',
     dateLabel: '09 DEZ',
@@ -1462,8 +1469,8 @@ export const INITIAL_ORDERS: ClientTicketOrder[] = [
     movieId: 'veredas-da-neblina',
     movieTitle: 'VEREDAS DA NEBLINA',
     posterSrc: '/assets/veredas-poster.jpg',
-    complex: 'CineFood Jardins Atmos',
-    room: 'Sala 04',
+    complex: 'CineFood Operações Piloto Ltda.',
+    room: 'Sala 04 · 2D',
     format: '2D',
     dateLabel: '05 DEZ',
     time: '18:45',
@@ -1495,7 +1502,7 @@ export const INITIAL_ORDERS: ClientTicketOrder[] = [
     movieId: 'cidade-ferro',
     movieTitle: 'CIDADE DE FERRO',
     posterSrc: '/assets/horizon-poster.jpg',
-    complex: 'CineFood Paulista IMAX',
+    complex: 'CineFood Operações Piloto Ltda.',
     room: 'Sala 01 · IMAX',
     format: 'IMAX 3D',
     dateLabel: '14 DEZ',
@@ -1521,7 +1528,7 @@ export const INITIAL_COMMUNITY_REVIEWS: CommunityReviewItem[] = [
     movieId: 'cidade-ferro',
     movieTitle: 'CIDADE DE FERRO',
     authorDisplayName: 'Camila R.',
-    complex: 'CineFood Paulista IMAX',
+    complex: 'CineFood Operações Piloto Ltda.',
     rating: 5,
     title: 'Escala absurda em 70mm IMAX',
     comment:
@@ -1534,7 +1541,7 @@ export const INITIAL_COMMUNITY_REVIEWS: CommunityReviewItem[] = [
     movieId: 'noturno-esmeralda',
     movieTitle: 'NOTURNO ESMERALDA',
     authorDisplayName: 'Bruno M.',
-    complex: 'CineFood Jardins Atmos',
+    complex: 'CineFood Operações Piloto Ltda.',
     rating: 4,
     title: 'Som Atmos envolvente',
     comment:
@@ -1547,7 +1554,7 @@ export const INITIAL_COMMUNITY_REVIEWS: CommunityReviewItem[] = [
     movieId: 'orbita-escarlate',
     movieTitle: 'ÓRBITA ESCARLATE',
     authorDisplayName: 'Larissa T.',
-    complex: 'CineFood Paulista IMAX',
+    complex: 'CineFood Operações Piloto Ltda.',
     rating: 5,
     title: 'Contraste perfeito no Modo OLED da sala',
     comment:
@@ -1560,7 +1567,7 @@ export const INITIAL_COMMUNITY_REVIEWS: CommunityReviewItem[] = [
     movieId: 'veredas-da-neblina',
     movieTitle: 'VEREDAS DA NEBLINA',
     authorDisplayName: 'Joana S.',
-    complex: 'CineFood Jardins Atmos',
+    complex: 'CineFood Operações Piloto Ltda.',
     rating: 5,
     title: 'Fotografia impecável na serra',
     comment: 'Projeção muito nítida e sala silenciosa do começo ao fim.',
@@ -1574,7 +1581,7 @@ export const INITIAL_COMMUNITY_REVIEWS: CommunityReviewItem[] = [
     movieId: 'cidade-ferro',
     movieTitle: 'CIDADE DE FERRO',
     authorDisplayName: 'Eduardo P.',
-    complex: 'CineFood Jardins Atmos',
+    complex: 'CineFood Operações Piloto Ltda.',
     rating: 4,
     title: 'Ritmo excelente no segundo ato',
     comment: 'Trilha sonora do Henrique Sato segura muito bem as cenas de ação no deserto.',
@@ -1586,7 +1593,7 @@ export const INITIAL_COMMUNITY_REVIEWS: CommunityReviewItem[] = [
     movieId: 'noturno-esmeralda',
     movieTitle: 'NOTURNO ESMERALDA',
     authorDisplayName: 'Fernanda L.',
-    complex: 'CineFood Paulista IMAX',
+    complex: 'CineFood Operações Piloto Ltda.',
     rating: 5,
     title: 'Neo-noir brasileiro de respeito',
     comment: 'Mistério bem amarrado e retirada no balcão da cantina foi instantânea.',
@@ -1623,6 +1630,7 @@ export const INITIAL_NOTICES: InternalNoticeItem[] = [
 export const INITIAL_LGPD_REQUESTS: LgpdRequestItem[] = [
   {
     id: 'lgpd-01',
+    userId: 'usr-joana',
     protocol: 'LGPD-2026-40918',
     type: 'ACESSO',
     details: 'Exportação completa dos dados cadastrais e histórico de pedidos (Art. 18, II).',
@@ -1679,6 +1687,7 @@ export interface GateScanRecord {
 }
 
 export type StaffRoleGroup =
+  | 'OPERADOR_BILHETERIA'
   | 'OPERADOR_PORTARIA'
   | 'OPERADOR_CANTINA'
   | 'RUNNER'
@@ -1697,6 +1706,16 @@ export interface StaffOperatorProfile {
 }
 
 export const STAFF_PROFILES: StaffOperatorProfile[] = [
+  {
+    role: 'OPERADOR_BILHETERIA',
+    operatorName: 'Fernanda Dias',
+    groupLabel: 'Operador de Bilheteria',
+    stationCode: 'BILHETERIA · VENDA ASSISTIDA',
+    allowedTabs: ['boxoffice'],
+    defaultTab: 'boxoffice',
+    description:
+      'Venda assistida presencial compartilhando a mesma trava transacional de assentos (Pix e cartão apenas).',
+  },
   {
     role: 'OPERADOR_PORTARIA',
     operatorName: 'Carlos Mendes',
@@ -1730,11 +1749,11 @@ export const STAFF_PROFILES: StaffOperatorProfile[] = [
   {
     role: 'ADMIN_CINEMA',
     operatorName: 'Renata Alencar',
-    groupLabel: 'Gerência & Bilheteria (Admin)',
-    stationCode: 'ADMIN · BILHETERIA · TOTAL',
+    groupLabel: 'Gerência & Administração (Admin)',
+    stationCode: 'ADMIN · OPERAÇÕES PILOTO',
     allowedTabs: ['admin', 'boxoffice', 'gate', 'kds'],
     defaultTab: 'admin',
     description:
-      'Acesso completo a ocupação, tarifário, sessões, estoque da cantina, bilheteria presencial e auditoria.',
+      'Acesso completo a ocupação, tarifário, sessões, filmes, salas, estoque da cantina, operadores e auditoria.',
   },
 ];

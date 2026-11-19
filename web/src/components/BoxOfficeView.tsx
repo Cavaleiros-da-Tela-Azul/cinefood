@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import {
   Accessibility,
-  Banknote,
   Check,
   CheckCircle2,
   CreditCard,
@@ -11,7 +10,6 @@ import {
   Receipt,
   ShieldCheck,
   Ticket,
-  UtensilsCrossed,
   X,
 } from 'lucide-react';
 import {
@@ -67,8 +65,7 @@ export const BoxOfficeView: React.FC<BoxOfficeViewProps> = ({
   const [meiaCategory, setMeiaCategory] = useState<MeiaCategory>('estudante');
   const [meiaDoc, setMeiaDoc] = useState('');
   const [meiaDocumentChecked, setMeiaDocumentChecked] = useState(false);
-  const [selectedComboId, setSelectedComboId] = useState<string>('');
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'pix'>('card');
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'pix'>('card');
   const [customerName, setCustomerName] = useState('Atendimento Balcão');
   const [lastEmitted, setLastEmitted] = useState<ClientTicketOrder | null>(null);
 
@@ -161,13 +158,7 @@ export const BoxOfficeView: React.FC<BoxOfficeViewProps> = ({
       ? selectedSeatIds.some((id) => (seatTiers[id] ?? defaultTier) === 'meia')
       : defaultTier === 'meia';
 
-  const selectedCombo = useMemo(
-    () => canteenItems.find((item) => item.id === selectedComboId && item.stock > 0) ?? null,
-    [canteenItems, selectedComboId],
-  );
-
-  const canteenSubtotal = selectedCombo?.price ?? 0;
-  const totalAmount = ticketsSubtotal + canteenSubtotal;
+  const totalAmount = ticketsSubtotal;
 
   const isSessionActive = selectedSession?.status === 'ATIVA';
   const isMeiaValid = !hasMeiaSeat || (meiaDoc.trim().length >= 4 && meiaDocumentChecked);
@@ -207,6 +198,18 @@ export const BoxOfficeView: React.FC<BoxOfficeViewProps> = ({
       dateLabel: selectedSession.dateLabel,
       time: selectedSession.time,
       seatsLabel: [...selectedSeatIds],
+      seatTierDetails: selectedSeatIds.map((seatId) => {
+        const tier = seatTiers[seatId] ?? defaultTier;
+        const match = /^([A-H])(\d+)$/.exec(seatId);
+        return {
+          seatId,
+          row: match?.[1] ?? 'A',
+          col: Number.parseInt(match?.[2] ?? '1', 10),
+          category: 'standard' as const,
+          tier,
+          ...(tier === 'meia' ? { meiaCategory, meiaDoc: meiaDoc.trim() } : {}),
+        };
+      }),
       totalAmount,
       paymentMethod,
       salesChannel: 'boxoffice',
@@ -215,8 +218,8 @@ export const BoxOfficeView: React.FC<BoxOfficeViewProps> = ({
       meiaDoc: hasMeiaSeat ? meiaDoc.trim() : undefined,
       purchasedAt: new Date().toISOString(),
       status: 'ATIVO',
-      canteenSummary: selectedCombo ? `1× ${selectedCombo.name}` : null,
-      canteenStatus: selectedCombo ? 'RETIRADA_NO_BALCAO' : 'NENHUM',
+      canteenSummary: null,
+      canteenStatus: 'NENHUM',
       deliveryMode: 'counter',
       hoursUntilSession: 3.5,
       checkedIn: false,
@@ -229,7 +232,6 @@ export const BoxOfficeView: React.FC<BoxOfficeViewProps> = ({
     setSeatTiers({});
     setMeiaDoc('');
     setMeiaDocumentChecked(false);
-    setSelectedComboId('');
   };
 
   return (
@@ -541,40 +543,24 @@ export const BoxOfficeView: React.FC<BoxOfficeViewProps> = ({
           )}
         </div>
 
-        {/* Optional Counter Canteen Combo */}
-        <div>
-          <label
-            htmlFor="box-combo"
-            className="mb-1.5 flex items-center gap-1.5 text-xs uppercase tracking-[0.14em] text-[var(--text-secondary)]"
-          >
-            <UtensilsCrossed className="h-3.5 w-3.5 text-amber-400" aria-hidden="true" />
-            Adicionar Combo (Retirada no Balcão)
-          </label>
-          <select
-            id="box-combo"
-            value={selectedComboId}
-            onChange={(e) => setSelectedComboId(e.target.value)}
-            className="min-h-[44px] w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3.5 py-2 text-base text-[var(--text-primary)] focus:border-[var(--focus-ring)] focus:outline-none sm:text-xs"
-          >
-            <option value="">Sem combo da cantina (apenas ingresso)</option>
-            {canteenItems.map((item) => (
-              <option key={item.id} value={item.id} disabled={item.stock === 0}>
-                {item.name} — R$ {item.price}{' '}
-                {item.stock === 0 ? '(Esgotado)' : `(${item.stock} disp.)`}
-              </option>
-            ))}
-          </select>
+        {/* ADR 005 Checkout Note (no cash, separate canteen checkout) */}
+        <div className="rounded-xl border border-white/10 bg-[var(--bg-elevated)] p-3 text-xs text-[var(--text-secondary)]">
+          <p className="font-semibold text-[var(--text-primary)]">
+            Checkout independente (ADR 005 · RF-14)
+          </p>
+          <p className="mt-1">
+            Venda assistida exclusiva para ingressos via Cartão ou Pix (sem dinheiro físico no MVP; {canteenItems.filter((i) => i.stock > 0).length} itens da cantina atendidos separadamente).
+          </p>
         </div>
 
-        {/* Payment Method */}
+        {/* Payment Method (Cartão e Pix apenas — sem dinheiro físico no MVP) */}
         <div className="space-y-2">
           <span className="block text-xs font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)]">
-            Forma de Recebimento Presencial
+            Forma de Recebimento Eletrônico (RF-14)
           </span>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {[
               { id: 'card' as const, label: 'POS Cartão', icon: CreditCard },
-              { id: 'cash' as const, label: 'Dinheiro', icon: Banknote },
               { id: 'pix' as const, label: 'Pix Balcão', icon: QrCode },
             ].map((opt) => {
               const Icon = opt.icon;
@@ -606,10 +592,6 @@ export const BoxOfficeView: React.FC<BoxOfficeViewProps> = ({
               {selectedSeatIds.length > 0 ? selectedSeatIds.join(', ') : 'nenhum assento'})
             </span>
             <span className="font-mono-tabular text-[var(--text-primary)]">R$ {ticketsSubtotal}</span>
-          </div>
-          <div className="flex justify-between text-xs text-[var(--text-secondary)]">
-            <span>Subtotal Cantina ({selectedCombo ? selectedCombo.name : 'Sem itens'})</span>
-            <span className="font-mono-tabular text-[var(--text-primary)]">R$ {canteenSubtotal}</span>
           </div>
           <div className="flex items-baseline justify-between border-t border-[var(--border-subtle)] pt-2">
             <span className="text-xs uppercase tracking-[0.12em] text-[var(--text-secondary)]">

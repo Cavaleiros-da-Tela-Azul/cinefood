@@ -121,7 +121,7 @@ export function CanteenCatalogView({
   return (
     <section
       aria-label="Vitrine e cardápio da cantina"
-      className="relative min-h-[calc(100dvh-68px)] overflow-x-hidden bg-[var(--bg-base)]"
+      className="relative min-h-[calc(100dvh-68px)] overflow-x-hidden bg-[var(--bg-base)] pb-24 lg:pb-10"
     >
       {/* Subtle Culinary Atmospheric Backdrop (03_ref1 + 03_ref3) */}
       <div
@@ -133,14 +133,14 @@ export function CanteenCatalogView({
         }}
       />
 
-      <div className="relative z-10 mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-8 sm:py-8">
+      <div className="relative z-10 mx-auto w-full max-w-[1440px] px-4 py-4 sm:px-8 sm:py-8">
         {/* Top Editorial Header (03_ref2 + 03_ref3) */}
-        <div className="mb-6 flex flex-col gap-4 border-b border-[var(--border-subtle)] pb-6 sm:flex-row sm:items-end sm:justify-between">
+        <div className="mb-4 flex flex-col gap-3 border-b border-[var(--border-subtle)] pb-4 sm:mb-6 sm:flex-row sm:items-end sm:justify-between sm:gap-4 sm:pb-6">
           <div className="min-w-0">
             <button
               type="button"
               onClick={onBackToMovies}
-              className={`cine-press mb-4 inline-flex min-h-[44px] items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)] backdrop-blur-md hover:border-[var(--border-strong)] hover:text-white ${FOCUS_RING_CLASS}`}
+              className={`cine-press mb-3 inline-flex min-h-[44px] items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)] backdrop-blur-md hover:border-[var(--border-strong)] hover:text-white sm:mb-4 ${FOCUS_RING_CLASS}`}
             >
               <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden="true" />
               <span>Voltar aos Filmes</span>
@@ -150,15 +150,15 @@ export function CanteenCatalogView({
               <Popcorn className="h-4 w-4 shrink-0" aria-hidden="true" />
               <span>Bomboniere &amp; Lounge Gastronômico</span>
             </div>
-            <h1 className="font-display mt-1 text-4xl font-extrabold uppercase tracking-[-0.02em] text-white sm:text-5xl">
+            <h1 className="font-display mt-1 text-3xl font-extrabold uppercase tracking-[-0.02em] text-white sm:text-5xl">
               Cardápio da Bomboniere
             </h1>
-            <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-[var(--text-secondary)]">
+            <p className="mt-1 line-clamp-2 max-w-2xl text-xs leading-relaxed text-[var(--text-secondary)] sm:mt-1.5 sm:line-clamp-none sm:text-sm">
               Combos artesanais, pipocas frescas, bebidas e doces disponíveis em tempo real. Retire na fila expressa do balcão ou receba diretamente na sua poltrona durante a sessão.
             </p>
           </div>
 
-          <div className="flex shrink-0 items-center gap-3.5 self-start rounded-2xl border border-[var(--amber-progress)]/35 bg-[var(--bg-elevated)]/80 px-4 py-3 backdrop-blur-md shadow-xl sm:self-auto">
+          <div className="hidden shrink-0 items-center gap-3.5 self-start rounded-2xl border border-[var(--amber-progress)]/35 bg-[var(--bg-elevated)]/80 px-4 py-3 backdrop-blur-md shadow-xl sm:flex sm:self-auto">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--amber-progress)]/15 text-[var(--amber-progress)]">
               <ShoppingBag className="h-5 w-5" aria-hidden="true" />
             </span>
@@ -174,11 +174,11 @@ export function CanteenCatalogView({
         </div>
 
         {/* Category Filter Strip + Search Toolbar (03_ref2) */}
-        <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/70 p-3.5 backdrop-blur-md lg:flex-row lg:items-center lg:justify-between">
+        <div className="mb-5 flex flex-col gap-2.5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/70 p-3 backdrop-blur-md sm:mb-6 sm:gap-3 sm:p-3.5 lg:flex-row lg:items-center lg:justify-between">
           <div
             role="tablist"
             aria-label="Categorias da cantina"
-            className="flex flex-wrap gap-2"
+            className="flex flex-nowrap gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {CANTEEN_CATEGORIES.map((category) => {
               const isSelected = selectedCategory === category.id;
@@ -190,7 +190,7 @@ export function CanteenCatalogView({
                   role="tab"
                   aria-selected={isSelected}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`cine-press inline-flex min-h-[44px] items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${FOCUS_RING_CLASS} ${
+                  className={`cine-press inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-bold uppercase tracking-wider transition-colors sm:px-4 ${FOCUS_RING_CLASS} ${
                     isSelected
                       ? 'border-[var(--brand-red)] bg-[var(--brand-red)] text-white shadow-[0_6px_20px_var(--brand-red-glow)]'
                       : 'border-[var(--border-subtle)] bg-[var(--bg-surface)]/70 text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-white'
@@ -263,7 +263,7 @@ export function CanteenCatalogView({
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
                 {filteredItems.map((item) => {
                   const cartEntry = cart[item.id];
                   const qty = cartEntry?.qty ?? 0;
@@ -283,156 +283,169 @@ export function CanteenCatalogView({
                             : 'border-[var(--border-subtle)] bg-[var(--bg-surface)]/80 hover:border-white/25'
                       }`}
                     >
-                      {/* Food Hero Image Strip (03_ref3) */}
-                      <div className="relative h-44 w-full overflow-hidden bg-black">
-                        <img
-                          src={item.imageSrc}
-                          alt={item.name}
-                          className={`cine-card-media h-full w-full object-cover ${soldOut ? 'grayscale' : ''}`}
-                        />
-                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[var(--bg-surface)] via-black/25 to-black/35" />
+                      <div className="flex flex-row md:flex-col">
+                        {/* Food Hero Image Strip (compact thumbnail on < md, full banner on md+) */}
+                        <div className="relative m-3 h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-black md:m-0 md:h-44 md:w-full md:rounded-none">
+                          <img
+                            src={item.imageSrc}
+                            alt={item.name}
+                            className={`cine-card-media h-full w-full object-cover ${soldOut ? 'grayscale' : ''}`}
+                          />
+                          <div className="pointer-events-none absolute inset-0 hidden bg-gradient-to-t from-[var(--bg-surface)] via-black/25 to-black/35 md:block" />
 
-                        <div className="absolute inset-x-3 top-3 flex items-center justify-between gap-2">
-                          <span
-                            className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md ${
-                              soldOut
-                                ? 'bg-rose-600/90 text-white'
-                                : 'border border-[var(--amber-progress)]/40 bg-black/70 text-[#FCD34D]'
-                            }`}
-                          >
-                            {soldOut ? 'Esgotado' : item.tag}
-                          </span>
+                          <div className="absolute inset-x-3 top-3 hidden items-center justify-between gap-2 md:flex">
+                            <span
+                              className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md ${
+                                soldOut
+                                  ? 'bg-rose-600/90 text-white'
+                                  : 'border border-[var(--amber-progress)]/40 bg-black/70 text-[#FCD34D]'
+                              }`}
+                            >
+                              {soldOut ? 'Esgotado' : item.tag}
+                            </span>
 
-                          <span className="rounded-full border border-white/15 bg-black/70 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-secondary)] backdrop-blur-md">
-                            {getCategoryLabel(item.category)}
-                          </span>
-                        </div>
-
-                        {qty > 0 && (
-                          <span className="font-mono-tabular absolute bottom-3 right-3 rounded-full bg-[var(--brand-red)] px-2.5 py-1 text-[11px] font-extrabold text-white shadow-lg">
-                            {qty}× na sacola
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex flex-1 flex-col justify-between p-4">
-                        <div>
-                          <h2 className="font-display break-words text-2xl font-bold uppercase leading-tight text-white">
-                            {item.name}
-                          </h2>
-                          <p className="mt-1 text-xs leading-relaxed text-[var(--text-secondary)]">
-                            {item.description}
-                          </p>
-                        </div>
-
-                        <div className="mt-4">
-                          {/* Stock & Price + Stepper Row */}
-                          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-3">
-                            <div>
-                              <p className="font-mono-tabular text-xl font-extrabold text-white">
-                                {formatPrice(item.price)}
-                              </p>
-                              <p
-                                className={`text-[11px] font-medium ${
-                                  soldOut
-                                    ? 'text-rose-300'
-                                    : lowStock
-                                      ? 'text-[var(--amber-progress)]'
-                                      : 'text-[var(--text-muted)]'
-                                }`}
-                              >
-                                {soldOut
-                                  ? 'Indisponível no estoque'
-                                  : lowStock
-                                    ? `Últimas ${item.stock} un. disponíveis`
-                                    : `Disponível: ${item.stock} un.`}
-                              </p>
-                            </div>
-
-                            <div className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-black/45 p-1">
-                              <button
-                                type="button"
-                                onClick={() => onUpdateQty(item.id, -1)}
-                                disabled={qty === 0}
-                                aria-label={`Remover uma unidade de ${item.name}`}
-                                className={`cine-press inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-white hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-35 ${FOCUS_RING_CLASS}`}
-                              >
-                                <Minus className="h-4 w-4" aria-hidden="true" />
-                              </button>
-                              <span
-                                aria-live="polite"
-                                className="font-mono-tabular min-w-[2ch] px-1 text-center text-sm font-bold text-white"
-                              >
-                                {qty}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => onUpdateQty(item.id, 1)}
-                                disabled={soldOut || atMaxStock}
-                                aria-label={`Adicionar uma unidade de ${item.name}`}
-                                className={`cine-press inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-[var(--brand-red)] text-white hover:bg-[var(--brand-red-hover)] disabled:cursor-not-allowed disabled:opacity-35 ${FOCUS_RING_CLASS}`}
-                              >
-                                <Plus className="h-4 w-4" aria-hidden="true" />
-                              </button>
-                            </div>
+                            <span className="rounded-full border border-white/15 bg-black/70 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-secondary)] backdrop-blur-md">
+                              {getCategoryLabel(item.category)}
+                            </span>
                           </div>
 
-                          {!soldOut && atMaxStock && qty > 0 && (
-                            <p className="mt-1.5 text-right text-[11px] font-medium text-[var(--amber-progress)]">
-                              Limite máximo disponível ({item.stock} un.) atingido
-                            </p>
+                          {qty > 0 && (
+                            <span className="font-mono-tabular absolute bottom-1.5 right-1.5 rounded-full bg-[var(--brand-red)] px-2 py-0.5 text-[10px] font-extrabold text-white shadow-lg md:bottom-3 md:right-3 md:px-2.5 md:py-1 md:text-[11px]">
+                              {qty}× <span className="hidden md:inline">na sacola</span>
+                            </span>
                           )}
+                        </div>
 
-                          {/* Add-ons (03_ref5 customization pills) */}
-                          {item.addons.length > 0 && (
-                            <div className="mt-3 border-t border-white/10 pt-3">
-                              <AnimatePresence initial={false} mode="wait">
-                                {qty > 0 ? (
-                                  <motion.div
-                                    key="addons-active"
-                                    initial={{ opacity: 0, y: 4 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -4 }}
-                                    transition={{ duration: 0.16, ease: [0.23, 1, 0.32, 1] }}
-                                  >
-                                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[var(--amber-progress)]">
-                                      Personalizar adicionais
-                                    </p>
-                                    <div className="flex flex-wrap gap-2">
-                                      {item.addons.map((addon) => {
-                                        const checked = selectedAddonIds.includes(addon.id);
-                                        return (
-                                          <button
-                                            key={addon.id}
-                                            type="button"
-                                            aria-pressed={checked}
-                                            onClick={() => onToggleAddon(item.id, addon.id)}
-                                            className={`cine-press inline-flex min-h-[44px] items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-medium transition-colors ${FOCUS_RING_CLASS} ${
-                                              checked
-                                                ? 'border-[var(--amber-progress)] bg-[var(--amber-progress)]/20 text-white'
-                                                : 'border-white/15 bg-black/35 text-[var(--text-secondary)] hover:border-white/35 hover:text-white'
-                                            }`}
-                                          >
-                                            {checked && (
-                                              <Check className="h-3.5 w-3.5 text-[var(--amber-progress)]" aria-hidden="true" />
-                                            )}
-                                            <span>
-                                              + {addon.label} ({formatPrice(addon.price)})
-                                            </span>
-                                          </button>
-                                        );
-                                      })}
-                                    </div>
-                                  </motion.div>
-                                ) : (
-                                  <p key="addons-hint" className="text-xs text-[var(--text-muted)]">
-                                    Adicionais opcionais:{' '}
-                                    {item.addons.map((a) => `${a.label} (+${formatPrice(a.price)})`).join(' · ')}
-                                  </p>
-                                )}
-                              </AnimatePresence>
+                        <div className="flex min-w-0 flex-1 flex-col justify-between py-3 pr-3 md:p-4">
+                          <div>
+                            <div className="mb-1 flex flex-wrap items-center gap-1.5 md:hidden">
+                              <span
+                                className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                                  soldOut
+                                    ? 'bg-rose-600/90 text-white'
+                                    : 'border border-[var(--amber-progress)]/40 bg-black/45 text-[#FCD34D]'
+                                }`}
+                              >
+                                {soldOut ? 'Esgotado' : item.tag}
+                              </span>
                             </div>
-                          )}
+                            <h2 className="font-display line-clamp-1 break-words text-xl font-bold uppercase leading-tight text-white md:line-clamp-none md:text-2xl">
+                              {item.name}
+                            </h2>
+                            <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-[var(--text-secondary)] md:mt-1 md:line-clamp-none">
+                              {item.description}
+                            </p>
+                          </div>
+
+                          <div className="mt-2.5 md:mt-4">
+                            {/* Stock & Price + Stepper Row */}
+                            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-2.5 md:gap-3 md:pt-3">
+                              <div>
+                                <p className="font-mono-tabular text-lg font-extrabold text-white md:text-xl">
+                                  {formatPrice(item.price)}
+                                </p>
+                                <p
+                                  className={`text-[11px] font-medium ${
+                                    soldOut
+                                      ? 'text-rose-300'
+                                      : lowStock
+                                        ? 'text-[var(--amber-progress)]'
+                                        : 'text-[var(--text-muted)]'
+                                  }`}
+                                >
+                                  {soldOut
+                                    ? 'Indisponível no estoque'
+                                    : lowStock
+                                      ? `Últimas ${item.stock} un.`
+                                      : `Disponível: ${item.stock} un.`}
+                                </p>
+                              </div>
+
+                              <div className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-black/45 p-0.5 md:p-1">
+                                <button
+                                  type="button"
+                                  onClick={() => onUpdateQty(item.id, -1)}
+                                  disabled={qty === 0}
+                                  aria-label={`Remover uma unidade de ${item.name}`}
+                                  className={`cine-press inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-white hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-35 ${FOCUS_RING_CLASS}`}
+                                >
+                                  <Minus className="h-4 w-4" aria-hidden="true" />
+                                </button>
+                                <span
+                                  aria-live="polite"
+                                  className="font-mono-tabular min-w-[2ch] px-1 text-center text-sm font-bold text-white"
+                                >
+                                  {qty}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => onUpdateQty(item.id, 1)}
+                                  disabled={soldOut || atMaxStock}
+                                  aria-label={`Adicionar uma unidade de ${item.name}`}
+                                  className={`cine-press inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-[var(--brand-red)] text-white hover:bg-[var(--brand-red-hover)] disabled:cursor-not-allowed disabled:opacity-35 ${FOCUS_RING_CLASS}`}
+                                >
+                                  <Plus className="h-4 w-4" aria-hidden="true" />
+                                </button>
+                              </div>
+                            </div>
+
+                            {!soldOut && atMaxStock && qty > 0 && (
+                              <p className="mt-1.5 text-right text-[11px] font-medium text-[var(--amber-progress)]">
+                                Limite máximo disponível ({item.stock} un.) atingido
+                              </p>
+                            )}
+
+                            {/* Add-ons (03_ref5 customization pills - shown cleanly when added on mobile, always teased on desktop) */}
+                            {item.addons.length > 0 && (
+                              <div className={`mt-2.5 border-t border-white/10 pt-2.5 md:mt-3 md:pt-3 ${qty === 0 ? 'hidden md:block' : ''}`}>
+                                <AnimatePresence initial={false} mode="wait">
+                                  {qty > 0 ? (
+                                    <motion.div
+                                      key="addons-active"
+                                      initial={{ opacity: 0, y: 4 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      exit={{ opacity: 0, y: -4 }}
+                                      transition={{ duration: 0.16, ease: [0.23, 1, 0.32, 1] }}
+                                    >
+                                      <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[var(--amber-progress)]">
+                                        Personalizar adicionais
+                                      </p>
+                                      <div className="flex flex-wrap gap-2">
+                                        {item.addons.map((addon) => {
+                                          const checked = selectedAddonIds.includes(addon.id);
+                                          return (
+                                            <button
+                                              key={addon.id}
+                                              type="button"
+                                              aria-pressed={checked}
+                                              onClick={() => onToggleAddon(item.id, addon.id)}
+                                              className={`cine-press inline-flex min-h-[44px] items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-medium transition-colors ${FOCUS_RING_CLASS} ${
+                                                checked
+                                                  ? 'border-[var(--amber-progress)] bg-[var(--amber-progress)]/20 text-white'
+                                                  : 'border-white/15 bg-black/35 text-[var(--text-secondary)] hover:border-white/35 hover:text-white'
+                                              }`}
+                                            >
+                                              {checked && (
+                                                <Check className="h-3.5 w-3.5 text-[var(--amber-progress)]" aria-hidden="true" />
+                                              )}
+                                              <span>
+                                                + {addon.label} ({formatPrice(addon.price)})
+                                              </span>
+                                            </button>
+                                          );
+                                        })}
+                                      </div>
+                                    </motion.div>
+                                  ) : (
+                                    <p key="addons-hint" className="text-xs text-[var(--text-muted)]">
+                                      Adicionais opcionais:{' '}
+                                      {item.addons.map((a) => `${a.label} (+${formatPrice(a.price)})`).join(' · ')}
+                                    </p>
+                                  )}
+                                </AnimatePresence>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </article>
@@ -636,6 +649,27 @@ export function CanteenCatalogView({
               </span>
             </div>
           </aside>
+        </div>
+      </div>
+
+      {/* Mobile Sticky Bottom Bag Bar */}
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-white/15 bg-[var(--bg-glass)] px-4 py-2.5 pb-[max(0.65rem,env(safe-area-inset-bottom))] backdrop-blur-md lg:hidden">
+        <div className="mx-auto flex max-w-[640px] items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+              {totalUnits} {totalUnits === 1 ? 'item' : 'itens'} · {deliveryMode === 'seat' && hasActiveTicket ? 'No assento' : 'Balcão'}
+            </p>
+            <p className="font-mono-tabular text-lg font-extrabold text-white">{formatPrice(subtotal)}</p>
+          </div>
+          <button
+            type="button"
+            disabled={cartLines.length === 0 || hasStockConflict || seatModeBlocked}
+            onClick={onCheckoutCanteenOnly}
+            className={`cine-press inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--brand-red)] px-4 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-[0_8px_20px_rgba(0,0,0,0.45)] disabled:cursor-not-allowed disabled:opacity-40 ${FOCUS_RING_CLASS}`}
+          >
+            <ShoppingBag className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <span>Finalizar</span>
+          </button>
         </div>
       </div>
     </section>

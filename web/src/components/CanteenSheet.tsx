@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useDragControls, useMotionValue, useTransform } from 'motion/react';
 import { AlertTriangle, Armchair, Check, Minus, Plus, Popcorn, ShieldCheck, ShoppingBag, Store, X } from 'lucide-react';
 import { CanteenItem } from '../data/cinemaData';
@@ -47,14 +47,28 @@ export function CanteenSheet({
   const overlayOpacity = useTransform(dragY, [0, 320], [1, 0]);
   const dragControls = useDragControls();
   const [seatBlockedNotice, setSeatBlockedNotice] = useState(false);
+  const dialogContainerRef = useRef<HTMLDivElement>(null);
+  const lastFocusedRef = useRef<HTMLElement | null>(null);
 
   const hasSeatsOrActiveTicket = seatLabels.length > 0 || hasActiveTicket;
   const seatModeUnavailable = deliveryMode === 'seat' && !hasSeatsOrActiveTicket;
 
   useEffect(() => {
     if (open) {
+      lastFocusedRef.current = document.activeElement as HTMLElement | null;
       dragY.set(0);
       setSeatBlockedNotice(false);
+      window.requestAnimationFrame(() => {
+        const container = dialogContainerRef.current;
+        if (!container) return;
+        const firstFocusable = container.querySelector<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        );
+        firstFocusable?.focus();
+      });
+    } else if (lastFocusedRef.current) {
+      lastFocusedRef.current.focus();
+      lastFocusedRef.current = null;
     }
   }, [open, dragY]);
 
@@ -63,6 +77,24 @@ export function CanteenSheet({
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
+        return;
+      }
+      if (e.key === 'Tab' && dialogContainerRef.current) {
+        const focusables = Array.from(
+          dialogContainerRef.current.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          ),
+        );
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     };
     window.addEventListener('keydown', onKeyDown);
@@ -99,6 +131,7 @@ export function CanteenSheet({
     <AnimatePresence>
       {open && (
         <div
+          ref={dialogContainerRef}
           className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
           role="dialog"
           aria-modal="true"

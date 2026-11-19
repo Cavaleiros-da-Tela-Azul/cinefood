@@ -266,25 +266,45 @@ export const KdsRunnerView: React.FC<KdsRunnerViewProps> = ({
                     </button>
                   )}
 
-                  {order.canteenStatus === 'PRONTO' && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        onAdvanceCanteenStatus(
-                          order.id,
-                          order.deliveryMode === 'seat'
-                            ? 'SAIU_PARA_ENTREGA'
-                            : 'RETIRADA_NO_BALCAO',
-                        )
-                      }
-                      className="cine-press inline-flex min-h-[44px] w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--brand-red)] px-3 py-2.5 text-xs font-bold uppercase tracking-[0.1em] text-white transition hover:bg-[var(--brand-red-hover)]"
-                    >
-                      <Truck className="h-4 w-4" aria-hidden="true" />
-                      {order.deliveryMode === 'seat'
-                        ? 'Despachar para Runner (SAIU_PARA_ENTREGA)'
-                        : 'Liberar no Balcão (RETIRADA_NO_BALCAO)'}
-                    </button>
-                  )}
+                  {order.canteenStatus === 'PRONTO' && (() => {
+                    const linkedTicket = order.linkedTicketOrderId
+                      ? orders.find((candidate) => candidate.id === order.linkedTicketOrderId)
+                      : undefined;
+                    const seatDeliveryAllowed =
+                      order.deliveryMode !== 'seat' ||
+                      (order.status !== 'CANCELADO' &&
+                        (linkedTicket
+                          ? linkedTicket.checkedIn && linkedTicket.status !== 'CANCELADO'
+                          : order.checkedIn));
+
+                    return (
+                      <div className="w-full space-y-2">
+                        {!seatDeliveryAllowed && (
+                          <p className="rounded-lg border border-red-400/40 bg-red-500/15 px-3 py-2 text-xs text-red-200">
+                            Despacho bloqueado (RST-04): ingresso vinculado cancelado ou sem validação na portaria.
+                          </p>
+                        )}
+                        <button
+                          type="button"
+                          disabled={!seatDeliveryAllowed}
+                          onClick={() =>
+                            onAdvanceCanteenStatus(
+                              order.id,
+                              order.deliveryMode === 'seat'
+                                ? 'SAIU_PARA_ENTREGA'
+                                : 'RETIRADA_NO_BALCAO',
+                            )
+                          }
+                          className="cine-press inline-flex min-h-[44px] w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--brand-red)] px-3 py-2.5 text-xs font-bold uppercase tracking-[0.1em] text-white transition hover:bg-[var(--brand-red-hover)] disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          <Truck className="h-4 w-4" aria-hidden="true" />
+                          {order.deliveryMode === 'seat'
+                            ? 'Despachar para Runner (SAIU_PARA_ENTREGA)'
+                            : 'Liberar no Balcão (RETIRADA_NO_BALCAO)'}
+                        </button>
+                      </div>
+                    );
+                  })()}
 
                   {(order.canteenStatus === 'SAIU_PARA_ENTREGA' ||
                     order.canteenStatus === 'RETIRADA_NO_BALCAO') && (

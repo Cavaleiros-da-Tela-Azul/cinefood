@@ -4,14 +4,13 @@ import {
   ArrowLeft,
   ArrowRight,
   Calendar,
-  ChevronLeft,
-  ChevronRight,
   Clock,
   MapPin,
   MessageSquare,
   Play,
   RotateCcw,
   ShieldAlert,
+  SlidersHorizontal,
   Star,
   Ticket,
   Users,
@@ -175,6 +174,8 @@ export function MovieDetailView({
   );
   const [trailerOpen, setTrailerOpen] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
+  const [mobileDetailFiltersOpen, setMobileDetailFiltersOpen] = useState(false);
+  const activeDetailFiltersCount = formatFilter !== 'Todos' ? 1 : 0;
   const dialogRef = useRef<HTMLDialogElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const movieCardRefs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -229,18 +230,6 @@ export function MovieDetailView({
     [filteredSessions],
   );
 
-  const activeMovieIndex = useMemo(() => {
-    if (!movies || movies.length === 0) return -1;
-    return movies.findIndex((item) => item.id === movie.id);
-  }, [movies, movie.id]);
-
-  const handleCycleMovie = (direction: -1 | 1) => {
-    if (!movies || movies.length <= 1 || !onSelectMovie) return;
-    const currentIdx = activeMovieIndex >= 0 ? activeMovieIndex : 0;
-    const nextIdx = (currentIdx + direction + movies.length) % movies.length;
-    onSelectMovie(movies[nextIdx].id);
-  };
-
   const hasActiveFilters =
     formatFilter !== 'Todos' || dateFilter !== 'ALL' || complexFilter !== COMPLEX_OPTIONS[0];
 
@@ -289,39 +278,19 @@ export function MovieDetailView({
           {/* Left Multi-movie quick-switcher sidebar */}
           {movies && movies.length > 0 && (
             <div
-              className="min-w-0 border-b border-[var(--border-subtle)] bg-[var(--bg-elevated)]/28 px-4 py-4 backdrop-blur-md sm:px-5 lg:min-h-[calc(100dvh-68px)] lg:border-b-0 lg:border-r lg:px-4 lg:py-7"
+              className="min-w-0 border-b border-[var(--border-subtle)] bg-[var(--bg-elevated)]/28 px-3 py-2.5 backdrop-blur-md sm:px-5 lg:min-h-[calc(100dvh-68px)] lg:border-b-0 lg:border-r lg:px-4 lg:py-7"
               role="region"
               aria-label={`Filmes em Cartaz (${movies.length})`}
             >
-              <div className="flex items-center justify-between gap-2">
+              <div className="hidden items-center justify-between gap-2 lg:flex">
                 <div className="flex min-w-0 items-center gap-2">
                   <span className="truncate text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--text-secondary)]">
                     Filmes em Cartaz ({movies.length})
                   </span>
                 </div>
-                <div className="flex shrink-0 items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => handleCycleMovie(-1)}
-                    disabled={movies.length <= 1 || !onSelectMovie}
-                    aria-label="Filme anterior"
-                    className={`inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/40 text-[var(--text-secondary)] backdrop-blur-md transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface)]/55 hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-40 ${FOCUS_RING_CLASS}`}
-                  >
-                    <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleCycleMovie(1)}
-                    disabled={movies.length <= 1 || !onSelectMovie}
-                    aria-label="Próximo filme"
-                    className={`inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/40 text-[var(--text-secondary)] backdrop-blur-md transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface)]/55 hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-40 ${FOCUS_RING_CLASS}`}
-                  >
-                    <ChevronRight className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                </div>
               </div>
 
-              <div className="mt-3 flex snap-x snap-mandatory gap-2.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:mt-4 lg:flex-col lg:snap-none lg:overflow-x-visible lg:overflow-y-auto lg:pb-0">
+              <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:mt-4 lg:flex-col lg:gap-2.5 lg:snap-none lg:overflow-x-visible lg:overflow-y-auto">
                 {movies.map((item) => {
                   const isActive = item.id === movie.id;
                   const primaryFormat = item.sessions[0]?.format;
@@ -335,26 +304,26 @@ export function MovieDetailView({
                       aria-current={isActive ? 'true' : undefined}
                       aria-pressed={isActive}
                       onClick={() => onSelectMovie?.(item.id)}
-                      className={`flex min-h-[44px] w-[210px] shrink-0 snap-start items-center gap-3 rounded-xl border p-2 text-left backdrop-blur-md transition-colors sm:w-[228px] lg:w-full ${FOCUS_RING_CLASS} ${
+                      className={`flex min-h-[40px] shrink-0 snap-start items-center gap-2.5 rounded-full border px-3.5 py-1.5 text-left backdrop-blur-md transition-colors lg:min-h-[44px] lg:w-full lg:rounded-xl lg:p-2 ${FOCUS_RING_CLASS} ${
                         isActive
-                          ? 'border-[var(--brand-red)] bg-[var(--bg-surface)]/55 shadow-[0_0_0_1px_var(--brand-red)]'
-                          : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)]/35 hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface)]/50'
+                          ? 'border-[var(--brand-red)] bg-[var(--brand-red)]/20 text-white shadow-[0_0_0_1px_var(--brand-red)] lg:bg-[var(--bg-surface)]/55'
+                          : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)]/45 text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-white lg:bg-[var(--bg-elevated)]/35'
                       }`}
                     >
                       <img
                         src={item.posterSrc}
                         alt=""
-                        className="h-14 w-10 shrink-0 rounded-lg border border-white/10 object-cover"
+                        className="hidden h-14 w-10 shrink-0 rounded-lg border border-white/10 object-cover lg:block"
                       />
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-xs font-bold uppercase tracking-wide text-[var(--text-primary)] lg:line-clamp-2 lg:whitespace-normal">
+                        <p className="truncate text-[11px] font-bold uppercase tracking-wide text-[var(--text-primary)] lg:line-clamp-2 lg:whitespace-normal lg:text-xs">
                           {item.title}
                         </p>
-                        <p className="mt-0.5 truncate text-[11px] font-medium text-[var(--text-secondary)]">
+                        <p className="mt-0.5 hidden truncate text-[11px] font-medium text-[var(--text-secondary)] lg:block">
                           {primaryFormat ? `${primaryFormat} · ${item.duration}` : item.duration}
                         </p>
                         {isActive && (
-                          <span className="mt-1 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[var(--amber-progress)]">
+                          <span className="mt-1 hidden items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[var(--amber-progress)] lg:inline-flex">
                             Em foco
                           </span>
                         )}
@@ -367,27 +336,28 @@ export function MovieDetailView({
           )}
 
           {/* Main Editorial Content */}
-          <div className="flex min-w-0 flex-col justify-between px-4 py-8 sm:px-8 lg:min-h-[calc(100dvh-68px)] lg:border-r lg:border-[var(--border-subtle)] lg:px-10 lg:py-10">
+          <div className="flex min-w-0 flex-col justify-between px-4 py-4 sm:px-8 sm:py-8 lg:min-h-[calc(100dvh-68px)] lg:border-r lg:border-[var(--border-subtle)] lg:px-10 lg:py-10">
             <div>
-              <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-nowrap items-center justify-between gap-2">
                 <button
                   type="button"
                   onClick={onBack}
-                  className={`inline-flex min-h-[44px] items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/40 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)] backdrop-blur-md transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface)]/55 hover:text-[var(--text-primary)] ${FOCUS_RING_CLASS}`}
+                  className={`inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/40 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)] backdrop-blur-md transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface)]/55 hover:text-[var(--text-primary)] sm:gap-2 sm:px-4 sm:text-xs ${FOCUS_RING_CLASS}`}
                 >
-                  <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-                  <span>Voltar ao Cartaz</span>
+                  <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span>Voltar<span className="hidden sm:inline"> ao Cartaz</span></span>
                 </button>
 
                 {onOpenReviews && (
                   <button
                     type="button"
+                    aria-label={`Ver Comentários da Rede${typeof communityReviewCount === 'number' ? ` (${communityReviewCount})` : ''}`}
                     onClick={() => onOpenReviews(movie.id)}
-                    className={`inline-flex min-h-[44px] items-center gap-2 rounded-full border border-[var(--amber-progress)]/45 bg-[var(--amber-progress)]/15 px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-[#FCD34D] transition-colors hover:bg-[var(--amber-progress)]/25 active:scale-95 ${FOCUS_RING_CLASS}`}
+                    className={`inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border border-[var(--amber-progress)]/45 bg-[var(--amber-progress)]/15 px-3.5 py-2 text-[11px] font-bold uppercase tracking-[0.1em] text-[#FCD34D] transition-colors hover:bg-[var(--amber-progress)]/25 active:scale-95 sm:gap-2 sm:px-4 sm:text-xs ${FOCUS_RING_CLASS}`}
                   >
-                    <MessageSquare className="h-4 w-4" aria-hidden="true" />
+                    <MessageSquare className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" aria-hidden="true" />
                     <span>
-                      Ver Comentários da Rede
+                      <span className="hidden sm:inline">Ver </span>Comentários<span className="hidden sm:inline"> da Rede</span>
                       {typeof communityReviewCount === 'number' ? ` (${communityReviewCount})` : ''}
                     </span>
                   </button>
@@ -398,144 +368,157 @@ export function MovieDetailView({
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="mt-7"
+                className="mt-3.5 sm:mt-7"
               >
-                <div className="max-w-2xl">
+                <div className="flex max-w-2xl items-start gap-3.5 lg:block">
+                  <img
+                    src={movie.posterSrc}
+                    alt={`Pôster de ${movie.title}`}
+                    className="h-24 w-16 shrink-0 rounded-xl border border-white/15 object-cover shadow-lg lg:hidden"
+                  />
+                  <div className="min-w-0 flex-1">
                   {(() => {
                     const detailClassInfo = resolveClassificationSymbol(
                       movie.rating,
                       movie.genre.split(','),
                     );
                     return (
-                      <div className="mb-3 flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)]">
+                      <div className="mb-1.5 flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-secondary)] sm:mb-3 sm:gap-3 sm:text-xs sm:tracking-[0.16em]">
                         <span
                           title={detailClassInfo.fullDescription}
-                          className="inline-flex items-center gap-1.5 rounded border border-[var(--border-strong)] bg-white/10 px-2 py-0.5 text-[var(--text-primary)]"
+                          className="inline-flex items-center gap-1 rounded border border-[var(--border-strong)] bg-white/10 px-1.5 py-0.5 text-[var(--text-primary)] sm:gap-1.5 sm:px-2"
                         >
                           <img
                             src={detailClassInfo.iconSrc}
                             alt={detailClassInfo.fullDescription}
-                            className="h-5 w-5 shrink-0 rounded-sm object-contain"
+                            className="h-4 w-4 shrink-0 rounded-sm object-contain sm:h-5 sm:w-5"
                           />
                           <span>{movie.rating}</span>
                         </span>
-                        <span className="inline-flex items-center gap-1.5">
-                          <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                        <span className="inline-flex items-center gap-1">
+                          <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
                           {movie.duration}
                         </span>
                         {typeof movie.ratingAvg === 'number' && (
                           <span className="inline-flex items-center gap-1 text-[#FCD34D]">
-                            <Star className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
+                            <Star className="h-3 w-3 fill-current sm:h-3.5 sm:w-3.5" aria-hidden="true" />
                             <span className="font-mono-tabular">{movie.ratingAvg.toFixed(1)}</span>
                           </span>
                         )}
-                        <span>·</span>
-                        <span>{movie.genre}</span>
+                        <span className="hidden sm:inline">·</span>
+                        <span className="hidden sm:inline">{movie.genre}</span>
                       </div>
                     );
                   })()}
 
-                  <h1 className="font-display line-clamp-2 break-words text-4xl font-extrabold uppercase leading-[0.92] tracking-[-0.02em] text-[var(--text-primary)] sm:text-7xl lg:text-8xl">
+                  <h1 className="font-display line-clamp-2 break-words text-3xl font-extrabold uppercase leading-[0.94] tracking-[-0.02em] text-[var(--text-primary)] sm:text-7xl lg:text-8xl">
                     {movie.title}
                   </h1>
 
-                  <p className="mt-5 max-w-xl text-base leading-relaxed text-[var(--text-secondary)] sm:text-lg">
+                  <p className="mt-1.5 line-clamp-2 max-w-xl text-xs leading-relaxed text-[var(--text-secondary)] sm:mt-5 sm:line-clamp-none sm:text-lg">
                     {movie.synopsis}
                   </p>
+                  </div>
                 </div>
 
-                {/* Filters: Format, Date & Complex */}
-                <div className="mt-7 max-w-3xl space-y-4">
-                  <div>
-                    <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)]">
-                      Filtrar por formato
-                    </span>
-                    <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Filtrar sessões por formato">
-                      {DETAIL_FORMAT_FILTERS.map((fmt) => {
-                        const active = formatFilter === fmt;
-                        return (
-                          <button
-                            key={fmt}
-                            type="button"
-                            aria-pressed={active}
-                            onClick={() => setFormatFilter(fmt)}
-                            className={`min-h-[44px] rounded-full border px-4 py-2 text-xs font-semibold backdrop-blur-md transition-colors active:scale-95 ${FOCUS_RING_CLASS} ${
-                              active
-                                ? 'border-[var(--brand-red)] bg-[var(--brand-red)] text-white'
-                                : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)]/35 text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface)]/55 hover:text-[var(--text-primary)]'
-                            }`}
-                          >
-                            {fmt}
-                          </button>
-                        );
-                      })}
+                {/* Filters: Date always visible + collapsible Formato/Complexo on < lg */}
+                <div className="mt-4 max-w-3xl space-y-2.5 sm:mt-7 sm:space-y-4">
+                  <div className="flex items-end justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <span className="hidden text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)] sm:block">
+                        Filtrar por data
+                      </span>
+                      <div className="flex flex-nowrap gap-1.5 overflow-x-auto pb-1 sm:mt-2 sm:flex-wrap sm:gap-2 sm:overflow-visible sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Filtrar sessões por data">
+                        <button
+                          type="button"
+                          aria-pressed={dateFilter === 'ALL'}
+                          onClick={() => setDateFilter('ALL')}
+                          className={`min-h-[44px] shrink-0 rounded-lg border px-3 py-2 text-xs font-semibold backdrop-blur-md transition-colors active:scale-95 sm:px-3.5 ${FOCUS_RING_CLASS} ${
+                            dateFilter === 'ALL'
+                              ? 'border-[var(--brand-red)] bg-[var(--brand-red)] text-white'
+                              : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)]/35 text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface)]/55 hover:text-[var(--text-primary)]'
+                          }`}
+                        >
+                          Todas as datas
+                        </button>
+                        {DATE_OPTIONS.map((d) => {
+                          const active = dateFilter === d.id;
+                          return (
+                            <button
+                              key={d.id}
+                              type="button"
+                              aria-pressed={active}
+                              onClick={() => setDateFilter(d.id)}
+                              className={`inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold backdrop-blur-md transition-colors active:scale-95 sm:px-3.5 ${FOCUS_RING_CLASS} ${
+                                active
+                                  ? 'border-[var(--brand-red)] bg-[var(--brand-red)] text-white'
+                                  : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)]/35 text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface)]/55 hover:text-[var(--text-primary)]'
+                              }`}
+                            >
+                              <span className="font-mono-tabular font-bold">{d.day}</span>
+                              <span>{d.month}</span>
+                              <span className={active ? 'text-white/90' : 'text-[var(--text-muted)]'}>· {d.weekday}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
+
+                    <button
+                      type="button"
+                      aria-expanded={mobileDetailFiltersOpen}
+                      onClick={() => setMobileDetailFiltersOpen((prev) => !prev)}
+                      className={`mb-1 inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold backdrop-blur-md transition-colors lg:hidden ${FOCUS_RING_CLASS} ${
+                        mobileDetailFiltersOpen || activeDetailFiltersCount > 0
+                          ? 'border-[var(--brand-red)] bg-[var(--brand-red)]/20 text-white'
+                          : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)]/45 text-[var(--text-secondary)] hover:text-white'
+                      }`}
+                    >
+                      <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" />
+                      <span>Filtros</span>
+                      {activeDetailFiltersCount > 0 && (
+                        <span className="font-mono-tabular flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[var(--brand-red)] px-1 text-[10px] font-bold text-white">
+                          {activeDetailFiltersCount}
+                        </span>
+                      )}
+                    </button>
                   </div>
 
-                  <div>
-                    <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)]">
-                      Filtrar por data
-                    </span>
-                    <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Filtrar sessões por data">
-                      <button
-                        type="button"
-                        aria-pressed={dateFilter === 'ALL'}
-                        onClick={() => setDateFilter('ALL')}
-                        className={`min-h-[44px] rounded-lg border px-3.5 py-2 text-xs font-semibold backdrop-blur-md transition-colors active:scale-95 ${FOCUS_RING_CLASS} ${
-                          dateFilter === 'ALL'
-                            ? 'border-[var(--brand-red)] bg-[var(--brand-red)] text-white'
-                            : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)]/35 text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface)]/55 hover:text-[var(--text-primary)]'
-                        }`}
-                      >
-                        Todas as datas
-                      </button>
-                      {DATE_OPTIONS.map((d) => {
-                        const active = dateFilter === d.id;
-                        return (
-                          <button
-                            key={d.id}
-                            type="button"
-                            aria-pressed={active}
-                            onClick={() => setDateFilter(d.id)}
-                            className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border px-3.5 py-2 text-xs font-semibold backdrop-blur-md transition-colors active:scale-95 ${FOCUS_RING_CLASS} ${
-                              active
-                                ? 'border-[var(--brand-red)] bg-[var(--brand-red)] text-white'
-                                : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)]/35 text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface)]/55 hover:text-[var(--text-primary)]'
-                            }`}
-                          >
-                            <span className="font-mono-tabular font-bold">{d.day}</span>
-                            <span>{d.month}</span>
-                            <span className={active ? 'text-white/90' : 'text-[var(--text-muted)]'}>· {d.weekday}</span>
-                          </button>
-                        );
-                      })}
+                  <div className={`${mobileDetailFiltersOpen ? 'block' : 'hidden'} space-y-3 lg:block lg:space-y-4`}>
+                    <div>
+                      <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)]">
+                        Filtrar por formato
+                      </span>
+                      <div className="mt-2 flex flex-nowrap gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Filtrar sessões por formato">
+                        {DETAIL_FORMAT_FILTERS.map((fmt) => {
+                          const active = formatFilter === fmt;
+                          return (
+                            <button
+                              key={fmt}
+                              type="button"
+                              aria-pressed={active}
+                              onClick={() => setFormatFilter(fmt)}
+                              className={`min-h-[44px] shrink-0 rounded-full border px-4 py-2 text-xs font-semibold backdrop-blur-md transition-colors active:scale-95 ${FOCUS_RING_CLASS} ${
+                                active
+                                  ? 'border-[var(--brand-red)] bg-[var(--brand-red)] text-white'
+                                  : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)]/35 text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface)]/55 hover:text-[var(--text-primary)]'
+                              }`}
+                            >
+                              {fmt}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
 
-                  <div>
-                    <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)]">
-                      Unidade / Complexo
-                    </span>
-                    <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Filtrar sessões por complexo">
-                      {COMPLEX_OPTIONS.map((complex) => {
-                        const active = complexFilter === complex;
-                        return (
-                          <button
-                            key={complex}
-                            type="button"
-                            aria-pressed={active}
-                            onClick={() => setComplexFilter(complex)}
-                            className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-semibold backdrop-blur-md transition-colors active:scale-95 ${FOCUS_RING_CLASS} ${
-                              active
-                                ? 'border-[var(--brand-red)] bg-[var(--brand-red)]/30 text-[var(--text-primary)]'
-                                : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)]/35 text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface)]/55 hover:text-[var(--text-primary)]'
-                            }`}
-                          >
-                            <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                            <span>{complex}</span>
-                          </button>
-                        );
-                      })}
+                    <div>
+                      <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)]">
+                        Unidade Piloto Única (RST-01)
+                      </span>
+                      <div className="mt-2 inline-flex min-h-[44px] items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/40 px-4 py-2 text-xs font-semibold text-[var(--text-primary)] backdrop-blur-md">
+                        <MapPin className="h-3.5 w-3.5 shrink-0 text-[var(--brand-red)]" aria-hidden="true" />
+                        <span>CineFood Operações Piloto Ltda. · Salas 01 a 04</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -702,31 +685,33 @@ export function MovieDetailView({
           </div>
 
           {/* Right Metadata Rail + Watch Trailer Card */}
-          <aside className="flex flex-col justify-between bg-[var(--bg-elevated)]/28 px-6 py-8 backdrop-blur-md lg:py-10">
-            <div className="space-y-6">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
-                  Estreia
-                </p>
-                <p className="mt-1 text-sm font-medium text-[var(--text-primary)]">{movie.premiere}</p>
-              </div>
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
-                  Direção
-                </p>
-                <p className="mt-1 text-sm font-medium text-[var(--text-primary)]">{movie.director}</p>
-              </div>
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
-                  Trilha Sonora
-                </p>
-                <p className="mt-1 text-sm font-medium text-[var(--text-primary)]">{movie.musicBy}</p>
-              </div>
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
-                  Gênero
-                </p>
-                <p className="mt-1 text-sm font-medium text-[var(--text-primary)]">{movie.genre}</p>
+          <aside className="flex flex-col justify-between bg-[var(--bg-elevated)]/28 px-4 py-6 backdrop-blur-md sm:px-6 sm:py-8 lg:py-10">
+            <div className="space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-1 sm:gap-5">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
+                    Estreia
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-[var(--text-primary)]">{movie.premiere}</p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
+                    Direção
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-[var(--text-primary)]">{movie.director}</p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
+                    Trilha Sonora
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-[var(--text-primary)]">{movie.musicBy}</p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
+                    Gênero
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-[var(--text-primary)]">{movie.genre}</p>
+                </div>
               </div>
               <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/35 p-3.5 text-xs leading-relaxed text-[var(--text-secondary)] backdrop-blur-md">
                 <span className="inline-flex items-center gap-1.5 font-semibold text-[var(--text-primary)]">
@@ -742,7 +727,7 @@ export function MovieDetailView({
                 <button
                   type="button"
                   onClick={() => onOpenReviews(movie.id)}
-                  className={`flex min-h-[44px] w-full items-center justify-between rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/35 px-4 py-3 text-left text-xs font-semibold text-[var(--text-primary)] backdrop-blur-md transition-colors hover:border-[var(--amber-progress)]/60 hover:bg-[var(--bg-surface)]/55 ${FOCUS_RING_CLASS}`}
+                  className={`hidden min-h-[44px] w-full items-center justify-between rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/35 px-4 py-3 text-left text-xs font-semibold text-[var(--text-primary)] backdrop-blur-md transition-colors hover:border-[var(--amber-progress)]/60 hover:bg-[var(--bg-surface)]/55 lg:flex ${FOCUS_RING_CLASS}`}
                 >
                   <span className="inline-flex items-center gap-2">
                     <MessageSquare className="h-4 w-4 text-[var(--amber-progress)]" aria-hidden="true" />

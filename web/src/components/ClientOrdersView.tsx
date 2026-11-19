@@ -5,6 +5,7 @@ import {
   Ban,
   Bell,
   CheckCircle2,
+  ChevronDown,
   Clock,
   Edit3,
   FileDown,
@@ -67,6 +68,7 @@ export function ClientOrdersView({
   onSubmitLgpdRequest,
 }: ClientOrdersViewProps) {
   const [activeTab, setActiveTab] = useState<ClientTab>(initialTab);
+  const [mobileNoticesOpen, setMobileNoticesOpen] = useState(false);
 
   useEffect(() => {
     setActiveTab(initialTab);
@@ -100,6 +102,9 @@ export function ClientOrdersView({
 
   const userOrders = currentUser ? orders.filter((o) => o.userId === currentUser.id) : [];
   const userNotices = currentUser ? notices.filter((n) => n.userId === currentUser.id) : [];
+  const userLgpdRequests = currentUser
+    ? lgpdRequests.filter((r) => r.userId === currentUser.id)
+    : [];
   const unreadNoticesCount = userNotices.filter((n) => !n.read).length;
 
   const handleLgpdSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -218,34 +223,50 @@ export function ClientOrdersView({
           </div>
         </div>
 
-        {/* Avisos Internos Section */}
+        {/* Avisos Internos Section (compact collapsible drawer on narrow mobile) */}
         <section
           aria-label="Avisos Internos"
-          className="mt-6 rounded-2xl border border-white/15 bg-[var(--bg-elevated)]/90 p-5 shadow-lg backdrop-blur-md"
+          className="mt-4 rounded-2xl border border-white/15 bg-[var(--bg-elevated)]/90 p-3.5 shadow-lg backdrop-blur-md sm:mt-6 sm:p-5"
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <Bell className="h-4 w-4 text-[var(--amber-progress)]" aria-hidden="true" />
-              <h2 className="font-display text-xl font-bold uppercase tracking-wide text-white">
+              <Bell className="h-4 w-4 shrink-0 text-[var(--amber-progress)]" aria-hidden="true" />
+              <h2 className="font-display text-lg font-bold uppercase tracking-wide text-white sm:text-xl">
                 Avisos Internos
               </h2>
               {unreadNoticesCount > 0 && (
-                <span className="rounded-full bg-[var(--brand-red)] px-2.5 py-0.5 text-[11px] font-bold text-white">
+                <span className="rounded-full bg-[var(--brand-red)] px-2 py-0.5 text-[11px] font-bold text-white sm:px-2.5">
                   {unreadNoticesCount} novo(s)
                 </span>
               )}
             </div>
-            <span className="text-[11px] text-[var(--text-muted)]">
+
+            <span className="hidden text-[11px] text-[var(--text-muted)] sm:inline">
               Notificações de portaria, cantina, estornos e LGPD
             </span>
+
+            {userNotices.length > 0 && (
+              <button
+                type="button"
+                aria-expanded={mobileNoticesOpen}
+                onClick={() => setMobileNoticesOpen((prev) => !prev)}
+                className="cine-press inline-flex min-h-[36px] items-center gap-1 rounded-full border border-white/15 bg-black/35 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white sm:hidden"
+              >
+                <span>{mobileNoticesOpen ? 'Ocultar' : `Ver (${userNotices.length})`}</span>
+                <ChevronDown
+                  className={`h-3.5 w-3.5 transition-transform ${mobileNoticesOpen ? 'rotate-180' : ''}`}
+                  aria-hidden="true"
+                />
+              </button>
+            )}
           </div>
 
           {userNotices.length === 0 ? (
-            <p className="mt-3 text-xs text-[var(--text-secondary)]">
+            <p className="mt-2.5 text-xs text-[var(--text-secondary)] sm:mt-3">
               Nenhum aviso interno registrado para esta conta até o momento.
             </p>
           ) : (
-            <ul className="mt-3 space-y-2.5">
+            <ul className={`mt-3 space-y-2.5 ${mobileNoticesOpen ? 'block' : 'hidden sm:block'}`}>
               {userNotices.map((notice) => {
                 const toneBorder =
                   notice.type === 'refund'
@@ -344,7 +365,7 @@ export function ClientOrdersView({
             }`}
           >
             <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-            <span>Direitos LGPD ({lgpdRequests.length})</span>
+            <span>Direitos LGPD ({userLgpdRequests.length})</span>
           </button>
         </div>
 
@@ -835,7 +856,12 @@ export function ClientOrdersView({
               <h3 className="font-display text-2xl font-bold uppercase text-white">
                 Protocolos Registrados
               </h3>
-              {lgpdRequests.map((req) => (
+              {userLgpdRequests.length === 0 ? (
+                <p className="rounded-xl border border-white/10 bg-black/25 p-4 text-xs text-[var(--text-secondary)]">
+                  Nenhuma solicitação LGPD registrada para esta conta.
+                </p>
+              ) : (
+                userLgpdRequests.map((req) => (
                 <div key={req.id} className="rounded-xl border border-white/10 bg-black/35 p-4 text-xs">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="font-mono-tabular font-bold text-[var(--amber-progress)]">
@@ -853,7 +879,7 @@ export function ClientOrdersView({
                     Registrado em {req.createdAt}
                   </p>
                 </div>
-              ))}
+              )))}
             </div>
           </div>
         )}

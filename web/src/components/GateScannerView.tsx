@@ -76,6 +76,7 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
   const [formKey, setFormKey] = useState(0);
   const [cameraActive, setCameraActive] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [offlineSim, setOfflineSim] = useState(false);
   const [lastResult, setLastResult] = useState<{
     outcome: GateScanRecord['outcome'];
     title: string;
@@ -130,6 +131,17 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
     if (!cleaned) return;
     setTokenInput(cleaned);
     setFormKey((k) => k + 1);
+
+    if (offlineSim || (typeof navigator !== 'undefined' && navigator.onLine === false)) {
+      commitScanResult({
+        outcome: 'INVALIDO',
+        title: 'Portaria Offline — Validação Bloqueada',
+        detail:
+          'Operação offline recusada (RST-02 / RF-06): validação de QR Code requer conexão online ativa com a API.',
+        triggeredKitchenPrep: false,
+      });
+      return;
+    }
 
     const matchedOrder = orders.find(
       (o) =>
@@ -242,6 +254,19 @@ export const GateScannerView: React.FC<GateScannerViewProps> = ({
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setOfflineSim((prev) => !prev)}
+                aria-pressed={offlineSim}
+                className={`cine-press inline-flex min-h-[44px] cursor-pointer items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-semibold transition ${
+                  offlineSim
+                    ? 'border-red-400/50 bg-red-500/20 text-red-200'
+                    : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]'
+                }`}
+              >
+                <ShieldAlert className="h-4 w-4" aria-hidden="true" />
+                <span>{offlineSim ? 'Modo Offline (Bloqueado)' : 'Simular Offline'}</span>
+              </button>
               <button
                 type="button"
                 onClick={() => setSoundEnabled((prev) => !prev)}

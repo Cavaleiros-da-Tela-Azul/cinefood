@@ -2,25 +2,34 @@ import { Check } from 'lucide-react';
 
 interface StepperBarProps {
   current: 1 | 2 | 3 | 4;
-  onStepClick?: (step: 1 | 2 | 3 | 4) => void;
+  mode?: 'ticket' | 'canteen';
+  onStepClick?: (step: 1 | 2 | 3) => void;
 }
 
-const STEPS = [
+const TICKET_STEPS = [
   { num: 1, label: 'Escolha o Assento' },
-  { num: 2, label: 'Cantina' },
-  { num: 3, label: 'Pagamento' },
-  { num: 4, label: 'Ingresso' },
+  { num: 2, label: 'Pagamento Ingresso' },
+  { num: 3, label: 'Ingresso Digital' },
 ] as const;
 
-export function StepperBar({ current, onStepClick }: StepperBarProps) {
+const CANTEEN_STEPS = [
+  { num: 1, label: 'Cardápio Cantina' },
+  { num: 2, label: 'Pagamento Cantina' },
+  { num: 3, label: 'Pedido Cantina' },
+] as const;
+
+export function StepperBar({ current, mode = 'ticket', onStepClick }: StepperBarProps) {
+  const normalizedCurrent = current === 4 ? 3 : current;
+  const steps = mode === 'canteen' ? CANTEEN_STEPS : TICKET_STEPS;
+
   return (
     <ol
-      className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3"
+      className="flex items-center gap-1.5 sm:grid sm:grid-cols-3 sm:gap-3"
       aria-label="Etapas da compra"
     >
-      {STEPS.map((step) => {
-        const active = step.num === current;
-        const done = step.num < current;
+      {steps.map((step) => {
+        const active = step.num === normalizedCurrent;
+        const done = step.num < normalizedCurrent;
 
         const badgeClass = `font-mono-tabular flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold transition-colors ${
           active
@@ -30,7 +39,9 @@ export function StepperBar({ current, onStepClick }: StepperBarProps) {
               : 'bg-white/10 text-[var(--text-muted)]'
         }`;
 
-        const cardClass = `rounded-xl border px-3 py-2.5 backdrop-blur-md transition-colors ${
+        const cardClass = `rounded-xl border py-2 backdrop-blur-md transition-colors sm:px-3 sm:py-2.5 ${
+          active ? 'px-3' : 'px-2.5'
+        } ${
           active
             ? 'border-[var(--brand-red)]/70 bg-[var(--bg-surface)]/85 text-white'
             : done
@@ -38,7 +49,7 @@ export function StepperBar({ current, onStepClick }: StepperBarProps) {
               : 'border-white/10 bg-[var(--bg-elevated)]/45 text-[var(--text-muted)]'
         }`;
 
-        const barClass = `mt-2 h-[2px] w-full rounded-full ${
+        const barClass = `mt-1.5 h-[2px] w-full rounded-full sm:mt-2 ${
           active
             ? 'bg-[var(--brand-red)]'
             : done
@@ -48,11 +59,15 @@ export function StepperBar({ current, onStepClick }: StepperBarProps) {
 
         const inner = (
           <div className="w-full min-w-0">
-            <div className="flex items-center gap-2.5">
+            <div className={`flex items-center gap-2 sm:justify-start sm:gap-2.5 ${active ? 'justify-start' : 'justify-center'}`}>
               <span className={badgeClass}>
                 {done ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : step.num}
               </span>
-              <span className="truncate text-[11px] font-bold uppercase tracking-[0.11em]">
+              <span
+                className={`truncate text-[11px] font-bold uppercase tracking-[0.11em] ${
+                  active ? 'inline' : 'hidden sm:inline'
+                }`}
+              >
                 {step.label}
               </span>
             </div>
@@ -61,10 +76,15 @@ export function StepperBar({ current, onStepClick }: StepperBarProps) {
         );
 
         return (
-          <li key={step.num} aria-current={active ? 'step' : undefined} className="min-w-0">
+          <li
+            key={step.num}
+            aria-current={active ? 'step' : undefined}
+            className={active ? 'min-w-0 flex-1' : 'shrink-0 sm:min-w-0 sm:flex-1'}
+          >
             {onStepClick ? (
               <button
                 type="button"
+                aria-label={step.label}
                 onClick={() => onStepClick(step.num)}
                 className={`cine-press flex min-h-[44px] w-full items-center text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#60A5FA] ${cardClass}`}
               >

@@ -114,9 +114,11 @@ export function TicketPassView({
         : 'RETIRADA_NO_BALCAO';
 
   const displayTitle = isCanteenOnly
-    ? 'PEDIDO DE CANTINA (BALCÃO)'
+    ? deliveryMode === 'seat'
+      ? 'PEDIDO DE CANTINA (ENTREGA NO ASSENTO)'
+      : 'PEDIDO DE CANTINA (BALCÃO)'
     : order?.movieTitle ?? movie?.title ?? 'INGRESSO CINEFOOD';
-  const displayComplex = order?.complex ?? session?.complex ?? 'CineFood';
+  const displayComplex = order?.complex ?? session?.complex ?? 'CineFood Operações Piloto Ltda.';
   const displayRoom = order?.room ?? session?.room ?? 'Balcão Expresso';
   const displayFormat = order?.format ?? session?.format ?? 'Cantina';
   const displayDate = order?.dateLabel ?? session?.dateLabel ?? 'Hoje';
@@ -158,7 +160,7 @@ export function TicketPassView({
       )}
 
       <div className="relative z-10 mx-auto max-w-[960px]">
-        <StepperBar current={4} />
+        <StepperBar current={3} mode={isCanteenOnly ? 'canteen' : 'ticket'} />
 
         {/* Boarding Pass Card */}
         <motion.div
@@ -324,7 +326,9 @@ export function TicketPassView({
             {isCanteenOnly ? (
               <div className="mx-auto flex max-w-xs flex-col items-center rounded-2xl border border-white/15 bg-black/45 p-6 text-center shadow-lg">
                 <span className="mb-3 rounded-full bg-[var(--amber-progress)]/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#FCD34D]">
-                  Retirada no Balcão
+                  {deliveryMode === 'seat' && order?.seatsLabel && order.seatsLabel.length > 0
+                    ? `Entrega no Assento (${order.seatsLabel.join(', ')})`
+                    : 'Retirada no Balcão'}
                 </span>
                 <div className="rounded-2xl bg-white p-2 shadow-lg">
                   <DeterministicQrSvg

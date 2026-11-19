@@ -91,7 +91,7 @@ export function Header({
               <span className="font-display truncate text-lg font-extrabold tracking-wide text-white sm:text-2xl">
                 CINEFOOD
               </span>
-              <span className="truncate whitespace-nowrap text-[9px] font-medium uppercase tracking-[0.12em] text-[var(--text-secondary)] sm:text-[11px] sm:tracking-[0.2em]">
+              <span className="hidden truncate whitespace-nowrap text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--text-secondary)] sm:block">
                 Cinema &amp; Cantina
               </span>
             </span>
@@ -147,14 +147,14 @@ export function Header({
             type="button"
             onClick={() => onNavigate('auth')}
             aria-label={currentUser ? `Conta de ${currentUser.name}` : 'Entrar ou criar conta'}
-            className={`cine-press hidden min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors sm:inline-flex ${FOCUS_RING_CLASS} ${
+            className={`cine-press inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1.5 text-xs font-semibold transition-colors sm:min-w-0 sm:px-3 ${FOCUS_RING_CLASS} ${
               currentStep === 'auth'
                 ? 'border-white bg-white text-[#0D0E12]'
                 : 'border-white/15 bg-white/5 text-[var(--text-secondary)] hover:border-white/30 hover:text-white'
             }`}
           >
-            <User className="h-3.5 w-3.5" aria-hidden="true" />
-            <span className="max-w-[96px] truncate">
+            <User className="h-4 w-4 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
+            <span className="hidden max-w-[96px] truncate sm:inline">
               {currentUser ? currentUser.name.split(' ')[0] : 'Entrar'}
             </span>
           </button>
@@ -162,7 +162,7 @@ export function Header({
           <button
             type="button"
             onClick={() => onNavigate(selectedSeatsCount > 0 ? 'seats' : 'detail')}
-            className={`cine-press inline-flex min-h-[44px] items-center gap-1 whitespace-nowrap rounded-full bg-[var(--brand-red)] px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-white shadow-[0_6px_18px_rgba(0,0,0,0.4)] transition-colors hover:bg-[var(--brand-red-hover)] sm:gap-1.5 sm:px-4 sm:text-xs ${FOCUS_RING_CLASS}`}
+            className={`cine-press hidden min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--brand-red)] px-4 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-[0_6px_18px_rgba(0,0,0,0.4)] transition-colors hover:bg-[var(--brand-red-hover)] sm:inline-flex ${FOCUS_RING_CLASS}`}
           >
             <Ticket className="h-3.5 w-3.5" aria-hidden="true" />
             <span>{selectedSeatsCount > 0 ? `Comprar (${selectedSeatsCount})` : 'Comprar'}</span>

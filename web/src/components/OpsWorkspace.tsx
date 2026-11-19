@@ -25,6 +25,7 @@ import {
   SessionSlot,
   SessionStatus,
   STAFF_PROFILES,
+  StaffOperatorProfile,
   StaffRoleGroup,
 } from '../data/cinemaData';
 import { GateScannerView } from './GateScannerView';
@@ -68,6 +69,10 @@ export interface OpsWorkspaceProps {
   onAddSession: (movieId: string, slot: SessionSlot) => void;
   onToggleSessionStatus?: (movieId: string, sessionId: string, status: SessionStatus) => void;
   onUpdateCanteenStock?: (itemId: string, stock: number) => void;
+  operators?: StaffOperatorProfile[];
+  onAddMovie?: (movie: MovieItem) => void;
+  onAddCanteenItem?: (item: CanteenItem) => void;
+  onUpsertOperator?: (op: StaffOperatorProfile) => void;
 }
 
 const DEMO_OPS_PIN = '1234';
@@ -80,7 +85,7 @@ const OPS_MODULES: {
   icon: React.ComponentType<{ className?: string }>;
 }[] = [
   { id: 'gate', label: 'Portaria QR', ownerGroup: 'Portaria', badge: '#15', icon: QrCode },
-  { id: 'boxoffice', label: 'Bilheteria', ownerGroup: 'Gerência', badge: '#10', icon: Ticket },
+  { id: 'boxoffice', label: 'Bilheteria', ownerGroup: 'Bilheteria', badge: '#10', icon: Ticket },
   { id: 'kds', label: 'Cantina KDS & Runner', ownerGroup: 'Cantina / Runner', badge: '#17', icon: ChefHat },
   { id: 'admin', label: 'Painel Admin', ownerGroup: 'Gerência', badge: '#18', icon: BarChart3 },
 ];
@@ -110,6 +115,10 @@ export const OpsWorkspace: React.FC<OpsWorkspaceProps> = ({
   onAddSession,
   onToggleSessionStatus,
   onUpdateCanteenStock,
+  operators = STAFF_PROFILES,
+  onAddMovie,
+  onAddCanteenItem,
+  onUpsertOperator,
 }) => {
   const [unlockedRole, setUnlockedRole] = useState<StaffRoleGroup | null>(null);
   const [gateSelectedRole, setGateSelectedRole] = useState<StaffRoleGroup>(
@@ -544,10 +553,14 @@ export const OpsWorkspace: React.FC<OpsWorkspaceProps> = ({
               movies={movies}
               canteenItems={canteenItems}
               orders={orders}
+              operators={operators}
               onUpdateSessionPrice={onUpdateSessionPrice}
               onAddSession={onAddSession}
               onToggleSessionStatus={onToggleSessionStatus}
               onUpdateCanteenStock={onUpdateCanteenStock}
+              onAddMovie={onAddMovie}
+              onAddCanteenItem={onAddCanteenItem}
+              onUpsertOperator={onUpsertOperator}
             />
           )}
         </div>

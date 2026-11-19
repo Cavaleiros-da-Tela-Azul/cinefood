@@ -39,6 +39,27 @@ export interface AuthViewProps {
   savedMovies?: MovieItem[];
   lgpdRequestsCount?: number;
   onLogin: (user: CustomerUser) => void;
+  onAuthenticateCredentials?: (
+    email: string,
+    password: string,
+  ) => { ok: true; user: CustomerUser } | { ok: false; error: string };
+  onRegisterUser?: (
+    user: CustomerUser,
+  ) => { ok: true; user: CustomerUser } | { ok: false; error: string };
+  onUpdateProfile?: (patch: {
+    name: string;
+    email: string;
+    newPassword?: string;
+  }) => { ok: true } | { ok: false; error: string };
+  onRequestPasswordRecovery?: (email: string) => {
+    ok: boolean;
+    token?: string;
+    error?: string;
+  };
+  onConfirmPasswordReset?: (
+    token: string,
+    newPassword: string,
+  ) => { ok: boolean; error?: string };
   onLogout: () => void;
   onBack: () => void;
   onGoToOrders: () => void;
@@ -77,7 +98,7 @@ function LgpdFullNoticeCard({ compact = false }: { compact?: boolean }) {
       <dl className="mt-3 space-y-2 text-[11px] leading-relaxed">
         <div>
           <dt className="inline font-bold text-white">Controlador: </dt>
-          <dd className="inline">CineFood Entretenimento S.A. (CNPJ 00.000.000/0001-00).</dd>
+          <dd className="inline">CineFood Operações Piloto Ltda. (CNPJ 00.000.000/0001-00).</dd>
         </div>
         <div>
           <dt className="inline font-bold text-white">Base Legal Principal: </dt>
@@ -119,6 +140,11 @@ export function AuthView({
   savedMovies = [],
   lgpdRequestsCount = 0,
   onLogin,
+  onAuthenticateCredentials,
+  onRegisterUser,
+  onUpdateProfile,
+  onRequestPasswordRecovery,
+  onConfirmPasswordReset,
   onLogout,
   onBack,
   onGoToOrders,
@@ -128,6 +154,25 @@ export function AuthView({
   onToggleMarketingOptIn,
 }: AuthViewProps) {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const [recoveryOpen, setRecoveryOpen] = useState(false);
+  const [recoveryEmail, setRecoveryEmail] = useState('');
+  const [recoveryTokenIssued, setRecoveryTokenIssued] = useState<string | null>(null);
+  const [recoveryTokenInput, setRecoveryTokenInput] = useState('');
+  const [recoveryNewPass, setRecoveryNewPass] = useState('');
+  const [recoveryFeedback, setRecoveryFeedback] = useState<{
+    kind: 'ok' | 'err';
+    text: string;
+  } | null>(null);
+
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [editProfileName, setEditProfileName] = useState('');
+  const [editProfileEmail, setEditProfileEmail] = useState('');
+  const [editProfilePassword, setEditProfilePassword] = useState('');
+  const [profileFeedback, setProfileFeedback] = useState<{
+    kind: 'ok' | 'err';
+    text: string;
+  } | null>(null);
+
   const [showPassword, setShowPassword] = useState(false);
   const [termsModalOpen, setTermsModalOpen] = useState(false);
   const termsDialogRef = useRef<HTMLDialogElement>(null);
@@ -137,6 +182,7 @@ export function AuthView({
   const [loginPassword, setLoginPassword] = useState('');
   const [loginEmailErr, setLoginEmailErr] = useState(false);
   const [loginPassErr, setLoginPassErr] = useState(false);
+  const [authFormError, setAuthFormError] = useState<string | null>(null);
 
   // Sign-up state
   const [fullName, setFullName] = useState('');
@@ -153,6 +199,14 @@ export function AuthView({
   const [marketingUpdatedAt, setMarketingUpdatedAt] = useState<string | null>(null);
 
   useEffect(() => {
+    if (currentUser) {
+      setEditProfileName(currentUser.name);
+      setEditProfileEmail(currentUser.email);
+      setEditProfilePassword('');
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
     const dialog = termsDialogRef.current;
     if (!dialog) return;
     if (termsModalOpen && !dialog.open) {
@@ -166,12 +220,24 @@ export function AuthView({
 
   const handleSignInSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setAuthFormError(null);
     const form = e.currentTarget;
     if (!form.checkValidity()) {
       const emailEl = form.elements.namedItem('login-email') as HTMLInputElement | null;
       const passEl = form.elements.namedItem('login-password') as HTMLInputElement | null;
       setLoginEmailErr(Boolean(emailEl && !emailEl.validity.valid));
       setLoginPassErr(Boolean(passEl && !passEl.validity.valid));
+      return;
+    }
+
+    if (onAuthenticateCredentials) {
+      const result = onAuthenticateCredentials(loginEmail.trim(), loginPassword);
+      if (!result.ok) {
+        setAuthFormError(result.error);
+        return;
+      }
+      onLogin(result.user);
+      onGoToOrders();
       return;
     }
 
@@ -187,6 +253,7 @@ export function AuthView({
 
   const handleSignUpSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setAuthFormError(null);
     const form = e.currentTarget;
     if (!form.checkValidity() || !lgpdRequired) {
       const nameEl = form.elements.namedItem('full-name') as HTMLInputElement | null;
@@ -199,14 +266,130 @@ export function AuthView({
       return;
     }
 
-    onLogin({
+    const candidateUser: CustomerUser = {
       id: `usr-${Date.now()}`,
       name: fullName.trim(),
-      email: signupEmail.trim(),
+      email: signupEmail.trim().toLowerCase(),
+      password: signupPassword,
       lgpdAcceptedAt: formatNowPtBr(),
       marketingOptIn,
-    });
+    };
+
+    if (onRegisterUser) {
+      const regResult = onRegisterUser(candidateUser);
+      if (!regResult.ok) {
+        setAuthFormError(regResult.error);
+        return;
+      }
+      onLogin(regResult.user);
+      onGoToOrders();
+      return;
+    }
+
+    onLogin(candidateUser);
     onGoToOrders();
+  };
+
+  const handleRequestRecovery = (e: FormEvent) => {
+    e.preventDefault();
+    const cleaned = recoveryEmail.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleaned)) {
+      setRecoveryFeedback({ kind: 'err', text: 'Informe um e-mail válido para recuperação.' });
+      return;
+    }
+    if (onRequestPasswordRecovery) {
+      const res = onRequestPasswordRecovery(cleaned);
+      if (!res.ok) {
+        setRecoveryFeedback({
+          kind: 'err',
+          text: res.error ?? 'Não foi possível emitir token de recuperação.',
+        });
+        return;
+      }
+      setRecoveryTokenIssued(res.token ?? null);
+      setRecoveryTokenInput(res.token ?? '');
+      setRecoveryFeedback({
+        kind: 'ok',
+        text: res.token
+          ? `Token temporário gerado em sandbox: ${res.token}`
+          : 'Se o e-mail estiver cadastrado, um token temporário foi emitido.',
+      });
+      return;
+    }
+    const simToken = `CF-REC-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+    setRecoveryTokenIssued(simToken);
+    setRecoveryTokenInput(simToken);
+    setRecoveryFeedback({ kind: 'ok', text: `Token temporário gerado: ${simToken}` });
+  };
+
+  const handleConfirmRecoveryReset = (e: FormEvent) => {
+    e.preventDefault();
+    if (recoveryNewPass.length < 8) {
+      setRecoveryFeedback({ kind: 'err', text: 'A nova senha deve conter ao menos 8 caracteres.' });
+      return;
+    }
+    if (onConfirmPasswordReset) {
+      const res = onConfirmPasswordReset(recoveryTokenInput.trim(), recoveryNewPass);
+      if (!res.ok) {
+        setRecoveryFeedback({
+          kind: 'err',
+          text: res.error ?? 'Token inválido ou expirado.',
+        });
+        return;
+      }
+    } else if (recoveryTokenInput.trim() !== recoveryTokenIssued) {
+      setRecoveryFeedback({ kind: 'err', text: 'Token de recuperação inválido.' });
+      return;
+    }
+    setRecoveryTokenIssued(null);
+    setRecoveryTokenInput('');
+    setRecoveryNewPass('');
+    setRecoveryOpen(false);
+    setRecoveryFeedback({
+      kind: 'ok',
+      text: 'Senha redefinida com sucesso. Entre com a nova senha.',
+    });
+  };
+
+  const handleProfileSave = (e: FormEvent) => {
+    e.preventDefault();
+    if (!currentUser) return;
+    const trimmedName = editProfileName.trim();
+    const trimmedEmail = editProfileEmail.trim().toLowerCase();
+    if (trimmedName.length < 2) {
+      setProfileFeedback({ kind: 'err', text: 'Informe um nome completo com ao menos 2 caracteres.' });
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setProfileFeedback({ kind: 'err', text: 'Informe um e-mail válido.' });
+      return;
+    }
+    if (editProfilePassword && editProfilePassword.length < 8) {
+      setProfileFeedback({ kind: 'err', text: 'A nova senha deve ter no mínimo 8 caracteres.' });
+      return;
+    }
+
+    if (onUpdateProfile) {
+      const res = onUpdateProfile({
+        name: trimmedName,
+        email: trimmedEmail,
+        ...(editProfilePassword ? { newPassword: editProfilePassword } : {}),
+      });
+      if (!res.ok) {
+        setProfileFeedback({ kind: 'err', text: res.error });
+        return;
+      }
+    } else {
+      onLogin({
+        ...currentUser,
+        name: trimmedName,
+        email: trimmedEmail,
+        ...(editProfilePassword ? { password: editProfilePassword } : {}),
+      });
+    }
+    setEditProfilePassword('');
+    setEditingProfile(false);
+    setProfileFeedback({ kind: 'ok', text: 'Dados do perfil atualizados com sucesso.' });
   };
 
   const handleToggleMarketing = () => {
@@ -281,24 +464,24 @@ export function AuthView({
             className="mt-6 space-y-6"
           >
             {/* Member Identity Hero Banner */}
-            <div className="rounded-3xl border border-white/12 bg-[var(--bg-elevated)]/92 p-6 shadow-2xl backdrop-blur-md sm:p-7">
-              <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/10 pb-6">
-                <div className="flex min-w-0 items-center gap-4">
-                  <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-gradient-to-br from-[var(--brand-red)] to-[#7F070E] font-display text-2xl font-extrabold tracking-wide text-white shadow-lg">
+            <div className="rounded-3xl border border-white/12 bg-[var(--bg-elevated)]/92 p-4 shadow-2xl backdrop-blur-md sm:p-7">
+              <div className="flex flex-wrap items-start justify-between gap-3.5 border-b border-white/10 pb-4 sm:gap-4 sm:pb-6">
+                <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+                  <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-gradient-to-br from-[var(--brand-red)] to-[#7F070E] font-display text-xl font-extrabold tracking-wide text-white shadow-lg sm:h-16 sm:w-16 sm:text-2xl">
                     {getMemberInitials(currentUser.name)}
                     <span
                       title="Sessão autenticada"
-                      className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-[var(--bg-elevated)] bg-[var(--success-emerald)] text-[#0D0E12]"
+                      className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-[var(--bg-elevated)] bg-[var(--success-emerald)] text-[#0D0E12] sm:h-6 sm:w-6"
                     >
-                      <UserCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                      <UserCheck className="h-3 w-3 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
                     </span>
                   </div>
 
                   <div className="min-w-0">
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--success-emerald)]">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--success-emerald)] sm:text-xs">
                       Sessão Autenticada
                     </p>
-                    <h1 className="font-display mt-0.5 truncate text-3xl font-extrabold uppercase text-white sm:text-4xl">
+                    <h1 className="font-display mt-0.5 truncate text-2xl font-extrabold uppercase text-white sm:text-4xl">
                       {currentUser.name}
                     </h1>
                     <p className="break-all text-xs text-[var(--text-secondary)] sm:text-sm">
@@ -307,75 +490,162 @@ export function AuthView({
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2.5">
+                <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:gap-2.5">
                   <button
                     type="button"
                     onClick={() => openOrdersSection('orders')}
-                    className="cine-press inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[var(--brand-red)] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-lg transition hover:bg-[var(--brand-red-hover)]"
+                    className="cine-press inline-flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-full bg-[var(--brand-red)] px-4 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-lg transition hover:bg-[var(--brand-red-hover)] sm:flex-none sm:px-5"
                   >
-                    <Ticket className="h-4 w-4" aria-hidden="true" />
-                    <span>Abrir Meus Ingressos &amp; LGPD</span>
+                    <Ticket className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span className="truncate">Meus Ingressos &amp; LGPD</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingProfile((v) => !v);
+                      setProfileFeedback(null);
+                    }}
+                    className="cine-press inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-white transition-colors hover:border-white/40 hover:bg-white/10 sm:px-4"
+                  >
+                    <span>{editingProfile ? 'Fechar Edição' : 'Editar Perfil'}</span>
                   </button>
                   <button
                     type="button"
                     onClick={onLogout}
-                    className="cine-press inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] transition-colors hover:border-white/40 hover:bg-white/10 hover:text-white"
+                    className="cine-press inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] transition-colors hover:border-white/40 hover:bg-white/10 hover:text-white sm:px-4"
                   >
-                    <LogOut className="h-4 w-4" aria-hidden="true" />
+                    <LogOut className="h-4 w-4 shrink-0" aria-hidden="true" />
                     <span>Encerrar Sessão</span>
                   </button>
                 </div>
               </div>
 
+              {profileFeedback && (
+                <p
+                  role={profileFeedback.kind === 'err' ? 'alert' : 'status'}
+                  className={`mt-4 rounded-xl border px-3.5 py-2.5 text-xs ${
+                    profileFeedback.kind === 'err'
+                      ? 'border-red-400/40 bg-red-500/15 text-red-200'
+                      : 'border-emerald-400/40 bg-emerald-500/15 text-emerald-200'
+                  }`}
+                >
+                  {profileFeedback.text}
+                </p>
+              )}
+
+              {editingProfile && (
+                <form
+                  onSubmit={handleProfileSave}
+                  className="mt-4 grid grid-cols-1 gap-3 rounded-2xl border border-white/12 bg-black/40 p-4 sm:grid-cols-3"
+                >
+                  <div>
+                    <label htmlFor="edit-profile-name" className="block text-xs font-semibold text-white">
+                      Nome completo
+                    </label>
+                    <input
+                      id="edit-profile-name"
+                      type="text"
+                      required
+                      minLength={2}
+                      value={editProfileName}
+                      onChange={(e) => setEditProfileName(e.target.value)}
+                      className="cine-input mt-1 min-h-[44px] w-full rounded-xl border border-white/15 bg-black/50 px-3 py-2 text-sm text-white"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="edit-profile-email" className="block text-xs font-semibold text-white">
+                      E-mail
+                    </label>
+                    <input
+                      id="edit-profile-email"
+                      type="email"
+                      required
+                      value={editProfileEmail}
+                      onChange={(e) => setEditProfileEmail(e.target.value)}
+                      className="cine-input mt-1 min-h-[44px] w-full rounded-xl border border-white/15 bg-black/50 px-3 py-2 text-sm text-white"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="edit-profile-password" className="block text-xs font-semibold text-white">
+                      Nova senha (opcional)
+                    </label>
+                    <input
+                      id="edit-profile-password"
+                      type="password"
+                      minLength={8}
+                      placeholder="Manter atual"
+                      value={editProfilePassword}
+                      onChange={(e) => setEditProfilePassword(e.target.value)}
+                      className="cine-input mt-1 min-h-[44px] w-full rounded-xl border border-white/15 bg-black/50 px-3 py-2 text-sm text-white"
+                    />
+                  </div>
+                  <div className="flex flex-wrap justify-end gap-2 sm:col-span-3">
+                    <button
+                      type="button"
+                      onClick={() => setEditingProfile(false)}
+                      className="cine-press min-h-[44px] rounded-xl border border-white/20 px-4 py-2 text-xs font-semibold text-[var(--text-secondary)] hover:text-white"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="cine-press min-h-[44px] rounded-xl bg-[var(--brand-red)] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white hover:bg-[var(--brand-red-hover)]"
+                    >
+                      Salvar Perfil
+                    </button>
+                  </div>
+                </form>
+              )}
+
               {/* Member Quick Telemetry Strip */}
-              <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="mt-3.5 grid grid-cols-2 gap-2 sm:mt-5 sm:grid-cols-4 sm:gap-3">
                 <button
                   type="button"
                   onClick={() => openOrdersSection('orders')}
-                  className="cine-press flex min-h-[58px] items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-left transition-colors hover:border-white/25"
+                  className="cine-press flex min-h-[52px] items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/35 px-3 py-2.5 text-left transition-colors hover:border-white/25 sm:min-h-[58px] sm:px-4 sm:py-3"
                 >
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                  <div className="min-w-0">
+                    <p className="truncate text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)] sm:text-[11px]">
                       Ingressos Ativos
                     </p>
-                    <p className="font-mono-tabular mt-0.5 text-xl font-bold text-white">
+                    <p className="font-mono-tabular mt-0.5 text-lg font-bold text-white sm:text-xl">
                       {activeOrders.length}
                     </p>
                   </div>
-                  <Ticket className="h-5 w-5 text-[var(--brand-red)]" aria-hidden="true" />
+                  <Ticket className="h-4 w-4 shrink-0 text-[var(--brand-red)] sm:h-5 sm:w-5" aria-hidden="true" />
                 </button>
 
                 <button
                   type="button"
                   onClick={() => openOrdersSection('reviews')}
-                  className="cine-press flex min-h-[58px] items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-left transition-colors hover:border-white/25"
+                  className="cine-press flex min-h-[52px] items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/35 px-3 py-2.5 text-left transition-colors hover:border-white/25 sm:min-h-[58px] sm:px-4 sm:py-3"
                 >
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                  <div className="min-w-0">
+                    <p className="truncate text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)] sm:text-[11px]">
                       Avaliações Feitas
                     </p>
-                    <p className="font-mono-tabular mt-0.5 text-xl font-bold text-white">
+                    <p className="font-mono-tabular mt-0.5 text-lg font-bold text-white sm:text-xl">
                       {reviewedOrders.length}
                     </p>
                   </div>
-                  <Star className="h-5 w-5 text-[var(--amber-progress)]" aria-hidden="true" />
+                  <Star className="h-4 w-4 shrink-0 text-[var(--amber-progress)] sm:h-5 sm:w-5" aria-hidden="true" />
                 </button>
 
                 <button
                   type="button"
                   onClick={() => openOrdersSection('orders')}
-                  className="cine-press flex min-h-[58px] items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-left transition-colors hover:border-white/25"
+                  className="cine-press flex min-h-[52px] items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/35 px-3 py-2.5 text-left transition-colors hover:border-white/25 sm:min-h-[58px] sm:px-4 sm:py-3"
                 >
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                  <div className="min-w-0">
+                    <p className="truncate text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)] sm:text-[11px]">
                       Avisos Não Lidos
                     </p>
-                    <p className="font-mono-tabular mt-0.5 text-xl font-bold text-white">
+                    <p className="font-mono-tabular mt-0.5 text-lg font-bold text-white sm:text-xl">
                       {unreadNoticesCount}
                     </p>
                   </div>
                   <Bell
-                    className={`h-5 w-5 ${
+                    className={`h-4 w-4 shrink-0 sm:h-5 sm:w-5 ${
                       unreadNoticesCount > 0
                         ? 'text-[var(--amber-progress)]'
                         : 'text-[var(--text-muted)]'
@@ -973,6 +1243,39 @@ export function AuthView({
                     </p>
                   </div>
 
+                  {authFormError && (
+                    <p
+                      role="alert"
+                      className="flex items-center gap-2 rounded-xl border border-red-400/45 bg-red-500/15 px-3.5 py-2.5 text-xs text-red-200"
+                    >
+                      <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
+                      <span>{authFormError}</span>
+                    </p>
+                  )}
+
+                  {recoveryFeedback && !recoveryOpen && (
+                    <p
+                      role="status"
+                      className="flex items-center gap-2 rounded-xl border border-emerald-400/45 bg-emerald-500/15 px-3.5 py-2.5 text-xs text-emerald-200"
+                    >
+                      <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden="true" />
+                      <span>{recoveryFeedback.text}</span>
+                    </p>
+                  )}
+
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRecoveryOpen((v) => !v);
+                        setRecoveryFeedback(null);
+                      }}
+                      className="inline-flex min-h-[44px] items-center text-xs font-semibold text-[var(--amber-progress)] hover:underline"
+                    >
+                      {recoveryOpen ? 'Voltar ao login' : 'Esqueci minha senha'}
+                    </button>
+                  </div>
+
                   <div className="flex flex-col gap-3 pt-1 sm:flex-row">
                     <button
                       type="submit"
@@ -1187,6 +1490,89 @@ export function AuthView({
                     <span>Criar Conta &amp; Registrar Ciência LGPD</span>
                   </button>
                 </form>
+              )}
+
+              {mode === 'signin' && recoveryOpen && (
+                <div className="mt-5 space-y-4 rounded-2xl border border-[var(--amber-progress)]/35 bg-black/45 p-4">
+                  <div>
+                    <h2 className="font-display text-xl font-bold uppercase text-white">
+                      Recuperação de Senha (RF-01)
+                    </h2>
+                    <p className="mt-1 text-xs text-[var(--text-secondary)]">
+                      Gere um token temporário de uso único para redefinir sua senha em ambiente sandbox.
+                    </p>
+                  </div>
+
+                  {recoveryFeedback && (
+                    <p
+                      role={recoveryFeedback.kind === 'err' ? 'alert' : 'status'}
+                      className={`rounded-xl border px-3 py-2 text-xs ${
+                        recoveryFeedback.kind === 'err'
+                          ? 'border-red-400/40 bg-red-500/15 text-red-200'
+                          : 'border-emerald-400/40 bg-emerald-500/15 text-emerald-200'
+                      }`}
+                    >
+                      {recoveryFeedback.text}
+                    </p>
+                  )}
+
+                  <form onSubmit={handleRequestRecovery} className="flex flex-col gap-2 sm:flex-row">
+                    <label htmlFor="recovery-email" className="sr-only">
+                      E-mail para recuperação
+                    </label>
+                    <input
+                      id="recovery-email"
+                      type="email"
+                      required
+                      placeholder="E-mail da conta cadastrada"
+                      value={recoveryEmail}
+                      onChange={(e) => setRecoveryEmail(e.target.value)}
+                      className="cine-input min-h-[44px] flex-1 rounded-xl border border-white/15 bg-black/50 px-3 py-2 text-sm text-white"
+                    />
+                    <button
+                      type="submit"
+                      className="cine-press min-h-[44px] rounded-xl border border-[var(--amber-progress)]/45 bg-[var(--amber-progress)]/20 px-4 py-2 text-xs font-bold uppercase tracking-wider text-[#FDE68A]"
+                    >
+                      Emitir Token
+                    </button>
+                  </form>
+
+                  <form onSubmit={handleConfirmRecoveryReset} className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    <div>
+                      <label htmlFor="recovery-token" className="block text-[11px] font-semibold text-white">
+                        Token de recuperação
+                      </label>
+                      <input
+                        id="recovery-token"
+                        type="text"
+                        required
+                        value={recoveryTokenInput}
+                        onChange={(e) => setRecoveryTokenInput(e.target.value)}
+                        className="cine-input mt-1 min-h-[44px] w-full rounded-xl border border-white/15 bg-black/50 px-3 py-2 font-mono text-xs text-white"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="recovery-new-pass" className="block text-[11px] font-semibold text-white">
+                        Nova senha (mín. 8 caracteres)
+                      </label>
+                      <input
+                        id="recovery-new-pass"
+                        type="password"
+                        required
+                        minLength={8}
+                        value={recoveryNewPass}
+                        onChange={(e) => setRecoveryNewPass(e.target.value)}
+                        className="cine-input mt-1 min-h-[44px] w-full rounded-xl border border-white/15 bg-black/50 px-3 py-2 text-sm text-white"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      className="cine-press min-h-[44px] rounded-xl bg-[var(--brand-red)] px-4 py-2 text-xs font-bold uppercase tracking-wider text-white sm:col-span-2"
+                    >
+                      Redefinir Senha
+                    </button>
+                  </form>
+                </div>
               )}
             </motion.div>
 

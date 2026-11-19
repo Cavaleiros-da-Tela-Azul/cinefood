@@ -504,12 +504,10 @@ const GENERATED_DATES = [
 ] as const;
 
 const GENERATED_VENUES = [
-  { complex: 'CineFood Paulista IMAX', room: 'Sala 01 · IMAX', format: 'IMAX 3D' as const, basePrice: 42 },
-  { complex: 'CineFood Jardins Atmos', room: 'Sala 02 · Atmos', format: 'Dolby Atmos' as const, basePrice: 40 },
-  { complex: 'CineFood Paulista IMAX', room: 'Sala 03 · Atmos', format: 'Dolby Atmos' as const, basePrice: 40 },
-  { complex: 'CineFood Jardins Atmos', room: 'Sala 04', format: '2D' as const, basePrice: 36 },
-  { complex: 'CineFood Paulista IMAX', room: 'Sala 05 · VIP', format: 'IMAX 3D' as const, basePrice: 44 },
-  { complex: 'CineFood Jardins Atmos', room: 'Sala 06', format: '2D' as const, basePrice: 36 },
+  { complex: 'CineFood Operações Piloto Ltda.', room: 'Sala 01 · IMAX', format: 'IMAX 3D' as const, basePrice: 42 },
+  { complex: 'CineFood Operações Piloto Ltda.', room: 'Sala 02 · Atmos', format: 'Dolby Atmos' as const, basePrice: 40 },
+  { complex: 'CineFood Operações Piloto Ltda.', room: 'Sala 03 · Atmos', format: 'Dolby Atmos' as const, basePrice: 40 },
+  { complex: 'CineFood Operações Piloto Ltda.', room: 'Sala 04 · 2D', format: '2D' as const, basePrice: 36 },
 ] as const;
 
 const GENERATED_SHOWTIMES = [

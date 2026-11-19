@@ -24,6 +24,7 @@ export interface CheckoutViewProps {
   selectedSeats: SelectedSeat[];
   cart: CartComboLine[];
   deliveryMode: DeliveryMode;
+  linkedTicketLabel?: string;
   defaultBuyer: { name: string; email: string };
   secondsLeft?: number;
   isCanteenOnly?: boolean;
@@ -51,6 +52,7 @@ export function CheckoutView({
   selectedSeats,
   cart,
   deliveryMode,
+  linkedTicketLabel,
   defaultBuyer,
   secondsLeft = 600,
   isCanteenOnly = false,
@@ -123,7 +125,7 @@ export function CheckoutView({
     return acc + (line.item.price + addonsSum) * line.quantity;
   }, 0);
 
-  const grandTotal = ticketsTotal + canteenTotal;
+  const grandTotal = isCanteenOnly ? canteenTotal : ticketsTotal;
   const pixCode = `00020126580014BR.GOV.BCB.PIX0136cinefood-sandbox-${grandTotal}005204000053039865802BR`;
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -174,7 +176,7 @@ export function CheckoutView({
         <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-base)] via-transparent to-[var(--bg-base)]/70" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-[1240px] px-4 py-8 sm:px-8 sm:py-10">
+      <div className="relative z-10 mx-auto max-w-[1240px] px-4 py-5 pb-12 sm:px-8 sm:py-10">
         <button
           type="button"
           onClick={onBackToSeats}
@@ -184,14 +186,14 @@ export function CheckoutView({
           <span>{isCanteenOnly ? 'Voltar à Cantina' : 'Voltar aos Assentos'}</span>
         </button>
 
-        <div className="mt-5">
-          <StepperBar current={3} />
+        <div className="mt-3.5 sm:mt-5">
+          <StepperBar current={2} mode={isCanteenOnly ? 'canteen' : 'ticket'} />
         </div>
 
         {/* Live 10-Min Hold Countdown (06_ref5) */}
         {hasHoldTimer && (
           <div
-            className={`mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4 text-xs backdrop-blur-md ${
+            className={`mt-3.5 flex flex-wrap items-center justify-between gap-2.5 rounded-2xl border p-3 text-xs backdrop-blur-md sm:mt-5 sm:gap-3 sm:p-4 ${
               isHoldExpired
                 ? 'border-rose-400/60 bg-rose-500/15 text-rose-100'
                 : isCriticalTime
@@ -199,8 +201,8 @@ export function CheckoutView({
                   : 'border-white/15 bg-[var(--bg-elevated)]/80 text-[var(--text-secondary)]'
             }`}
           >
-            <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-black/35">
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-black/35 sm:h-9 sm:w-9">
                 <Timer
                   className={`h-4 w-4 ${
                     isHoldExpired || isCriticalTime ? 'text-[#FCA5A5]' : 'text-[var(--amber-progress)]'
@@ -214,7 +216,7 @@ export function CheckoutView({
                     ? 'Trava de Reserva Expirada (00:00)'
                     : 'Trava Temporária de Assentos (10 min)'}
                 </p>
-                <p className="mt-0.5 text-[var(--text-secondary)]">
+                <p className="mt-0.5 hidden text-[var(--text-secondary)] sm:block">
                   {isHoldExpired
                     ? 'Os assentos travados foram liberados. Escolha novos assentos para continuar.'
                     : 'Conclua o pagamento simulado antes do término da reserva.'}
@@ -274,18 +276,18 @@ export function CheckoutView({
         )}
 
         {/* Sandbox Mode Banner + Gateway Exception Simulator */}
-        <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-[var(--amber-progress)]/35 bg-[var(--amber-progress)]/10 p-4 text-xs text-[#FDE68A] backdrop-blur-md sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-3">
+        <div className="mt-3.5 flex flex-col gap-2.5 rounded-2xl border border-[var(--amber-progress)]/35 bg-[var(--amber-progress)]/10 p-3 text-xs text-[#FDE68A] backdrop-blur-md sm:mt-5 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:p-4">
+          <div className="flex items-start gap-2.5 sm:gap-3">
             <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-[var(--amber-progress)]" aria-hidden="true" />
             <div>
               <p className="font-bold uppercase tracking-wider">Ambiente de Homologação / Sandbox</p>
-              <p className="mt-0.5 text-[var(--text-secondary)]">
+              <p className="mt-0.5 hidden text-[var(--text-secondary)] sm:block">
                 Nenhuma cobrança real será efetuada. Você pode testar comportamentos de exceção antes de emitir o ingresso.
               </p>
             </div>
           </div>
 
-          <div className="flex shrink-0 flex-wrap items-center gap-1.5" role="group" aria-label="Simular cenário do gateway">
+          <div className="flex flex-nowrap items-center gap-1.5 overflow-x-auto pb-0.5 sm:shrink-0 sm:flex-wrap sm:overflow-visible sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Simular cenário do gateway">
             <button
               type="button"
               disabled={isHoldExpired || paymentPhase === 'pending'}
@@ -693,9 +695,13 @@ export function CheckoutView({
                       Bomboniere Expressa
                     </h2>
                     <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
-                      Pedido avulso de cantina
+                      {deliveryMode === 'seat' && linkedTicketLabel
+                        ? `Pedido avulso de cantina · ${linkedTicketLabel}`
+                        : 'Pedido avulso de cantina (ADR 005)'}
                     </p>
-                    <p className="text-xs text-[var(--text-muted)]">Retirada no balcão</p>
+                    <p className="text-xs text-[var(--text-muted)]">
+                      {deliveryMode === 'seat' ? 'Entrega no assento (RST-04)' : 'Retirada no balcão'}
+                    </p>
                   </div>
                 </div>
               ) : (
@@ -759,46 +765,57 @@ export function CheckoutView({
                 </div>
               )}
 
-              <div className="border-t border-white/10 pt-4">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                    Cantina ({isCanteenOnly || deliveryMode === 'counter' ? 'Retirada no balcão' : 'Entrega no assento'})
-                  </p>
-                  <button
-                    type="button"
-                    onClick={onOpenCanteen}
-                    className={`inline-flex min-h-[44px] shrink-0 items-center text-xs font-semibold text-[var(--amber-progress)] hover:underline ${FOCUS_RING_CLASS}`}
-                  >
-                    Editar combos
-                  </button>
-                </div>
+              {isCanteenOnly ? (
+                <div className="border-t border-white/10 pt-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                      Cantina ({deliveryMode === 'counter' ? 'Retirada no balcão' : 'Entrega no assento'})
+                    </p>
+                    <button
+                      type="button"
+                      onClick={onOpenCanteen}
+                      className={`inline-flex min-h-[44px] shrink-0 items-center text-xs font-semibold text-[var(--amber-progress)] hover:underline ${FOCUS_RING_CLASS}`}
+                    >
+                      Editar combos
+                    </button>
+                  </div>
 
-                {cart.length === 0 ? (
-                  <p className="mt-2 text-xs text-[var(--text-secondary)]">
-                    Nenhum item de bomboniere adicionado.
+                  {cart.length === 0 ? (
+                    <p className="mt-2 text-xs text-[var(--text-secondary)]">
+                      Nenhum item de bomboniere adicionado.
+                    </p>
+                  ) : (
+                    <ul className="mt-2 space-y-2 text-sm">
+                      {cart.map((line) => {
+                        const addonsSum = line.item.addons
+                          .filter((a) => line.selectedAddonIds.includes(a.id))
+                          .reduce((s, a) => s + a.price, 0);
+                        const total = (line.item.price + addonsSum) * line.quantity;
+                        return (
+                          <li
+                            key={line.item.id}
+                            className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-black/25 px-3 py-2 text-xs text-[var(--text-secondary)]"
+                          >
+                            <span className="min-w-0 break-words">
+                              {line.quantity}× {line.item.name}
+                            </span>
+                            <span className="font-mono-tabular shrink-0 font-bold text-white">R$ {total}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-white/10 bg-black/25 p-3.5 text-xs text-[var(--text-secondary)]">
+                  <p className="font-bold uppercase tracking-wider text-[var(--amber-progress)]">
+                    Checkout Independente (ADR 005)
                   </p>
-                ) : (
-                  <ul className="mt-2 space-y-2 text-sm">
-                    {cart.map((line) => {
-                      const addonsSum = line.item.addons
-                        .filter((a) => line.selectedAddonIds.includes(a.id))
-                        .reduce((s, a) => s + a.price, 0);
-                      const total = (line.item.price + addonsSum) * line.quantity;
-                      return (
-                        <li
-                          key={line.item.id}
-                          className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-black/25 px-3 py-2 text-xs text-[var(--text-secondary)]"
-                        >
-                          <span className="min-w-0 break-words">
-                            {line.quantity}× {line.item.name}
-                          </span>
-                          <span className="font-mono-tabular shrink-0 font-bold text-white">R$ {total}</span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </div>
+                  <p className="mt-1 leading-relaxed">
+                    Ingressos e pedidos da cantina são pagos separadamente. Após emitir o bilhete, você poderá antecipar sua bomboniere com pré-vínculo ao assento.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="mt-6 space-y-2 border-t border-white/15 pt-4">
@@ -807,7 +824,9 @@ export function CheckoutView({
                 <span className="font-mono-tabular text-[var(--success-emerald)]">Isenta no MVP</span>
               </div>
               <div className="flex items-baseline justify-between">
-                <span className="text-sm font-medium text-[var(--text-secondary)]">Total consolidado</span>
+                <span className="text-sm font-medium text-[var(--text-secondary)]">
+                  {isCanteenOnly ? 'Total da cantina' : 'Total dos ingressos'}
+                </span>
                 <span className="font-mono-tabular text-3xl font-extrabold text-white">R$ {grandTotal}</span>
               </div>
             </div>

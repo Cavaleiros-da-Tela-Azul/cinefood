@@ -134,39 +134,39 @@ export function SeatSelectionView({
         <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-base)] via-transparent to-[var(--bg-base)]/75" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-[1440px] px-4 pt-6 sm:px-8 sm:pt-8">
+      <div className="relative z-10 mx-auto max-w-[1440px] px-4 pt-4 sm:px-8 sm:pt-8">
         {/* Top Navigation + Stepper Rail */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3">
           <button
             type="button"
             onClick={onBack}
-            className={`cine-press inline-flex min-h-[44px] items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/65 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)] backdrop-blur-md hover:border-[var(--border-strong)] hover:text-white ${FOCUS_RING_CLASS}`}
+            className={`cine-press inline-flex min-h-[44px] items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/65 px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--text-secondary)] backdrop-blur-md hover:border-[var(--border-strong)] hover:text-white sm:px-4 ${FOCUS_RING_CLASS}`}
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             <span>Voltar às Sessões</span>
           </button>
 
-          <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--text-secondary)]">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[var(--bg-elevated)]/65 px-3 py-1.5 backdrop-blur-md">
-              <MapPin className="h-3.5 w-3.5 text-[var(--brand-red)]" aria-hidden="true" />
-              <span className="truncate font-medium text-white">{session.complex}</span>
+          <div className="flex flex-wrap items-center gap-1.5 text-xs text-[var(--text-secondary)] sm:gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[var(--bg-elevated)]/65 px-2.5 py-1.5 backdrop-blur-md sm:px-3">
+              <MapPin className="h-3.5 w-3.5 shrink-0 text-[var(--brand-red)]" aria-hidden="true" />
+              <span className="max-w-[130px] truncate font-medium text-white sm:max-w-none">{session.complex}</span>
             </span>
-            <span className="font-mono-tabular inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[var(--bg-elevated)]/65 px-3 py-1.5 backdrop-blur-md">
-              <Users className="h-3.5 w-3.5 text-[var(--amber-progress)]" aria-hidden="true" />
+            <span className="font-mono-tabular inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[var(--bg-elevated)]/65 px-2.5 py-1.5 backdrop-blur-md sm:px-3">
+              <Users className="h-3.5 w-3.5 shrink-0 text-[var(--amber-progress)]" aria-hidden="true" />
               <span>{availableCount} livres</span>
             </span>
           </div>
         </div>
 
-        <div className="mt-5">
+        <div className="mt-3 sm:mt-5">
           <StepperBar current={1} />
         </div>
 
         {/* 3-Column CineHub Desktop Architecture (02_ref1 + 02_ref2 + 02_ref3) */}
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[260px_minmax(0,1fr)_340px] xl:grid-cols-[280px_minmax(0,1fr)_360px]">
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:mt-6 sm:gap-6 lg:grid-cols-[260px_minmax(0,1fr)_340px] xl:grid-cols-[280px_minmax(0,1fr)_360px]">
           {/* LEFT RAIL: Poster + Session Facts + 10-Min Lock Timer */}
-          <aside className="order-2 flex flex-col gap-4 lg:order-1">
-            <div className="overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/75 p-4 backdrop-blur-md shadow-2xl">
+          <aside className="order-3 flex flex-col gap-4 lg:order-1">
+            <div className="hidden overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/75 p-4 backdrop-blur-md shadow-2xl lg:block">
               <div className="flex gap-4 lg:flex-col">
                 <div className="w-24 shrink-0 overflow-hidden rounded-xl border border-white/15 bg-black/40 lg:w-full">
                   <img
@@ -271,16 +271,16 @@ export function SeatSelectionView({
           </aside>
 
           {/* CENTER STAGE: Hero Banner Strip + Screen Arc + 96-Seat Matrix + Legend */}
-          <div className="order-1 min-w-0 space-y-5 lg:order-2">
+          <div className="order-1 min-w-0 space-y-4 sm:space-y-5 lg:order-2">
             {/* Ambient Movie Banner Strip (02_ref1) */}
             <div className="relative overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] shadow-xl">
               <img
                 src={movie.backdropSrc}
                 alt=""
-                className="h-32 w-full object-cover object-center opacity-55 sm:h-40"
+                className="h-24 w-full object-cover object-center opacity-55 sm:h-40"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-[#0D0E12]/95 via-[#0D0E12]/70 to-transparent" />
-              <div className="absolute inset-0 flex flex-col justify-between p-4 sm:p-6">
+              <div className="absolute inset-0 flex flex-col justify-between p-3.5 sm:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/55 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--amber-progress)] backdrop-blur-md">
                     {session.complex}
@@ -332,20 +332,20 @@ export function SeatSelectionView({
             </div>
 
             {/* Seat Map Card */}
-            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/75 p-4 backdrop-blur-md shadow-2xl sm:p-6">
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/75 p-3 backdrop-blur-md shadow-2xl sm:p-6">
               {/* Angled Cinema Screen with Glow */}
-              <div className="mx-auto w-full max-w-[460px] px-4">
-                <div className="cinema-screen-arc h-9 w-full rounded-sm" />
-                <p className="mt-3 text-center text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)]">
+              <div className="mx-auto w-full max-w-[460px] px-2 sm:px-4">
+                <div className="cinema-screen-arc h-7 w-full rounded-sm sm:h-9" />
+                <p className="mt-2.5 text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)] sm:mt-3 sm:tracking-[0.24em]">
                   Tela da Sala · {session.format} · {seats.length} Poltronas (A–H)
                 </p>
               </div>
 
               {/* Seat Matrix */}
-              <div className="mt-7 overflow-x-auto pb-2">
+              <div className="mt-5 overflow-x-auto pb-2 sm:mt-7">
                 <div
-                  className={`mx-auto flex w-fit flex-col px-1 sm:px-2 ${
-                    seatViewMode === 'spacious' ? 'gap-2 sm:gap-2.5' : 'gap-1.5 sm:gap-1.5'
+                  className={`mx-auto flex w-fit flex-col px-0.5 sm:px-2 ${
+                    seatViewMode === 'spacious' ? 'gap-1.5 sm:gap-2.5' : 'gap-1.5 sm:gap-1.5'
                   }`}
                 >
                   {rows.map((row) => {
@@ -356,15 +356,15 @@ export function SeatSelectionView({
                       <div
                         key={row}
                         className={`flex items-center ${
-                          seatViewMode === 'spacious' ? 'gap-[3px] sm:gap-2' : 'gap-[3px] sm:gap-1.5'
+                          seatViewMode === 'spacious' ? 'gap-[2px] sm:gap-2' : 'gap-[2px] sm:gap-1.5'
                         }`}
                       >
-                        <span className="font-mono-tabular w-4 text-right text-[11px] font-semibold text-[var(--text-muted)] sm:w-5 sm:text-xs">
+                        <span className="font-mono-tabular w-3.5 text-right text-[10px] font-semibold text-[var(--text-muted)] sm:w-5 sm:text-xs">
                           {row}
                         </span>
                         <div
                           className={`flex items-center ${
-                            seatViewMode === 'spacious' ? 'gap-[3px] sm:gap-2' : 'gap-[3px] sm:gap-1.5'
+                            seatViewMode === 'spacious' ? 'gap-[2px] sm:gap-2' : 'gap-[2px] sm:gap-1.5'
                           }`}
                         >
                           {rowSeats.map((seat) => {
@@ -398,11 +398,11 @@ export function SeatSelectionView({
                             const sizeClass =
                               seatViewMode === 'spacious'
                                 ? isPcdPlus
-                                  ? 'h-[26px] w-[38px] sm:h-9 sm:w-12'
-                                  : 'h-[26px] w-[23px] sm:h-9 sm:w-9'
+                                  ? 'h-[26px] w-[32px] sm:h-9 sm:w-12'
+                                  : 'h-[26px] w-[21px] sm:h-9 sm:w-9'
                                 : isPcdPlus
-                                  ? 'h-[24px] w-[36px] sm:h-7 sm:w-10'
-                                  : 'h-[24px] w-[22px] sm:h-7 sm:w-7';
+                                  ? 'h-[24px] w-[30px] sm:h-7 sm:w-10'
+                                  : 'h-[24px] w-[20px] sm:h-7 sm:w-7';
 
                             return (
                               <button
@@ -512,7 +512,7 @@ export function SeatSelectionView({
           </div>
 
           {/* RIGHT LEDGER: "Sua Seleção" + Meia-Entrada + Totals + Cantina Teaser (02_ref1) */}
-          <aside className="order-3 flex min-w-0 flex-col gap-4">
+          <aside className="order-2 flex min-w-0 flex-col gap-4 lg:order-3">
             <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/80 p-5 backdrop-blur-md shadow-2xl">
               <div className="flex items-center justify-between border-b border-white/10 pb-3">
                 <h2 className="font-display text-2xl font-extrabold uppercase tracking-wide text-white">
@@ -730,7 +730,7 @@ export function SeatSelectionView({
             </div>
 
             {/* CineHub-style Cantina Dine-In Preview Card (02_ref1) */}
-            <div className="rounded-2xl border border-[var(--amber-progress)]/30 bg-gradient-to-br from-[var(--amber-progress)]/12 via-[var(--bg-elevated)]/85 to-[var(--bg-surface)]/85 p-4 backdrop-blur-md">
+            <div className="hidden rounded-2xl border border-[var(--amber-progress)]/30 bg-gradient-to-br from-[var(--amber-progress)]/12 via-[var(--bg-elevated)]/85 to-[var(--bg-surface)]/85 p-4 backdrop-blur-md lg:block">
               <div className="flex items-start gap-3">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[var(--amber-progress)]/40 bg-[var(--amber-progress)]/15 text-[var(--amber-progress)]">
                   <Popcorn className="h-5 w-5" aria-hidden="true" />
