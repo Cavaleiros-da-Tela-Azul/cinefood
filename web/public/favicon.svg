@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="cf-red" x1="6" y1="4" x2="58" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#E50914" />
+      <stop offset="100%" stop-color="#9A060E" />
+    </linearGradient>
+    <linearGradient id="cf-gold" x1="32" y1="12" x2="32" y2="33" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FEF08A" />
+      <stop offset="55%" stop-color="#FBBF24" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+  </defs>
+
+  <!-- Cinema Red squircle outer badge -->
+  <rect x="2" y="2" width="60" height="60" rx="15" fill="url(#cf-red)" />
+  <rect x="2.75" y="2.75" width="58.5" height="58.5" rx="14.25" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" />
+
+  <!-- Obsidian cinema screen frame -->
+  <rect x="11" y="9" width="42" height="46" rx="8" fill="#0D0E12" />
+
+  <!-- Filmstrip sprockets (left & right) -->
+  <rect x="4.75" y="14" width="4" height="6" rx="1.4" fill="#F5F6FA" opacity="0.92" />
+  <rect x="4.75" y="29" width="4" height="6" rx="1.4" fill="#F5F6FA" opacity="0.92" />
+  <rect x="4.75" y="44" width="4" height="6" rx="1.4" fill="#F5F6FA" opacity="0.92" />
+
+  <rect x="55.25" y="14" width="4" height="6" rx="1.4" fill="#F5F6FA" opacity="0.92" />
+  <rect x="55.25" y="29" width="4" height="6" rx="1.4" fill="#F5F6FA" opacity="0.92" />
+  <rect x="55.25" y="44" width="4" height="6" rx="1.4" fill="#F5F6FA" opacity="0.92" />
+
+  <!-- Golden popcorn crown -->
+  <circle cx="24" cy="24.5" r="5.8" fill="url(#cf-gold)" />
+  <circle cx="40" cy="24.5" r="5.8" fill="url(#cf-gold)" />
+  <circle cx="32" cy="25.2" r="5.6" fill="#F59E0B" />
+  <circle cx="32" cy="19" r="6.8" fill="url(#cf-gold)" />
+  <circle cx="27" cy="21" r="4.8" fill="url(#cf-gold)" />
+  <circle cx="37" cy="21" r="4.8" fill="url(#cf-gold)" />
+
+  <!-- Popcorn cinema bucket -->
+  <path d="M20 29H44L41.2 49.5C40.95 51.2 39.5 52.5 37.8 52.5H26.2C24.5 52.5 23.05 51.2 22.8 49.5L20 29Z" fill="#F5F6FA" />
+  <path d="M25.5 29H29.5L30.2 52.5H27L25.5 29Z" fill="#E50914" />
+  <path d="M34.5 29H38.5L37 52.5H33.8L34.5 29Z" fill="#E50914" />
+  <rect x="19" y="27.5" width="26" height="3.2" rx="1.6" fill="#FFFFFF" />
+</svg>
